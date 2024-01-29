@@ -1,0 +1,103 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar {
+  padding: 2px;
+  margin: 2px;
+  grid-column-start: 1;
+  grid-column-end: 2;
+  grid-row-start: 1;
+  grid-row-end: 5;
+}
+
+.user-info {
+  display: flex;
+  height: 15vh;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-picture {
+  border-radius: 50%;
+  width: auto;
+  height: 100%;
+}
+
+#user-picture {
+  border-color: white;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-size: 100%;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 10%;
+  border-style: solid;
+  border-color: gray;
+}
+
+.chats-list {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.chat {
+  display: flex;
+  border-radius: 10%;
+  border-style: solid;
+  border-color: blue;
+  height: 10vh;
+}
+
+.chat-name {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.last-message {
+  font-size: small;
+  color: gray;
+}
+
+.last-message-time {
+  font-size: small;
+  color: gray;
+}
+
+#chat-picture {
+  border-radius: 50%;
+  width: auto;
+  height: 100%;
+}
+
+.single_user {
+  align-items: center;
+  height: 10vh;
+  width: auto;
+  border-radius: 10%;
+  border-style: solid;
+  border-color: grey;
+  margin: 2px;
+}
+
+.user_name {
+  font-size: 20px;
+  font-weight: bold;
+}
+.user_status {
+  font-size: small;
+  color: gray;
+}
+.profile-picture-user {
+  border-radius: 50%;
+  width: auto;
+  height: 5vh;
+}
