@@ -1,13 +1,5 @@
 class Msg {
-  constructor() {
-    this.id = null;
-    this.author = null;
-    this.content = null;
-    this.type = null;
-    this.time = null;
-  }
-
-  create(id, author, content, type, time) {
+  constructor(id, author, content, type, time) {
     this.id = id;
     this.author = author;
     this.content = content;
@@ -17,14 +9,7 @@ class Msg {
 }
 
 class User {
-  constructor() {
-    this.id = null;
-    this.username = null;
-    this.status = null;
-    this.time = null;
-  }
-
-  create(id, username, status, time) {
+  constructor(id, username, status, time) {
     this.id = id;
     this.username = username;
     this.status = status;
@@ -85,8 +70,7 @@ class MyChat {
         console.log("JSON string received");
         console.log(msg);
         var msg = JSON.parse(msg);
-        var new_message = new Msg();
-        new_message.create(msg.id, msg.author, msg.content, msg.type, msg.time);
+        var new_message = new Msg(msg.id, msg.author, msg.content, msg.type, msg.time);
         switch (msg.type) {
           case "text":
             this.showMessage(new_message);
@@ -102,8 +86,7 @@ class MyChat {
                 }
               }
               if (!user_exists) {
-                var new_user = new User();
-                new_user.create(msg.id, msg.author, "online", msg.time);
+                var new_user = new User(msg.id, msg.author, "online", msg.time);
                 this.activeUsers.push(new_user);
               }
 
@@ -126,8 +109,7 @@ class MyChat {
       } else {
         console.log("Text message received");
         console.log(msg);
-        var new_message = new Msg();
-        new_message.create(
+        var new_message = new Msg(
           id,
           "unknown",
           msg,
@@ -155,8 +137,12 @@ class MyChat {
 
     this.server.on_user_connected = (id) => {
       console.log("A new User connected");
-      // Send the new user the history of the chat
-      this.sendHistory(id);
+
+      //choose the user who will send the historic of the chat
+      let mailcarrier = Object.keys(this.server.clients)[0];
+      if(this.device.id == mailcarrier){
+        this.sendHistory(id);
+      }
       // Send the new user our status information
       this.sendStatusUpdate(
         this.device.id,
@@ -169,8 +155,7 @@ class MyChat {
 
   //Sending status updates to all or specific users
   sendStatusUpdate(id, username, status, specific_user = null) {
-    var status_update = new Msg();
-    status_update.create(
+    var status_update = new Msg(
       id,
       username,
       status,
@@ -278,8 +263,7 @@ class MyChat {
     var input = document.querySelector("input.chat");
     input.addEventListener("keydown", (e) => {
       if (e.code == "Enter") {
-        var new_message = new Msg();
-        new_message.create(
+        var new_message = new Msg(
           this.device.id,
           this.device.username,
           input.value,
