@@ -197,6 +197,7 @@ class MyChat {
     this.root.querySelector(".msgs").scrollTop = 10000000; //Scroll to bottom
   }
 
+  //?????????
   //Sending messages
   sendMessage(msg) {
     this.server.sendMessage(msg);
@@ -263,25 +264,36 @@ class MyChat {
     var input = document.querySelector("input.chat");
     input.addEventListener("keydown", (e) => {
       if (e.code == "Enter") {
+        this.send_input(input);
+    }});
+    
+    const button = document.getElementById("sendButton");
+    button.addEventListener("click", () => {
+      this.send_input(input);
+    });
+
+    this.root = elem;
+  }
+
+  //send_input
+  send_input(input){
+      if (input.value!=""){
         var new_message = new Msg(
           this.device.id,
           this.device.username,
-          input.value,
-          "text",
-          new Date().toLocaleTimeString()
-        );
-
-        var msg_json = JSON.stringify(new_message);
-
-        this.history.push(new_message);
-        this.showMessage(new_message);
-        this.sendMessage(msg_json);
-        input.value = "";
-      }
-    });
-    this.root = elem;
+        input.value,
+        "text",
+        new Date().toLocaleTimeString()
+      );
+      var msg_json = JSON.stringify(new_message);
+      this.history.push(new_message);
+      this.showMessage(new_message);
+      this.sendMessage(msg_json);
+      input.value = "";
+      } 
+    }
   }
-}
+
 
 function isJSONString(str) {
   try {
