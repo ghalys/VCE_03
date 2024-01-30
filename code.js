@@ -173,7 +173,12 @@ class MyChat {
   //Displaying messages in the chat
   showMessage(Msg) {
     var messageDiv = document.createElement("div");
-    messageDiv.className = "msg";
+    if(Msg.id == this.device.id){
+      messageDiv.className ="mycontent";
+    }
+    else{
+      messageDiv.className = "msg";
+    }
 
     var authorP = document.createElement("p");
     authorP.className = "author";
@@ -187,6 +192,7 @@ class MyChat {
     authorP.textContent = Msg.author;
     contentP.textContent = Msg.content;
     timeP.textContent = Msg.time;
+
 
     //Append elements to the message div
     messageDiv.appendChild(authorP);

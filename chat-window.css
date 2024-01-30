@@ -82,6 +82,16 @@ input {
   background-color: #f1f1f1;
 }
 
+.mycontent{
+  margin-left: auto;
+  width: fit-content;
+  margin-bottom: 10px;
+  position: relative;
+  padding: 10px;
+  border-radius: 10px;
+  background-image: linear-gradient(to right, #c8fd9a, #72fa0a);
+}
+
 .msg::before {
   content: "";
   position: absolute;
@@ -100,6 +110,7 @@ input {
 .content {
   margin-top: 5px;
 }
+
 
 .time {
   font-size: 12px;
