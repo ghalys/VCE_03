@@ -35,12 +35,9 @@ class MyChat {
     this.server.connect(url, roomname);
 
     this.server.on_connect = () => {
-      console.log("Connected!");
     };
 
     this.server.on_ready = (id) => {
-      console.log("Ready!");
-      console.log("My id is " + id);
 
       // Storing the information of the user in the device object
       this.device.id = id;
@@ -58,17 +55,13 @@ class MyChat {
     };
 
     this.server.on_error = (err) => {
-      console.log("Error: " + err);
     };
 
     //Gets invoked when a message is received
     this.server.on_message = (id, msg) => {
-      console.log("A message was received");
 
       //Check if the message is a JSON string
       if (isJSONString(msg)) {
-        console.log("JSON string received");
-        console.log(msg);
         var msg = JSON.parse(msg);
         var new_message = new Msg(msg.id, msg.author, msg.content, msg.type, msg.time);
         switch (msg.type) {
@@ -107,8 +100,6 @@ class MyChat {
             break;
         }
       } else {
-        console.log("Text message received");
-        console.log(msg);
         var new_message = new Msg(
           id,
           "unknown",
@@ -136,7 +127,6 @@ class MyChat {
     };
 
     this.server.on_user_connected = (id) => {
-      console.log("A new User connected");
 
       //choose the user who will send the historic of the chat
       let mailcarrier = Object.keys(this.server.clients)[0];
@@ -298,6 +288,19 @@ class MyChat {
       input.value = "";
       } 
     }
+    // async getActiveRooms() {
+    //   var report = await this.server.getReport();
+    //   var rooms = report.rooms;
+    //   //Add rooms to the selection list
+    //   for (var room in rooms) {
+    //     // var activeUsers = rooms[i];
+    //     var template = document.querySelector("#chat-details");
+    //     var chatRoom  = template.cloneNode(true);
+
+    //     chatRoom.querySelector("#chat-name").innerHTML = room;
+    //     document.getElementById("chat").appendChild(chatRoom);
+    //   }
+    // }
   }
 
 
@@ -309,6 +312,7 @@ function isJSONString(str) {
   }
   return true;
 }
+
 
 var FelixChat = new MyChat();
 
@@ -346,7 +350,6 @@ function connectToChat() {
     var element = document.getElementById("room-list");
     var selectedOption = element.options[element.selectedIndex];
     var room = selectedOption.value;
-    console.log("The selected room is: " + room);
   } else {
     var room = document.getElementById("room-name").value;
   }
