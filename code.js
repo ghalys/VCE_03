@@ -6,14 +6,6 @@ class Msg {
     this.type = null;
     this.time = null;
   }
-
-  create(id, author, content, type, time) {
-    this.id = id;
-    this.author = author;
-    this.content = content;
-    this.type = type;
-    this.time = time;
-  }
 }
 
 class User {
@@ -22,13 +14,6 @@ class User {
     this.username = null;
     this.status = null;
     this.time = null;
-  }
-
-  create(id, username, status, time) {
-    this.id = id;
-    this.username = username;
-    this.status = status;
-    this.time = time;
   }
 }
 
