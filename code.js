@@ -1,3 +1,11 @@
+var ourPort = "9022";
+var ourUrl = "wss://ecv-etic.upf.edu/node/"+ourPort+"/ws/";
+var socket = new WebSocket(url);
+
+socket.onopen=f;
+socket.onmessage = function(msg){ console.log(msg);};
+socket.onclose = f;
+
 class Msg {
   constructor(id, author, content, type, time) {
     this.id = id;
@@ -20,7 +28,7 @@ class User {
 class MyChat {
   constructor() {
     this.root = null;
-    this.server = null;
+    this.socket = null;
     this.history = [];
     this.current_room_name = null;
     this.activeUsers = [];
@@ -29,7 +37,7 @@ class MyChat {
 
   //Connect to chat server
   connect(url, roomname, username, icon = "face") {
-    this.server = new SillyClient();
+    this.socket = new WebSocket(url);
     this.current_room_name = roomname;
 
     this.server.connect(url, roomname);
@@ -152,11 +160,10 @@ class MyChat {
       "status-update",
       new Date().toLocaleTimeString()
     );
-    var status_update_json = JSON.stringify(status_update);
     if (specific_user != null) {
-      this.sendMessage(status_update_json, specific_user);
+      this.sendMessage(status_update, specific_user);
     } else {
-      this.sendMessage(status_update_json);
+      this.sendMessage(status_update);
     }
   }
 
@@ -193,10 +200,15 @@ class MyChat {
     this.root.querySelector(".msgs").scrollTop = 10000000; //Scroll to bottom
   }
 
-  //?????????
   //Sending messages
-  sendMessage(msg) {
-    this.server.sendMessage(msg);
+  sendMessage(msg,id) {
+    var msg_json = JSON.stringify(msg);
+    if(id!==undefined){
+      this.server.sendMessage(msg_json,id); //to Id only
+    }
+    else{
+      this.server.sendMessage(msg); //to all
+    }
   }
 
   //Setting room name
@@ -216,8 +228,7 @@ class MyChat {
     // Sending the new user the history of the chat
     for (var i = 0; i < this.history.length; i++) {
       var msg = this.history[i];
-      var msg_json = JSON.stringify(msg);
-      this.server.sendMessage(msg_json, id);
+      this.sendMessage(msg, id);
     }
   }
 
@@ -281,10 +292,9 @@ class MyChat {
         "text",
         new Date().toLocaleTimeString()
       );
-      var msg_json = JSON.stringify(new_message);
       this.history.push(new_message);
       this.showMessage(new_message);
-      this.sendMessage(msg_json);
+      this.sendMessage(new_message);
       input.value = "";
       } 
     }
