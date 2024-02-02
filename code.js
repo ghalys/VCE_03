@@ -1,10 +1,6 @@
 var ourPort = "9022";
 var ourUrl = "wss://ecv-etic.upf.edu/node/"+ourPort+"/ws/";
-var socket = new WebSocket(url);
 
-socket.onopen=f;
-socket.onmessage = function(msg){ console.log(msg);};
-socket.onclose = f;
 
 class Msg {
   constructor(id, author, content, type, time) {
@@ -34,30 +30,39 @@ class MyChat {
     this.activeUsers = [];
     this.device = {};
   }
-
+  
+  connect_socket(url){
+    this.socket = new WebSocket(url);
+    this.socket.onopen=f;
+    this.socket.onmessage = function(msg){ console.log(msg);};
+    this.socket.onclose = function(){
+      setTimeout(connect_socket(),3000);
+  }
+  
+  };
   //Connect to chat server
   connect(url, roomname, username, icon = "face") {
-    this.socket = new WebSocket(url);
+    this.connect_socket(url);
     this.current_room_name = roomname;
-
+    
     this.server.connect(url, roomname);
-
+    
     this.server.on_connect = () => {
     };
-
+    
     this.server.on_ready = (id) => {
-
+      
       // Storing the information of the user in the device object
       this.device.id = id;
       this.device.username = username;
       this.device.icon = icon;
-
+      
       //Send status update to all users in the room
       this.sendStatusUpdate(id, username, "I joined the room");
 
       // Set the name of the room
       this.setRoomName(roomname);
-
+      
       // Set the icon of the user
       this.setUserIcon(icon);
     };
@@ -66,7 +71,7 @@ class MyChat {
     };
 
     //Gets invoked when a message is received
-    this.server.on_message = (id, msg) => {
+    this.socket.on_message = (msg) => {
 
       //Check if the message is a JSON string
       if (isJSONString(msg)) {
@@ -109,7 +114,7 @@ class MyChat {
         }
       } else {
         var new_message = new Msg(
-          id,
+          msg.id,
           "unknown",
           msg,
           "text",
@@ -204,10 +209,10 @@ class MyChat {
   sendMessage(msg,id) {
     var msg_json = JSON.stringify(msg);
     if(id!==undefined){
-      this.server.sendMessage(msg_json,id); //to Id only
+      // this.socket.sendMessage(msg_json,id); //to Id only
     }
     else{
-      this.server.sendMessage(msg); //to all
+      this.socket.send(msg); //to all
     }
   }
 

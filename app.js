@@ -21,6 +21,7 @@ var App = {
   },
   onUserMessage:function(ws,msg)
   {
+    console.log(msg);
     
   },
   onUserDisconnected:function(ws)
