@@ -33,22 +33,19 @@ class MyChat {
   
   connect_socket(url){
     this.socket = new WebSocket(url);
-    this.socket.onopen=f;
+    this.socket.onopen=function(){  console.log("Connected!");};
     this.socket.onmessage = function(msg){ console.log(msg);};
     this.socket.onclose = function(){
-      setTimeout(connect_socket(),3000);
-  }
-  
+        setTimeout(connect_socket(url),3000);
+    }
   };
   //Connect to chat server
   connect(url, roomname, username, icon = "face") {
     this.connect_socket(url);
     this.current_room_name = roomname;
     
-    this.server.connect(url, roomname);
+    // this.server.connect(url, roomname);
     
-    this.server.on_connect = () => {
-    };
     
     this.server.on_ready = (id) => {
       
@@ -65,9 +62,6 @@ class MyChat {
       
       // Set the icon of the user
       this.setUserIcon(icon);
-    };
-
-    this.server.on_error = (err) => {
     };
 
     //Gets invoked when a message is received
