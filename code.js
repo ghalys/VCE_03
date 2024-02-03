@@ -1,3 +1,4 @@
+//test
 var ourPort = "9022";
 var ourUrl = "wss://ecv-etic.upf.edu/node/"+ourPort+"/ws/";
 
@@ -297,19 +298,6 @@ class MyChat {
       input.value = "";
       } 
     }
-    // async getActiveRooms() {
-    //   var report = await this.server.getReport();
-    //   var rooms = report.rooms;
-    //   //Add rooms to the selection list
-    //   for (var room in rooms) {
-    //     // var activeUsers = rooms[i];
-    //     var template = document.querySelector("#chat-details");
-    //     var chatRoom  = template.cloneNode(true);
-
-    //     chatRoom.querySelector("#chat-name").innerHTML = room;
-    //     document.getElementById("chat").appendChild(chatRoom);
-    //   }
-    // }
   }
 
 
