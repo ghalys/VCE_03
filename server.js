@@ -23,7 +23,7 @@ class MyServer {
     this.server = http.createServer(app);
     this.ws = new WebSocketServer({ httpServer: this.server });
     this.listen();
-  }
+  } 
   listen(port) {
     this.port = port || this.default_port;
     console.log("Listening on port " + this.port);

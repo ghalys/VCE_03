@@ -1,7 +1,5 @@
-//test
 var ourPort = "9022";
 var ourUrl = "wss://ecv-etic.upf.edu/node/"+ourPort+"/ws/";
-
 
 class Msg {
   constructor(id, author, content, type, time) {
@@ -26,130 +24,142 @@ class MyChat {
   constructor() {
     this.root = null;
     this.socket = null;
-    this.history = [];
+    // this.history = [];
     this.current_room_name = null;
-    this.activeUsers = [];
+    // this.activeUsers = [];
     this.device = {};
   }
-  
+
+  init(url, roomname, username, icon = "face"){   
+    this.connect_socket(url);
+    // Set the username
+    this.setUsername(username);
+    // Set the name of the room
+    this.setRoomName(roomname);
+    // Set the icon of the user
+    this.setUserIcon(icon);
+  };
+
   connect_socket(url){
     this.socket = new WebSocket(url);
-    this.socket.onopen=function(){  console.log("Connected!");};
-    this.socket.onmessage = function(msg){ console.log(msg);};
-    this.socket.onclose = function(){
-        setTimeout(connect_socket(url),3000);
-    }
-  };
-  //Connect to chat server
-  connect(url, roomname, username, icon = "face") {
-    this.connect_socket(url);
-    this.current_room_name = roomname;
-    
-    // this.server.connect(url, roomname);
-    
-    
-    this.server.on_ready = (id) => {
-      
-      // Storing the information of the user in the device object
-      this.device.id = id;
-      this.device.username = username;
-      this.device.icon = icon;
-      
-      //Send status update to all users in the room
-      this.sendStatusUpdate(id, username, "I joined the room");
-
-      // Set the name of the room
-      this.setRoomName(roomname);
-      
-      // Set the icon of the user
-      this.setUserIcon(icon);
-    };
-
-    //Gets invoked when a message is received
-    this.socket.on_message = (msg) => {
-
-      //Check if the message is a JSON string
-      if (isJSONString(msg)) {
-        var msg = JSON.parse(msg);
-        var new_message = new Msg(msg.id, msg.author, msg.content, msg.type, msg.time);
-        switch (msg.type) {
-          case "text":
-            this.showMessage(new_message);
-            this.history.push(new_message);
-            break;
-          case "status-update":
-            if (msg.content.includes("joined")) {
-              // Add user to active users list if it is not already there
-              var user_exists = false;
-              for (var user in this.activeUsers) {
-                if (this.activeUsers[user].id == msg.id) {
-                  var user_exists = true;
-                }
-              }
-              if (!user_exists) {
-                var new_user = new User(msg.id, msg.author, "online", msg.time);
-                this.activeUsers.push(new_user);
-              }
-
-              // Update active users display
-              this.getActiveUsers();
-            } else if (msg.content.includes("disconnected")) {
-              // Change user status from active users list
-
-              for (var user in this.activeUsers) {
-                if (this.activeUsers[user].id == msg.id) {
-                  this.activeUsers[user].status = "offline";
-                  this.activeUsers[user].time = msg.time;
-                }
-              }
-              // Update active users display
-              this.getActiveUsers();
-            }
-            break;
-        }
-      } else {
-        var new_message = new Msg(
-          msg.id,
-          "unknown",
-          msg,
-          "text",
-          new Date().toLocaleTimeString()
-        );
-      }
-    };
-
-    this.server.on_user_disconnected = (id) => {
-      // Send status update to all users in the room
-
-      // Find the username of the user that disconnected
-      var temp_username = "unknown";
-
-      for (var user in this.activeUsers) {
-        if (this.activeUsers[user].id == id) {
-          var temp_username = this.activeUsers[user].username;
-        }
-      }
-
-      // Send status update to all users in the room and update active users list
-      this.sendStatusUpdate(id, temp_username, "User disconnected");
-    };
-
-    this.server.on_user_connected = (id) => {
-
-      //choose the user who will send the historic of the chat
-      let mailcarrier = Object.keys(this.server.clients)[0];
-      if(this.device.id == mailcarrier){
-        this.sendHistory(id);
-      }
-      // Send the new user our status information
-      this.sendStatusUpdate(
-        this.device.id,
-        this.device.username,
-        "User joined",
-        id
-      );
-    };
+    this.socket.onopen=this.onOpen();
+    this.socket.onmessage = this.onMessage();
+    this.socket.onclose = this.onClose();
   }
+
+  onOpen(){
+    console.log("Connecting!");
+  };
+
+  onClose(){
+    setTimeout(connect_socket(url),3000);
+  };
+  
+  onMessage(ws_message){
+    var msg = JSON.parse(ws_message.data);
+    var message = new Msg(msg.id, msg.author, msg.content, msg.type, msg.time);
+
+    switch(message.type)
+    {
+      // case "ROOM":
+      //     this.setRoom(message);
+      //     break;
+      case "YOUR_INFO":
+          this.setMyUser(message);
+          break;
+      case "USER_JOIN":
+          this.onUserJoin(message);
+          break;
+      case "USER_LEFT":
+          this.onUserLeft(message);
+          break;
+      case "text":
+          this.onMessageReceived(message);
+          break;
+    }        
+  };
+
+  setMyUser(message){
+    id = message.content;
+    // Storing the information of the user in the device object
+    this.device.id = id;
+    //Send status update to all users in the room
+    this.sendStatusUpdate(id, this.device.username, "I joined the room");
+  }
+  saveMessage(message){
+    this.history.push(message);
+  }
+
+  //Connect to chat server
+  onMessageReceived(message) {
+    this.showMessage(message);
+    this.saveMessage(message);
+  }
+
+  onUserJoin(message){
+    // Add user to active users list if it is not already there
+    var user_exists = false;
+    for (var user in this.activeUsers) {
+      if (this.activeUsers[user].id == msg.id) {
+        var user_exists = true;
+      }
+    }
+    if (!user_exists) {
+      var new_user = new User(message.id, message.author, "online", message.time);
+      this.activeUsers.push(new_user);
+    }
+
+    // Update active users display
+    this.getActiveUsers();
+  }
+
+  onUserLeft(message){
+    // Change user status from active users list
+
+    for (var user in this.activeUsers) {
+      if (this.activeUsers[user].id == message.id) {
+        this.activeUsers[user].status = "offline";
+        this.activeUsers[user].time = message.time;
+      }
+    }
+    // Update active users display
+    this.getActiveUsers();
+  }
+
+  
+
+  //from silly_server_code
+  on_user_connected(id){
+    //choose the user who will send the historic of the chat
+    let mailcarrier = Object.keys(this.server.clients)[0];
+    if(this.device.id == mailcarrier){
+      this.sendHistory(id);
+    }
+    // Send the new user our status information
+    this.sendStatusUpdate(
+      this.device.id,
+      this.device.username,
+      "User joined",
+      id
+    );
+  };
+  //from silly_server_code
+  on_user_disconnected (id){
+    // Send status update to all users in the room
+
+    // Find the username of the user that disconnected
+    var temp_username = "unknown";
+
+    for (var user in this.activeUsers) {
+      if (this.activeUsers[user].id == id) {
+        var temp_username = this.activeUsers[user].username;
+      }
+    }
+
+    // Send status update to all users in the room and update active users list
+    this.sendStatusUpdate(id, temp_username, "User disconnected");
+  };
+  
 
   //Sending status updates to all or specific users
   sendStatusUpdate(id, username, status, specific_user = null) {
@@ -211,13 +221,19 @@ class MyChat {
     }
   }
 
+  //Setting username
+  setUsername(username){
+    this.device.username = username;
+  }
   //Setting room name
   setRoomName(roomname) {
+    this.current_room_name = roomname;
     document.getElementById("room-name-header").textContent = roomname;
   }
 
   //Setting user icon
   setUserIcon(icon) {
+    this.device.icon = icon;
     document.getElementById("user-icon").innerHTML = icon;
     // Make icon size bigger
     document.getElementById("user-icon").style.fontSize = "40px";
@@ -284,21 +300,21 @@ class MyChat {
 
   //send_input
   send_input(input){
-      if (input.value!=""){
-        var new_message = new Msg(
-          this.device.id,
-          this.device.username,
+    if (input.value!=""){
+      var new_message = new Msg(
+        this.device.id,
+        this.device.username,
         input.value,
         "text",
         new Date().toLocaleTimeString()
-      );
-      this.history.push(new_message);
+        );
       this.showMessage(new_message);
+      this.saveMessage(new_message);
       this.sendMessage(new_message);
       input.value = "";
-      } 
-    }
+    } 
   }
+}
 
 
 function isJSONString(str) {
@@ -362,7 +378,7 @@ function connectToChat() {
   document.getElementById("room-name").value = "";
 
   //Connect to chat
-  FelixChat.connect(
+  FelixChat.init(
     "wss://ecv-etic.upf.edu/node/9000/ws/",
     room,
     username,
