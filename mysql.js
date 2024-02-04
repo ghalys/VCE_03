@@ -1,4 +1,4 @@
-import mysql from "mysql2";
+import mysql from "mysql";
 import wrapper from "node-mysql-wrapper";
 
 const client = mysql.createConnection({
@@ -7,6 +7,7 @@ const client = mysql.createConnection({
   password: "ecv-upf-2019",
   host: "127.0.0.1",
 });
+
 // const client = mysql.createConnection({
 //   database: "VCE",
 //   user: "root",
@@ -57,6 +58,42 @@ class DB {
     });
   }
 
+  handleData(data, info) {
+    console.log("Data received from the Server");
+    console.log(data);
+
+    switch (info) {
+      case "users":
+        this.addUser(data.user_name, data.password);
+        break;
+      case "rooms":
+        this.addRoom(data.room_name, data.room_description);
+        break;
+      case "messages":
+        this.addMessages(
+          data.user_id,
+          data.room_id,
+          data.message,
+          data.timestamp
+        );
+        break;
+    }
+  }
+
+  retrieveData(info, room) {
+    switch (info) {
+      case "users":
+        this.getAllUsers();
+        break;
+      case "rooms":
+        this.getAllRooms();
+        break;
+      case "messages":
+        this.getMsgHistory(room);
+        break;
+    }
+  }
+
   addUser(name, password) {
     // encript the password
     password = bcrypt.hashSync(password, 10);
@@ -78,6 +115,61 @@ class DB {
         console.log(`Room ${name} added to the database`);
       }
     );
+  }
+
+  addMessages(user_id, room_id, message, timestamp) {
+    db.table("messages").save(
+      {
+        user_id: user_id,
+        room_id: room_id,
+        message: message,
+        timestamp: timestamp,
+      },
+      (err, result) => {
+        if (err) throw err;
+        console.log(`Message ${message} added to the database`);
+      }
+    );
+  }
+
+  getAllUsers() {
+    db.table("users").findAll((err, result) => {
+      if (err) throw err;
+      console.log(result);
+      this.users = result;
+    });
+  }
+  getUser(id) {
+    db.table("users").find({ user_id: id }, (err, result) => {
+      if (err) throw err;
+      console.log(result);
+      this.users = result;
+    });
+  }
+
+  getAllRooms() {
+    db.table("rooms").findAll((err, result) => {
+      if (err) throw err;
+      console.log(result);
+      this.rooms = result;
+    });
+  }
+
+  getRoom(id) {
+    db.table("rooms").find({ room_id: id }, (err, result) => {
+      if (err) throw err;
+      console.log(result);
+      this.rooms = result;
+    });
+  }
+  getMsgHistory(room) {
+    if (!room) return console.log("No room specified");
+    console.log("Getting messages from room " + room);
+    db.table("messages").find({ room_id: room }, (err, result) => {
+      if (err) throw err;
+      console.log(result);
+      this.messages = result;
+    });
   }
 }
 
