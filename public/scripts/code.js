@@ -1,19 +1,19 @@
 class Msg {
-  constructor(id, author, content, type, time) {
-    this.id = id;
-    this.author = author;
-    this.content = content;
-    this.type = type;
-    this.time = time;
+  constructor() {
+    this.id = null;
+    this.author = null;
+    this.content = null;
+    this.type = null;
+    this.time = null;
   }
 }
 
 class User {
-  constructor(id, username, status, time) {
-    this.id = id;
-    this.username = username;
-    this.status = status;
-    this.time = time;
+  constructor() {
+    this.id = null;
+    this.username = null;
+    this.status = null;
+    this.time = null;
   }
 }
 
@@ -34,9 +34,14 @@ class MyChat {
 
     this.server.connect(url, roomname);
 
-    this.server.on_connect = () => {};
+    this.server.on_connect = () => {
+      console.log("Connected!");
+    };
 
     this.server.on_ready = (id) => {
+      console.log("Ready!");
+      console.log("My id is " + id);
+
       // Storing the information of the user in the device object
       this.device.id = id;
       this.device.username = username;
@@ -52,20 +57,21 @@ class MyChat {
       this.setUserIcon(icon);
     };
 
-    this.server.on_error = (err) => {};
+    this.server.on_error = (err) => {
+      console.log("Error: " + err);
+    };
 
     //Gets invoked when a message is received
     this.server.on_message = (id, msg) => {
+      console.log("A message was received");
+
       //Check if the message is a JSON string
       if (isJSONString(msg)) {
+        console.log("JSON string received");
+        console.log(msg);
         var msg = JSON.parse(msg);
-        var new_message = new Msg(
-          msg.id,
-          msg.author,
-          msg.content,
-          msg.type,
-          msg.time
-        );
+        var new_message = new Msg();
+        new_message.create(msg.id, msg.author, msg.content, msg.type, msg.time);
         switch (msg.type) {
           case "text":
             this.showMessage(new_message);
@@ -81,7 +87,8 @@ class MyChat {
                 }
               }
               if (!user_exists) {
-                var new_user = new User(msg.id, msg.author, "online", msg.time);
+                var new_user = new User();
+                new_user.create(msg.id, msg.author, "online", msg.time);
                 this.activeUsers.push(new_user);
               }
 
@@ -102,7 +109,10 @@ class MyChat {
             break;
         }
       } else {
-        var new_message = new Msg(
+        console.log("Text message received");
+        console.log(msg);
+        var new_message = new Msg();
+        new_message.create(
           id,
           "unknown",
           msg,
@@ -129,11 +139,9 @@ class MyChat {
     };
 
     this.server.on_user_connected = (id) => {
-      //choose the user who will send the historic of the chat
-      let mailcarrier = Object.keys(this.server.clients)[0];
-      if (this.device.id == mailcarrier) {
-        this.sendHistory(id);
-      }
+      console.log("A new User connected");
+      // Send the new user the history of the chat
+      this.sendHistory(id);
       // Send the new user our status information
       this.sendStatusUpdate(
         this.device.id,
@@ -146,7 +154,8 @@ class MyChat {
 
   //Sending status updates to all or specific users
   sendStatusUpdate(id, username, status, specific_user = null) {
-    var status_update = new Msg(
+    var status_update = new Msg();
+    status_update.create(
       id,
       username,
       status,
@@ -164,11 +173,7 @@ class MyChat {
   //Displaying messages in the chat
   showMessage(Msg) {
     var messageDiv = document.createElement("div");
-    if (Msg.id == this.device.id) {
-      messageDiv.className = "mycontent";
-    } else {
-      messageDiv.className = "msg";
-    }
+    messageDiv.className = "msg";
 
     var authorP = document.createElement("p");
     authorP.className = "author";
@@ -192,7 +197,6 @@ class MyChat {
     this.root.querySelector(".msgs").scrollTop = 10000000; //Scroll to bottom
   }
 
-  //?????????
   //Sending messages
   sendMessage(msg) {
     this.server.sendMessage(msg);
@@ -259,48 +263,25 @@ class MyChat {
     var input = document.querySelector("input.chat");
     input.addEventListener("keydown", (e) => {
       if (e.code == "Enter") {
-        this.send_input(input);
+        var new_message = new Msg();
+        new_message.create(
+          this.device.id,
+          this.device.username,
+          input.value,
+          "text",
+          new Date().toLocaleTimeString()
+        );
+
+        var msg_json = JSON.stringify(new_message);
+
+        this.history.push(new_message);
+        this.showMessage(new_message);
+        this.sendMessage(msg_json);
+        input.value = "";
       }
     });
-
-    const button = document.getElementById("sendButton");
-    button.addEventListener("click", () => {
-      this.send_input(input);
-    });
-
     this.root = elem;
   }
-
-  //send_input
-  send_input(input) {
-    if (input.value != "") {
-      var new_message = new Msg(
-        this.device.id,
-        this.device.username,
-        input.value,
-        "text",
-        new Date().toLocaleTimeString()
-      );
-      var msg_json = JSON.stringify(new_message);
-      this.history.push(new_message);
-      this.showMessage(new_message);
-      this.sendMessage(msg_json);
-      input.value = "";
-    }
-  }
-  // async getActiveRooms() {
-  //   var report = await this.server.getReport();
-  //   var rooms = report.rooms;
-  //   //Add rooms to the selection list
-  //   for (var room in rooms) {
-  //     // var activeUsers = rooms[i];
-  //     var template = document.querySelector("#chat-details");
-  //     var chatRoom  = template.cloneNode(true);
-
-  //     chatRoom.querySelector("#chat-name").innerHTML = room;
-  //     document.getElementById("chat").appendChild(chatRoom);
-  //   }
-  // }
 }
 
 function isJSONString(str) {
@@ -348,6 +329,7 @@ function connectToChat() {
     var element = document.getElementById("room-list");
     var selectedOption = element.options[element.selectedIndex];
     var room = selectedOption.value;
+    console.log("The selected room is: " + room);
   } else {
     var room = document.getElementById("room-name").value;
   }

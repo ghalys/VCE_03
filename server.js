@@ -1,17 +1,62 @@
-import http from "http";
 import express from "express";
-import ws from "ws";
+import http from "http";
+import { WebSocketServer } from "ws"; // Import the 'ws' library
+import WebSocket from "ws";
 
-const WebSocketServer = ws.Server;
-const app = express();
-const server = http.createServer(app);
+import mainroutes from "./routes/mainroutes.js";
 
-const wss = new WebSocketServer({ httpServer: server });
+var PORT = 3000;
 
-var ws = new WebSocket("wss://ecv-etic.upf.edu/node/" + PORT + "/");
+//var url_ws_upf = new WebSocket("wss://ecv-etic.upf.edu/node/9022/");
 
-PORT = 3000;
+class MyServer {
+  constructor() {
+    this.rooms = {};
+    this.clients = [];
+    this.db = {};
+    this.server = null;
+    this.default_port = 9022;
+    this.ws = null;
+    this.last_id = 0;
+  }
+  start() {
+    const app = express();
+    const server = http.createServer(app);
+    this.server = server;
+    //const ws = new WebSocket("wss://ecv-etic.upf.edu/node/9022/");
+    const ws = new WebSocketServer({ server: server });
+    this.ws = ws;
+    this.listen();
 
-server.listen(PORT, () => {
-  console.log(`Server started on port ${PORT} :)`);
-});
+    app.use("/", mainroutes);
+  }
+  listen(port) {
+    this.port = port || this.default_port;
+    console.log("Listening on port " + this.port);
+    this.server.listen(this.port);
+  }
+  onConnection(ws, req) {
+    // When a client connects
+    ws.user_id = this.last_id;
+    ws.user_name = "User " + this.last_id;
+    this.last_id++;
+
+    console.log("Websocket connection established");
+
+    // var path_info = url.parse(req.url);
+    // var parameters = qs.parse(path_info.query);
+
+    // // Room management
+    // var room_name = path_info.pathname;
+    // ws.room = room_name.substring(1, room_name.length);
+  }
+  createRoom() {}
+  getRoomInfo() {}
+  findRooms() {}
+  sendToRoom() {}
+  setData() {} // Linking to the database
+  getData() {} // Linking to the database
+}
+
+// export default MyServer;
+export default MyServer;
