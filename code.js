@@ -52,9 +52,11 @@ class MyChat {
   };
 
   onClose(){
+    //try to reconnect if we were disconnected
     setTimeout(connect_socket(url),3000);
   };
   
+  //when the client receive a message 
   onMessage(ws_message){
     var msg = JSON.parse(ws_message.data);
     var message = new Msg(msg.id, msg.author, msg.content, msg.type, msg.time);
@@ -83,14 +85,15 @@ class MyChat {
     id = message.content;
     // Storing the information of the user in the device object
     this.device.id = id;
-    //Send status update to all users in the room
+    // Send status update to all users in the room
     this.sendStatusUpdate(id, this.device.username, "I joined the room");
   }
+
+  // Save the message in the data base
   saveMessage(message){
-    this.history.push(message);
   }
 
-  //Connect to chat server
+  // Connect to chat server
   onMessageReceived(message) {
     this.showMessage(message);
     this.saveMessage(message);
@@ -127,8 +130,8 @@ class MyChat {
   }
 
   
-
   //from silly_server_code
+/////////////////////////////////////////////////////////////////////////////
   on_user_connected(id){
     //choose the user who will send the historic of the chat
     let mailcarrier = Object.keys(this.server.clients)[0];
@@ -159,9 +162,10 @@ class MyChat {
     // Send status update to all users in the room and update active users list
     this.sendStatusUpdate(id, temp_username, "User disconnected");
   };
+  ///////////////////////////////////////////////////////////////////////////////////////
   
 
-  //Sending status updates to all or specific users
+  // Sending status updates to all or specific users
   sendStatusUpdate(id, username, status, specific_user = null) {
     var status_update = new Msg(
       id,
@@ -177,7 +181,7 @@ class MyChat {
     }
   }
 
-  //Displaying messages in the chat
+  // Displaying messages in the chat
   showMessage(Msg) {
     var messageDiv = document.createElement("div");
     if(Msg.id == this.device.id){
@@ -201,7 +205,7 @@ class MyChat {
     timeP.textContent = Msg.time;
 
 
-    //Append elements to the message div
+    // Append elements to the message div
     messageDiv.appendChild(authorP);
     messageDiv.appendChild(contentP);
     messageDiv.appendChild(timeP);
@@ -210,7 +214,7 @@ class MyChat {
     this.root.querySelector(".msgs").scrollTop = 10000000; //Scroll to bottom
   }
 
-  //Sending messages
+  // Sending messages
   sendMessage(msg,id) {
     var msg_json = JSON.stringify(msg);
     if(id!==undefined){
