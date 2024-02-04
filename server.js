@@ -1,12 +1,13 @@
-import http from "http";
 import express from "express";
-import ws from "ws"; // Websocket
+import http from "http";
+import { WebSocketServer } from "ws"; // Import the 'ws' library
+import WebSocket from "ws";
 
-var ws = new WebSocket("wss://ecv-etic.upf.edu/node/" + PORT + "/");
+import mainroutes from "./routes/mainroutes.js";
 
-PORT = 3000;
+var PORT = 3000;
 
-app.ws(); // to implement the websocket
+//var url_ws_upf = new WebSocket("wss://ecv-etic.upf.edu/node/9022/");
 
 class MyServer {
   constructor() {
@@ -20,9 +21,13 @@ class MyServer {
   }
   start() {
     const app = express();
-    this.server = http.createServer(app);
-    this.ws = new WebSocketServer({ httpServer: this.server });
+    const server = http.createServer(app);
+    this.server = server;
+    const ws = new WebSocketServer({ server: server });
+    this.ws = ws;
     this.listen();
+
+    app.use("/", mainroutes);
   }
   listen(port) {
     this.port = port || this.default_port;
@@ -35,12 +40,14 @@ class MyServer {
     ws.user_name = "User " + this.last_id;
     this.last_id++;
 
-    var path_info = url.parse(req.url);
-    var parameters = qs.parse(path_info.query);
+    console.log("Websocket connection established");
 
-    // Room management
-    var room_name = path_info.pathname;
-    ws.room = room_name.substring(1, room_name.length);
+    // var path_info = url.parse(req.url);
+    // var parameters = qs.parse(path_info.query);
+
+    // // Room management
+    // var room_name = path_info.pathname;
+    // ws.room = room_name.substring(1, room_name.length);
   }
   createRoom() {}
   getRoomInfo() {}
@@ -51,5 +58,4 @@ class MyServer {
 }
 
 // export default MyServer;
-
 export default MyServer;

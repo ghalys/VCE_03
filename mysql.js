@@ -48,29 +48,34 @@ db.ready(function () {
   console.log("Connected to the database");
 });
 
-// Add a user to the database
-function addUser(name, password) {
-  // encript the password
-  password = bcrypt.hashSync(password, 10);
+// Class to manage the database
+class DB = {
+  users: []; 
+  rooms: [];
+  messages: [];
 
-  db.table("users").save(
-    { user_name: name, password: password },
-    (err, result) => {
-      if (err) throw err;
-      console.log(`User ${name} added to the database`);
-    }
-  );
-}
+  addUser(name, password) {
+    // encript the password
+    password = bcrypt.hashSync(password, 10);
 
-// Add a room to the database
-function addRoom(name, description = "") {
-  db.table("rooms").save(
-    { room_name: name, room_description: description },
-    (err, result) => {
-      if (err) throw err;
-      console.log(`Room ${name} added to the database`);
-    }
-  );
+    db.table("users").save(
+      { user_name: name, password: password },
+      (err, result) => {
+        if (err) throw err;
+        console.log(`User ${name} added to the database`);
+      }
+    );
+  }; 
+
+  addRoom(name, description = "") {
+    db.table("rooms").save(
+      { room_name: name, room_description: description },
+      (err, result) => {
+        if (err) throw err;
+        console.log(`Room ${name} added to the database`);
+      }
+    );
+  };
 }
 
 // To query the database with wrapper:
