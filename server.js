@@ -15,7 +15,7 @@ class MyServer {
     this.clients = [];
     this.db = {};
     this.server = null;
-    this.default_port = 3000;
+    this.default_port = 9022;
     this.ws = null;
     this.last_id = 0;
   }
@@ -23,6 +23,7 @@ class MyServer {
     const app = express();
     const server = http.createServer(app);
     this.server = server;
+    //const ws = new WebSocket("wss://ecv-etic.upf.edu/node/9022/");
     const ws = new WebSocketServer({ server: server });
     this.ws = ws;
     this.listen();

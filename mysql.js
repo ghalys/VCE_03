@@ -1,6 +1,4 @@
-// SQL database with mysql
-
-import mysql from "mysql";
+import mysql from "mysql2";
 import wrapper from "node-mysql-wrapper";
 
 const client = mysql.createConnection({
@@ -9,50 +7,55 @@ const client = mysql.createConnection({
   password: "ecv-upf-2019",
   host: "127.0.0.1",
 });
-
-// Create tree tables if not exists (users and messages and rooms)
-
-// users table with user_id, user_name,  the encripted password and their accessible rooms
-client.query(
-  "CREATE TABLE IF NOT EXISTS users (user_id INT AUTO_INCREMENT PRIMARY KEY, user_name VARCHAR(100), password VARCHAR(100), rooms VARCHAR(1000))",
-  (err, result) => {
-    if (err) throw err;
-    console.log("Table users created" + result);
-  }
-);
-
-// messages table with message_id, user_id, room, message and timestamp
-client.query(
-  "CREATE TABLE IF NOT EXISTS messages (message_id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, room VARCHAR(100), message TEXT, timestamp DATETIME, FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE, FOREIGN KEY (room) REFERENCES rooms(room_name) ON DELETE CASCADE",
-  (err, result) => {
-    if (err) throw err;
-    console.log("Table messages created" + result);
-  }
-);
-
-// rooms table with room_id, room_name, room_description
-client.query(
-  "CREATE TABLE IF NOT EXISTS rooms (room_id INT AUTO_INCREMENT PRIMARY KEY, room_name VARCHAR(100), room_description TEXT)",
-  (err, result) => {
-    if (err) throw err;
-    console.log("Table rooms created" + result);
-  }
-);
+// const client = mysql.createConnection({
+//   database: "VCE",
+//   user: "root",
+//   password: "root",
+//   host: "localhost",
+// });
 
 // SQL database with wrapper
-
-const db = wrap(client);
-
-// To connect to the database:
-db.ready(function () {
-  console.log("Connected to the database");
-});
+const db = wrapper.wrap(client);
 
 // Class to manage the database
-class DB = {
-  users: []; 
-  rooms: [];
-  messages: [];
+class DB {
+  users = [];
+  rooms = [];
+  messages = [];
+
+  innitializeTables() {
+    // Create tree tables if not exists (users and messages and rooms)
+    // users table with user_id, user_name,  the encripted password and their accessible rooms
+    client.query(
+      "CREATE TABLE IF NOT EXISTS users_FG (user_id INT AUTO_INCREMENT PRIMARY KEY, user_name VARCHAR(100), password VARCHAR(100), rooms VARCHAR(1000))",
+      (err, result) => {
+        if (err) throw err;
+        console.log("Table users created" + result);
+      }
+    );
+    // rooms table with room_id, room_name, room_description
+    client.query(
+      "CREATE TABLE IF NOT EXISTS rooms_FG (room_id INT AUTO_INCREMENT PRIMARY KEY, room_name VARCHAR(100), room_description TEXT)",
+      (err, result) => {
+        if (err) throw err;
+        console.log("Table rooms created" + result);
+      }
+    );
+
+    // messages table with message_id, user_id, room, message and timestamp
+    client.query(
+      "CREATE TABLE IF NOT EXISTS messages_FG (message_id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, room_id INT, message TEXT, timestamp DATETIME, FOREIGN KEY (user_id) REFERENCES users_FG(user_id) ON DELETE CASCADE, FOREIGN KEY (room_id) REFERENCES rooms_FG(room_id) ON DELETE CASCADE)",
+      (err, result) => {
+        if (err) throw err;
+        console.log("Table messages created" + result);
+      }
+    );
+
+    // To connect to the database:
+    db.ready(function () {
+      console.log("Connected to the database");
+    });
+  }
 
   addUser(name, password) {
     // encript the password
@@ -65,7 +68,7 @@ class DB = {
         console.log(`User ${name} added to the database`);
       }
     );
-  }; 
+  }
 
   addRoom(name, description = "") {
     db.table("rooms").save(
@@ -75,32 +78,7 @@ class DB = {
         console.log(`Room ${name} added to the database`);
       }
     );
-  };
+  }
 }
 
-// To query the database with wrapper:
-// db.table("users").get((err, result) => {
-//   console.log(result);
-// });
-
-// To query the database with wrapper and parameters:
-// db.table("users").get({ id: 1 }, (err, result) => {
-//   console.log(result);
-// });
-
-//all code you will see bellow goes inside db.ready(function () { //code here });
-// var usersTable = db.table("users"); //yes, just this :)
-// console.log('available columns: '+ usersTable.columns);
-// console.log('primary key column name: '+ usersTable.primaryKey);
-// console.log('find, findById, findAll, save and remove methods can be called from this table');
-
-// usersTable.find({mail:"= makis@omakis.com"},function(results){
-
-// });
-
-// });
-
-// To close the connection:
-// db.end(function(err) {
-//   if (err) throw err;
-// });
+export default DB;

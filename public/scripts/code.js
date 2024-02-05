@@ -2,12 +2,12 @@ var ourPort = "9022";
 var ourUrl = "wss://ecv-etic.upf.edu/node/"+ourPort+"/ws/";
 
 class Msg {
-  constructor(id, author, content, type, time) {
-    this.id = id;
-    this.author = author;
-    this.content = content;
-    this.type = type;
-    this.time = time;
+  constructor() {
+    this.id = null;
+    this.author = null;
+    this.content = null;
+    this.type = null;
+    this.time = null;
   }
 }
 
@@ -168,6 +168,7 @@ class MyChat {
   // Sending status updates to all or specific users
   sendStatusUpdate(id, username, status, specific_user = null) {
     var status_update = new Msg(
+
       id,
       username,
       status,
@@ -191,6 +192,7 @@ class MyChat {
       messageDiv.className = "msg";
     }
 
+
     var authorP = document.createElement("p");
     authorP.className = "author";
 
@@ -206,6 +208,7 @@ class MyChat {
 
 
     // Append elements to the message div
+
     messageDiv.appendChild(authorP);
     messageDiv.appendChild(contentP);
     messageDiv.appendChild(timeP);
@@ -232,6 +235,7 @@ class MyChat {
   //Setting room name
   setRoomName(roomname) {
     this.current_room_name = roomname;
+
     document.getElementById("room-name-header").textContent = roomname;
   }
 
@@ -321,6 +325,7 @@ class MyChat {
 }
 
 
+
 function isJSONString(str) {
   try {
     JSON.parse(str);
@@ -367,6 +372,7 @@ function connectToChat() {
     var element = document.getElementById("room-list");
     var selectedOption = element.options[element.selectedIndex];
     var room = selectedOption.value;
+
   } else {
     var room = document.getElementById("room-name").value;
   }
@@ -383,6 +389,7 @@ function connectToChat() {
 
   //Connect to chat
   FelixChat.init(
+
     "wss://ecv-etic.upf.edu/node/9000/ws/",
     room,
     username,
