@@ -1,26 +1,18 @@
-class Msg {
-  constructor() {
-    this.id = null;
-    this.author = null;
-    this.content = null;
-    this.type = null;
-    this.time = null;
-    this.room = null;
-    this.destination = null;
-  }
-}
+import Msg from './Msg_User.js';
 
-class MyChat {
+export class MyChat {
   constructor() {
     this.root = null;
     this.server = null;
     this.current_room_name = null;
-    this.device = {};
+    this.my_user_id = null;
+    this.my_username = null;
+    this.my_icon = null;
   }
   
   init(url, roomname, username, icon = "face"){       
     // Set the username
-    this.device.username = username;
+    this.my_username = username;
     
     // Set the name of the room
     this.current_room_name = roomname;
@@ -31,7 +23,6 @@ class MyChat {
     
     this.server.on_message=(message)=>{
       this.showMessage(message);
-      this.saveMessage(message);
     }
 
     this.server.on_ready = (id)=>{
@@ -46,24 +37,24 @@ class MyChat {
       // Update active users display
       this.displayActiveUsers();
     }
+
+    this.on_chat_historic=(messages)=>{
+
+    }
   };
   
   //Setting user icon
   setUserIcon(icon) {
-    this.device.icon = icon;
+    this.my_icon = icon;
     document.getElementById("user-icon").innerHTML = icon;
     // Make icon size bigger
     document.getElementById("user-icon").style.fontSize = "40px";
   }
-
-  // Save the message in the data base
-  saveMessage(message){
-  }
   
   // Displaying messages in the chat
-  showMessage(Msg) {
+  showMessage(msg) {
     var messageDiv = document.createElement("div");
-    if(Msg.id == this.device.id){
+    if(msg.id == this.my_user_id){
       messageDiv.className ="mycontent";
     }
     else{
@@ -79,9 +70,9 @@ class MyChat {
     var timeP = document.createElement("p");
     timeP.className = "time";
 
-    authorP.textContent = Msg.author;
-    contentP.textContent = Msg.content;
-    timeP.textContent = Msg.time;
+    authorP.textContent = msg.author;
+    contentP.textContent = msg.content;
+    timeP.textContent = msg.time;
 
     // Append elements to the message div
 
@@ -95,14 +86,13 @@ class MyChat {
 
   // Sending messages
   sendMessage(msg,id) {
-    var msg_json = JSON.stringify(msg);
+    // we precise the destination if there is an Id
     if(id!==undefined){
-      // this.socket.sendMessage(msg_json,id); //to Id only
+      msg.destination = id; 
     }
-    else{
-      this.server.send(msg); //to all
-    }
+    this.server.send_message(msg); 
   }
+
 
   //Display the updated active users list
   displayActiveUsers() {
@@ -156,25 +146,21 @@ class MyChat {
     this.root = elem;
   }
   
-  //send_input
+  //send the input 
   send_input(input){
     if (input.value!=""){
       var new_message = new Msg(
-        this.device.id,
-        this.device.username,
+        this.my_user_id,
+        this.my_username,
         input.value,
-        "text",
-        new Date().toLocaleTimeString()
+        "TEXT",
+        new Date().toLocaleTimeString(),
+        this.current_room_name,
+        null
         );
         this.showMessage(new_message);
-        this.saveMessage(new_message);
         this.sendMessage(new_message);
         input.value = "";
       } 
     }
 }
-
-
-// //Sending history to new users
-module.exports = MyChat;
-module.exports = Msg;

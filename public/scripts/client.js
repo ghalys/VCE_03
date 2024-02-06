@@ -1,15 +1,8 @@
 var ourPort = "9022";
 var ourUrl = "wss://ecv-etic.upf.edu/node/"+ourPort+"/ws/";
+import { Msg, User } from './Msg_User.js';
 
 
-class User {
-  constructor(id, username, status, time) {
-    this.id = id;
-    this.username = username;
-    this.status = status;
-    this.time = time;
-  }
-}
 
 class ServerClient
 {
@@ -23,6 +16,7 @@ class ServerClient
     this.info_transmitted = 0;
     this.info_received = 0;
     this.activeUsers = [];
+    this.active_room = 
     // this.history = [];
 
 
@@ -47,6 +41,14 @@ class ServerClient
     this.socket.onclose = this.onClose;
     this.socket.onerror = this.onError;
   }
+  
+  send_message(message){
+      var msg_json = JSON.stringify(message);
+      this.socket.send(msg_json);
+      this.history.push(msg_json)
+    }
+    
+  
 
   //when the client receive data from the server
   onData(ws_message){
@@ -58,8 +60,8 @@ class ServerClient
       case "YOUR_INFO":
           this.setMyUser(message);
           break;
-      case "ROOM":
-          this.setRoom(message);
+      case "ROOM_INFO":
+          this.setMyRoom(message); 
           break;
       case "USER_JOIN":
           this.onUserJoin(message);
@@ -67,38 +69,27 @@ class ServerClient
       case "USER_LEFT":
           this.onUserLeft(message);
           break;
-      case "text":
+      case "TEXT":
           this.on_message(message);
           break;
-      case "historic":
-          this.on_chat_historic(message);
-
+    //   case "history":
+    //       this.set_history(message);
     }   
   };
-   
 
   onOpen(){
     console.log("Connecting!");
   };
+  setMyRoom(){
+
+  }
 
   onClose(){
+    console.log("we were disconnected to the server");
     //try to reconnect if we were disconnected
     setTimeout(connect_socket(url),3000);
   };
 
-  onUserLeft(message){
-    var id = message.id;
-
-    // Change user status from active users list
-    for (var user in this.activeUsers) {
-      if (this.activeUsers[user].id == id) {
-        this.activeUsers[user].status = "offline";
-        this.activeUsers[user].time = message.time;
-      }
-    }
-    this.on_user_disconnected(id);
-
-  }
   onUserJoin(message){
     var id = message.id;
 
@@ -116,15 +107,29 @@ class ServerClient
     this.on_user_connected(id);
   }
 
+  onUserLeft(message){
+    var id = message.id;
+
+    // Change user status from active users list
+    for (var user in this.activeUsers) {
+      if (this.activeUsers[user].id == id) {
+        this.activeUsers[user].status = "offline";
+        this.activeUsers[user].time = message.time;
+      }
+    }
+    this.on_user_disconnected(id);
+
+  }
+
+
   setMyUser(message){
     id = message.content;
     // Storing the information of the user in the device object
     this.user_id = id;
 
     this.on_ready(id)
-    /////////////////////////
     // Send status update to all users in the room
-    this.sendStatusUpdate(id, this.device.username, "I joined the room");
+    // this.sendStatusUpdate(id, this.device.username, "I joined the room");
   }
 }
 function isJSONString(str) {
