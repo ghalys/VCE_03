@@ -1,4 +1,5 @@
 import Msg from './Msg_User.js';
+import ServerClient from './client.js';
 
 export class MyChat {
   constructor() {
@@ -11,6 +12,9 @@ export class MyChat {
   }
   
   init(url, roomname, username, icon = "face"){       
+    this.server = new ServerClient(url,roomname,username);
+    this.server.connect_socket();
+
     // Set the username
     this.my_username = username;
     

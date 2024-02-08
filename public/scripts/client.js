@@ -1,13 +1,11 @@
-var ourPort = "9022";
-var ourUrl = "wss://ecv-etic.upf.edu/node/"+ourPort+"/ws/";
 import { Msg, User } from './Msg_User.js';
 
 
 
 class ServerClient
 {
-  constructor() {
-    this.url = "";
+  constructor(url,roomname, username) {
+    this.url = url;
     this.socket = null;
     this.is_connected = false;
     this.room = { name: "", clients:[], updated: false };
@@ -16,13 +14,13 @@ class ServerClient
     this.info_transmitted = 0;
     this.info_received = 0;
     this.activeUsers = [];
-    this.active_room = 
+    this.active_room = roomname;
     // this.history = [];
 
 
 
     this.user_id = 0;
-    this.username = "anonymous";
+    this.username = username;
 
     this.on_connect = null; //when connected
     this.on_ready = null; //when we have an ID from the server
@@ -34,12 +32,12 @@ class ServerClient
     this.on_error = null; //when cannot connect
   }
 
-  connect_socket(url){
-    this.socket = new WebSocket(url);
+  connect_socket(){
+    this.socket = new WebSocket(this.url);
     this.socket.onopen=this.onOpen;
     this.socket.onmessage = this.onData;
     this.socket.onclose = this.onClose;
-    this.socket.onerror = this.onError;
+    // this.socket.onerror = this.onError;
   }
   
   send_message(message){
@@ -81,7 +79,6 @@ class ServerClient
     console.log("Connecting!");
   };
   setMyRoom(){
-
   }
 
   onClose(){
@@ -121,7 +118,6 @@ class ServerClient
 
   }
 
-
   setMyUser(message){
     id = message.content;
     // Storing the information of the user in the device object
@@ -131,14 +127,6 @@ class ServerClient
     // Send status update to all users in the room
     // this.sendStatusUpdate(id, this.device.username, "I joined the room");
   }
-}
-function isJSONString(str) {
-  try {
-    JSON.parse(str);
-  } catch (e) {
-    return false;
-  }
-  return true;
 }
 
 
