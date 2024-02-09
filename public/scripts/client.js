@@ -2,8 +2,7 @@ import { Msg, User } from './Msg_User.js';
 
 
 
-class ServerClient
-{
+class ServerClient{
   constructor(url,roomname, username) {
     this.url = url;
     this.socket = null;
@@ -43,11 +42,9 @@ class ServerClient
   send_message(message){
       var msg_json = JSON.stringify(message);
       this.socket.send(msg_json);
-      this.history.push(msg_json)
+      // this.history.push(msg_json)
     }
-    
   
-
   //when the client receive data from the server
   onData(ws_message){
     var msg = JSON.parse(ws_message.data);
@@ -76,8 +73,9 @@ class ServerClient
   };
 
   onOpen(){
-    console.log("Connecting!");
+    console.log("Connected!");
   };
+
   setMyRoom(){
   }
 
@@ -128,5 +126,7 @@ class ServerClient
     // this.sendStatusUpdate(id, this.device.username, "I joined the room");
   }
 }
+export default ServerClient;
+
 
 

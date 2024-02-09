@@ -1,7 +1,7 @@
-import Msg from './Msg_User.js';
+import {Msg,User} from './Msg_User.js';
 import ServerClient from './client.js';
 
-export class MyChat {
+class MyChat {
   constructor() {
     this.root = null;
     this.server = null;
@@ -168,3 +168,4 @@ export class MyChat {
       } 
     }
 }
+export default MyChat;

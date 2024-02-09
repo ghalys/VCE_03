@@ -9,14 +9,15 @@
     />
     <link rel="stylesheet" href="css/layout.css" />
     <link rel="stylesheet" href="css/chat-window.css" />
+    <link rel="stylesheet" href="css/sidebar.css" />
   </head>
   <body>
     <div id="login-page">
       <h1>Login Page</h1>
       <form id="chat-form">
         <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required />
-        <label for="user_icon">Select your icon</label>
+        <input type="text" id="username" name="username" autocomplete="username" required />
+        <label for="icon_list">Select your icon</label>
         <span class="material-symbols-outlined"> face </span>
         <span class="material-symbols-outlined"> face_2</span>
         <span class="material-symbols-outlined"> face_3</span>
@@ -64,7 +65,7 @@
             <div class="icon">
               <span class="material-symbols-outlined"> search </span>
             </div>
-            <input type="text" placeholder="Search" />
+            <input type="text" placeholder="Search" id = "Search"/>
           </div>
           <h2>Online Users</h2>
           <div class="user-list" id="user-list"></div>
@@ -103,18 +104,18 @@
               </div>
             </div>
             <div class="text-input">
-              <input class="chat" type="text" placeholder="Type a message" />
+              <input class="chat" id="chat_input" type="text" placeholder="Type a message" />
             </div>
-            <div class="send">
+            <button id="sendButton">
               <div class="icon">
                 <span class="material-symbols-outlined"> send </span>
               </div>
-            </div>
+            </button>
           </div>
         </div>
       </div>
     </span>
-    <script type="text/javascript" src="scripts/roomSelection.js"></script>
+    <script type="module" src="scripts/roomSelection.js"></script>
     <!-- <script type="text/javascript" src="scripts/code.js"></script> -->
   </body>
 </html>

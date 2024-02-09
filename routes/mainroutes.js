@@ -7,7 +7,7 @@ const __dirname = path.join(__dirnameChild, "..");
 
 const router = express.Router();
 
-router.use(express.static(path.join(__dirname, "public")));
+router.use(express.static(path.join(__dirnameChild, "public")));
 
 console.log(__dirname);
 

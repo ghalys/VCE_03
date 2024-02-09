@@ -1,9 +1,8 @@
 import MyChat from './code.js';
 
-
 var ourPort = "9022";
 var ourUrl = "wss://ecv-etic.upf.edu/node/"+ourPort+"/ws/";
-
+var ourUrl = "ws://localhost:3000"
 
 var FelixChat = new MyChat();
 FelixChat.create(document.querySelector("#mychat"));

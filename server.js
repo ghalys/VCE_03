@@ -1,7 +1,6 @@
 import express from "express";
 import http from "http";
-import { WebSocketServer } from "ws"; // Import the 'ws' library
-import WebSocket from "ws";
+import WebSocketServer from "ws"; // Import the 'ws' library
 
 import mainroutes from "./routes/mainroutes.js";
 
@@ -15,7 +14,7 @@ class MyServer {
     this.clients = [];
     this.db = {};
     this.server = null;
-    this.default_port = 9022;
+    this.default_port = 3000;
     this.ws = null;
     this.last_id = 0;
   }

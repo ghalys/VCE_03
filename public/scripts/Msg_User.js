@@ -1,12 +1,12 @@
 export class Msg {
-  constructor() {
-    this.id = null;
-    this.author = null;
-    this.content = null;
-    this.type = null;
-    this.time = null;
-    this.room = null;
-    this.destination = null;
+  constructor(id,author,content,type,time,room,destination) {
+    this.id = id;
+    this.author = author;
+    this.content = content;
+    this.type = type;
+    this.time = time;
+    this.room = room;
+    this.destination = destination;
   }
 }
 export class User {
