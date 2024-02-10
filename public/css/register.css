@@ -20,9 +20,6 @@ h2 {
   margin-bottom: 20px;
 }
 
-.form-group {
-  margin-bottom: 20px;
-}
 
 label {
   display: block;
@@ -38,7 +35,7 @@ input {
 
 }
 
-button {
+.joinButton {
   width: 100%;
   padding: 10px;
   background-color: #007bff;
@@ -48,9 +45,6 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #0056b3;
-}
 
 #register{
   font-weight: bold;
@@ -66,19 +60,28 @@ button:hover {
   border: 1px solid #ddd;
   padding: 20px;
   border-radius: 5px;
-  background-color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 300px;
+  width: 500px;
 }
-
-.joinButton {
-  width: 100%;
-  padding: 10px;
-}
-
 
 #usernameAvailability {
   color: red; 
   font-size: smaller; 
   font-style: italic; 
+}
+
+#eyeIconOpened{
+  width: 27px;
+  cursor: pointer;
+  position: absolute;
+  top: 40%;
+  right: 90px;
+  transform: translateY(-50%);
+}
+#eyeIconOpened{
+  display: block;
+
+}
+#input_password {
+  position: relative;
 }
