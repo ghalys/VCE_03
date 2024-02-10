@@ -1,6 +1,8 @@
-* {
+body {
+  font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
+  background-color: #f5f5f5;
 }
 
 .sidebar {
@@ -101,49 +103,3 @@
   width: auto;
   height: 5vh;
 }
-
-.center-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-.center-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-#loginSection {
-  background: white;
-  text-align: center;
-  border: 1px solid #ddd;
-  padding: 20px;
-  border-radius: 5px;
-  background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 300px;
-}
-
-#loginSection h2 {
-  margin-bottom: 20px;
-}
-
-#loginSection label {
-  display: block;
-  margin-bottom: 10px;
-}
-
-#loginSection input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-}
-
-.joinButton {
-  width: 100%;
-  padding: 10px;
-}
-
