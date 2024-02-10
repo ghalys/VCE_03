@@ -27,7 +27,7 @@ label {
 }
 
 input {
-  width: 80%;
+  width: 90%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 3px;
@@ -74,8 +74,8 @@ input {
   width: 27px;
   cursor: pointer;
   position: absolute;
-  top: 40%;
-  right: 90px;
+  top: 38%;
+  right: 7%;
   transform: translateY(-50%);
 }
 #eyeIconOpened{
