@@ -1,5 +1,6 @@
 import mysql from "mysql";
 import wrapper from "node-mysql-wrapper";
+import Msg from "./classes.js";
 
 const client = mysql.createConnection({
   database: "ecv-2019",
@@ -45,7 +46,7 @@ class DB {
 
     // messages table with message_id, user_id, room, message and timestamp
     client.query(
-      "CREATE TABLE IF NOT EXISTS messages_FG (message_id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, room_id INT, message TEXT, timestamp DATETIME, FOREIGN KEY (user_id) REFERENCES users_FG(user_id) ON DELETE CASCADE, FOREIGN KEY (room_id) REFERENCES rooms_FG(room_id) ON DELETE CASCADE)",
+      "CREATE TABLE IF NOT EXISTS messages_FG (message_id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, room_id INT, message TEXT, type VARCHAR(50), timestamp DATETIME, FOREIGN KEY (user_id) REFERENCES users_FG(user_id) ON DELETE CASCADE, FOREIGN KEY (room_id) REFERENCES rooms_FG(room_id) ON DELETE CASCADE)",
       (err, result) => {
         if (err) throw err;
         console.log("Table messages created" + result);
@@ -117,13 +118,18 @@ class DB {
     );
   }
 
-  addMessages(user_id, room_id, message, timestamp) {
+  addMessages(user_id, room_id, message) {
+    // Parse the Json string to a message object
+    msg = JSON.parse(message);
+
+    // Save the message to the database
     db.table("messages").save(
       {
-        user_id: user_id,
+        user_id: msg.id,
         room_id: room_id,
-        message: message,
-        timestamp: timestamp,
+        message: msg.content,
+        type: msg.type,
+        timestamp: msg.time,
       },
       (err, result) => {
         if (err) throw err;
@@ -165,11 +171,17 @@ class DB {
   getMsgHistory(room) {
     if (!room) return console.log("No room specified");
     console.log("Getting messages from room " + room);
-    db.table("messages").find({ room_id: room }, (err, result) => {
-      if (err) throw err;
-      console.log(result);
-      this.messages = result;
-    });
+    // Get all the messages from the room ordered by timestamp
+    db.table("messages").findAll(
+      { room_id: room },
+      { order: "timestamp" },
+      (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        // Store the messages in array
+        this.messages[room] = result;
+      }
+    );
   }
 }
 

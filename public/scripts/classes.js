@@ -1,10 +1,10 @@
 class Msg {
   constructor() {
-    this.id = null;
-    this.author = null;
-    this.content = null;
-    this.type = null;
-    this.time = null;
+    this.id = null; // User ID
+    this.author = null; // UserName
+    this.content = null; // Message
+    this.type = null; // Type of message: text, join, leave
+    this.time = null; // Time of message
   }
 }
 
