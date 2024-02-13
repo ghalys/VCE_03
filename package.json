@@ -13,9 +13,11 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
+    "http": "^0.0.1-security",
     "mysql": "^2.18.1",
     "mysql2": "^3.9.1",
     "node-mysql-wrapper": "^2.4.0",
+    "websocket": "^1.0.34",
     "ws": "^8.16.0"
   },
   "devDependencies": {

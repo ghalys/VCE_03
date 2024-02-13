@@ -9,8 +9,6 @@ const router = express.Router();
 
 router.use(express.static(path.join(__dirnameChild, "public")));
 
-// console.log(__dirname);
-
 router.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });

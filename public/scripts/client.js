@@ -14,13 +14,9 @@ class ServerClient{
     this.info_received = 0;
     this.activeUsers = [];
     this.active_room = roomname;
-    // this.history = [];
-
-
 
     this.user_id = 0;
     this.username = username;
-
     this.on_connect = null; //when connected
     this.on_ready = null; //when we have an ID from the server
     this.on_message = null; //when somebody sends a message

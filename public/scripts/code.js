@@ -13,8 +13,7 @@ class MyChat {
   
   init(url, roomname, username, icon = "face"){       
     this.server = new ServerClient(url,roomname,username);
-    this.server.connect_socket();
-
+    
     // Set the username
     this.my_username = username;
     
@@ -28,7 +27,7 @@ class MyChat {
     this.server.on_message=(message)=>{
       this.showMessage(message);
     }
-
+    
     this.server.on_ready = (id)=>{
     }
     
@@ -36,14 +35,15 @@ class MyChat {
       // Update active users display
       this.displayActiveUsers();
     }
-
+    
     this.server.on_user_disconnected = (id)=>{
       // Update active users display
       this.displayActiveUsers();
     }
-
+    
+    this.server.connect_socket();
+    
     this.on_chat_historic=(messages)=>{
-
     }
   };
   

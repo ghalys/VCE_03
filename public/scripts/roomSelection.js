@@ -1,30 +1,29 @@
 import MyChat from './code.js';
 
 var ourPort = "9022";
-var ourUrl = "wss://ecv-etic.upf.edu/node/"+ourPort+"/ws/";
+// var ourUrl = "wss://ecv-etic.upf.edu/node/"+ourPort+"/ws/";
 var ourUrl = "ws://localhost:3000"
 
 var FelixChat = new MyChat();
 FelixChat.create(document.querySelector("#mychat"));
-
 //Managing Login and Room selection
 //Connecting to another instance for getting the list of rooms
 
-async function getRooms() {
-  var server = new SillyClient();
-  server.connect("wss://ecv-etic.upf.edu/node/9000/ws/");
-  var report = await server.getReport();
-  var rooms = report.rooms;
-  //Add rooms to the selection list
-  for (var i in rooms) {
-    var room = i;
-    var activeUsers = rooms[i];
-    var option = document.createElement("option");
-    option.value = room;
-    option.innerHTML = room + " (" + activeUsers + ")";
-    document.getElementById("room-list").appendChild(option);
-  }
-}
+// async function getRooms() {
+//   var server = new SillyClient();
+//   server.connect("wss://ecv-etic.upf.edu/node/9000/ws/");
+//   var report = await server.getReport();
+//   var rooms = report.rooms;
+//   //Add rooms to the selection list
+//   for (var i in rooms) {
+//     var room = i;
+//     var activeUsers = rooms[i];
+//     var option = document.createElement("option");
+//     option.value = room;
+//     option.innerHTML = room + " (" + activeUsers + ")";
+//     document.getElementById("room-list").appendChild(option);
+//   }
+// }
 
 //////////////////////////////////////
 //Displaying all existing rooms
@@ -41,7 +40,6 @@ function connectToChat() {
     var element = document.getElementById("room-list");
     var selectedOption = element.options[element.selectedIndex];
     var room = selectedOption.value;
-
   } else {
     var room = document.getElementById("room-name").value;
   }
