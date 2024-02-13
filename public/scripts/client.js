@@ -29,16 +29,15 @@ class ServerClient{
 
   connect_socket(){
     this.socket = new WebSocket(this.url);
-    this.socket.onopen=this.onOpen;
-    this.socket.onmessage = this.onData;
-    this.socket.onclose = this.onClose;
+    this.socket.onopen = (event) => this.onOpen(event);
+    this.socket.onmessage = (event) => this.onData(event);
+    this.socket.onclose = (event) => this.onClose(event);
     // this.socket.onerror = this.onError;
   }
   
   send_message(message){
       var msg_json = JSON.stringify(message);
       this.socket.send(msg_json);
-      // this.history.push(msg_json)
     }
   
   //when the client receive data from the server
@@ -63,8 +62,6 @@ class ServerClient{
       case "TEXT":
           this.on_message(message);
           break;
-    //   case "history":
-    //       this.set_history(message);
     }   
   };
 
@@ -78,7 +75,7 @@ class ServerClient{
   onClose(){
     console.log("we were disconnected to the server");
     //try to reconnect if we were disconnected
-    setTimeout(connect_socket(url),3000);
+    setTimeout(this.connect_socket(),3000);
   };
 
   onUserJoin(message){

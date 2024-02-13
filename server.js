@@ -9,7 +9,6 @@ import mainroutes from "./routes/mainroutes.js";
 
 var PORT = 3000;
 
-//var url_ws_upf = new WebSocket("wss://ecv-etic.upf.edu/node/9022/");
 
 class MyServer {
   constructor() {
@@ -31,13 +30,13 @@ class MyServer {
   const server = http.createServer(app);
   this.server = server;
   this.listen(); // Listen on the default port
+
   //const ws = new WebSocket("wss://ecv-etic.upf.edu/node/9022/");
   const wsServer = new WebSocketServer({ server });
   this.wsServer = wsServer;
   this.setupRoutes(app); // Setup the routes
   // this.setupWebsocket(); // Setup the websocket
   this.wsServer.on("connection", (ws, req) => {
-    console.log("###############");
     var msg = new Msg(
       4,
       "Server",
@@ -46,19 +45,25 @@ class MyServer {
       new Date().getTime());
     ws.send(JSON.stringify(msg));
 
+    // Handling incoming messages from the client
+    ws.on("message", (message) => {
+      console.log("Received message:", message);
+      // Process the message here
+    });
+
+    // Handling client disconnection
+    ws.on("close", () => {
+      console.log("Client has disconnected");
+      // Perform cleanup or other actions upon disconnection
+    });
+
+    // Optionally, you can handle errors as well
+    ws.on("error", (error) => {
+      console.error("WebSocket error:", error);
+    });
     // this.onConnection(ws, req);
   });
-  this.wsServer.on('request', (request)=> {
-    var connection = request.accept(null, request.origin);
-    connection.on('message', function(message) {
-    console.log("#messagereceived");
-    console.log( JSON.parse(message)); // process WebSocket message
-        
-    });
-  });
-    // This is the most important callback for us, we'll handle all messages from users here.
-    // connection.on('close', function() {
-    //     // close user connection
+  
   };
   
 

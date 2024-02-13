@@ -13,7 +13,6 @@ class MyChat {
   
   init(url, roomname, username, icon = "face"){       
     this.server = new ServerClient(url,roomname,username);
-    
     // Set the username
     this.my_username = username;
     
