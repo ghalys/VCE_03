@@ -29,10 +29,12 @@ class ServerClient{
 
   connect_socket(){
     this.socket = new WebSocket(this.url);
+    this.socket.username = this.username;
+    
     this.socket.onopen = (event) => this.onOpen(event);
     this.socket.onmessage = (event) => this.onData(event);
     this.socket.onclose = (event) => this.onClose(event);
-    // this.socket.onerror = this.onError;
+
   }
   
   send_message(message){
@@ -42,7 +44,11 @@ class ServerClient{
   
   //when the client receive data from the server
   onData(ws_message){
+    info_received++;
+    console.log(JSON.parse(ws_message));
+    console.log("#######################");
     var msg = JSON.parse(ws_message.data);
+    console.log(msg);
     var message = new Msg(msg.id, msg.author, msg.content, msg.type, msg.time);
 
     switch(message.type)

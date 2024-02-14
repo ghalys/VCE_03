@@ -10,6 +10,7 @@ import mainroutes from "./routes/mainroutes.js";
 var PORT = 3000;
 
 
+
 class MyServer {
   constructor() {
     this.rooms = {};
@@ -19,7 +20,9 @@ class MyServer {
     this.default_port = 3000;
     this.wsServer = null;
     this.last_id = 0;
+    this.server_id = -1;
   }
+  
   start() {
   // Create the database
   // this.db = new DB();
@@ -35,58 +38,33 @@ class MyServer {
   const wsServer = new WebSocketServer({ server });
   this.wsServer = wsServer;
   this.setupRoutes(app); // Setup the routes
-  // this.setupWebsocket(); // Setup the websocket
+  
   this.wsServer.on("connection", (ws, req) => {
-    var msg = new Msg(
-      4,
-      "Server",
-      "helooo",
-      "TEXT",
-      new Date().getTime());
-    ws.send(JSON.stringify(msg));
+      this.onConnection(ws,req)
 
-    // Handling incoming messages from the client
-    ws.on("message", (message) => {
-      console.log("Received message:", message);
-      // Process the message here
-    });
+      // Handling incoming messages from the client
+      ws.on("message", (message) => {
+        console.log("Received message:", message);
+      });
 
-    // Handling client disconnection
-    ws.on("close", () => {
-      console.log("Client has disconnected");
-      // Perform cleanup or other actions upon disconnection
-    });
-
-    // Optionally, you can handle errors as well
-    ws.on("error", (error) => {
-      console.error("WebSocket error:", error);
-    });
-    // this.onConnection(ws, req);
+      // Handling client disconnection
+      ws.on("close", () => {
+      console.log(`Client ${ws.user_name} disconnected`);
   });
+
+      // Optionally, you can handle errors as well
+      ws.on("error", (error) => {
+      console.log(`Client ${ws.user_name} disconnected with an error:`);
+      console.log(error);
+
+    });
+
+    });
   
   };
-  
 
   setupRoutes(app) {
     app.use("/", mainroutes);
-  }
-
-  setupWebsocket() {
-    ws.sendToClient = function (type, message) {
-      // Create instance of Msg with all the information
-      var msg = new Msg(
-                        this.user_id,
-                        this.user_name,
-                        message,type,
-                        new Date().getTime() );
-
-      //Stringify the message and send it to the client
-      this.send(JSON.stringify(msg));
-    };
-
-    this.ws.on("connection", (ws, req) => {
-      this.onConnection(ws, req);
-    });
   }
 
   listen(port) {
@@ -96,11 +74,13 @@ class MyServer {
   }
 
   onConnection(ws, req) {
+    console.log("Websocket connection established");
 
     // When a client connects
-    ws.user_id = this.last_id;
-    ws.user_name = "User_" + this.last_id;
+    ws.id = this.last_id;
+    // ws.username = "User_" + this.last_id;
     this.last_id++;
+
     var msg = new Msg(
           4,
           "Server",
@@ -108,26 +88,8 @@ class MyServer {
           "TEXT",
           new Date().getTime());
     ws.send(JSON.stringify(msg));
-    // // WEBSOCKET EVENT HANDLERS
-    // ws.on("connection", (ws) => {
-    //   console.log(`Client ${ws.user_name} connected`);
-    //   
-    // });
 
-    // ws.on("message", (message) => {
-    //   this.onMessage(ws, message);
-    // });
-
-    // ws.on("close", () => {
-    //   console.log(`Client ${ws.user_name} disconnected`);
-    // });
-
-    // ws.on("error", (error) => {
-    //   console.log(`Client ${ws.user_name} disconnected with an error:`);
-    //   console.log(error);
-    // });
-
-    // console.log("Websocket connection established");
+    console.log(`Client ${ws.user_name} connected`);
 
     // var path_info = url.parse(req.url);
     // var parameters = qs.parse(path_info.query);
@@ -136,15 +98,15 @@ class MyServer {
     // var room_name = path_info.pathname;
     // ws.room = room_name.substring(1, room_name.length); // Remove the first character '/'
 
-    // //Create the room if it does not exist
-    // if (!this.rooms[ws.room]) this.createRoom(ws.room);
-    // this.rooms[ws.room].clients.push(ws);
-    // this.clients.push(ws);
+    //Create the room if it does not exist
+    if (!this.rooms[ws.room]) {
+      this.createRoom(ws.room);
+    }
 
-    // // On message callback for the websocket
-    // ws.onMessage((event) => {
-    //   this.onMessage(ws, event);
-    // });
+    var newUser = new User(ws.id,username,"online", new Date().getTime());
+    this.rooms[ws.room].clients.push(ws);
+    this.clients.push(ws);
+    sendUserJoin(newUser,ws)
   }
 
   // Handling the messages received from the clients
@@ -157,13 +119,7 @@ class MyServer {
         // Send the message to the room
         this.sendToRoom(msg.room, msg);
         break;
-      case "USER_JOIN":
-        // Send the message to the room
-        this.sendToRoom(msg.room, msg);
-        break;
-      case "USER_LEFT":
-        // Send the message to the room
-        this.sendToRoom(msg.room, msg);
+      case "YOUR_INFO":
         break;
       case "getUsers":
         // Send the message to the room
@@ -185,29 +141,46 @@ class MyServer {
   }
 
 
-  sendToRoom(room, msg) {
+  sendToRoom(ws, msg) {
     // Send the message to all the clients in the room
-    for (var i in this.rooms[room].clients) {
-      this.rooms[room].clients[i].send(JSON.stringify(msg));
+    for (var client  in this.rooms[ws.room].clients) {
+      if(client!=ws){
+        this.rooms[room].clients[i].send(JSON.stringify(msg));
+      }
     }
   }
 
   createRoom(room) {
     console.log("Creating room " + room);
-    this.rooms[room] = { clients: [] };
+    this.rooms[room] = { name : room, clients: [] };
   }
 
   sendUsers(ws) {
-    // Send the list of users to the client in the Msg object
+    // Send the list of users of the room to the client in the Msg object
     var msg = new Msg(
-                     ws.user_id,
+                     this.server_id,
                      "Server",
-                     this.clients,
+                     this.rooms[ws.room].clients,
                      "users",
                      new Date().getTime());
     ws.send(JSON.stringify(msg));
   }
 
+  sendUserJoin(newUser,ws) {
+    // Send the info about the user who joined the room
+    var msg = new Msg(
+                     this.server_id,
+                     "Server",
+                     newUser,
+                     "USER_JOIN",
+                     new Date().getTime());
+    var room = ws.room;
+    for (var client in this.rooms[room].clients){
+      if (client.id!=ws.id){
+        client.ws.send(JSON.stringify(msg));
+      }
+    }
+  }
   sendRooms(ws) {
     // Send the list of rooms to the client in the Msg object
     var msg = new Msg(
