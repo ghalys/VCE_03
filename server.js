@@ -160,40 +160,52 @@ class MyServer {
     this.rooms[room] = { clients: [] };
   }
 
-  sendUsers(ws) {
-    // Send the list of users to the client in the Msg object
-    var msg = new Msg();
-    msg.id = ws.user_id;
-    msg.author = "Server";
-    msg.content = this.clients;
-    msg.type = "users";
-    msg.time = new Date().getTime();
-    ws.send(JSON.stringify(msg));
+  async sendUsers(ws) {
+    try {
+      // Send the list of users to the client in the Msg object
+      var msg = new Msg();
+      msg.id = ws.user_id;
+      msg.author = "Server";
+      msg.content = await this.getData("users");
+      msg.type = "users";
+      msg.time = new Date().getTime();
+      ws.send(JSON.stringify(msg));
+    } catch (err) {
+      console.log("Error getting users: " + err);
+    }
   }
 
-  sendRooms(ws) {
-    // Send the list of rooms to the client in the Msg object
-    var msg = new Msg();
-    msg.id = ws.user_id;
-    msg.author = "Server";
-    msg.content = this.rooms;
-    msg.type = "rooms";
-    msg.time = new Date().getTime();
-    ws.send(JSON.stringify(msg));
+  async sendRooms(ws) {
+    try {
+      // Send the list of rooms to the client in the Msg object
+      var msg = new Msg();
+      msg.id = ws.user_id;
+      msg.author = "Server";
+      msg.content = await this.getData("rooms");
+      msg.type = "rooms";
+      msg.time = new Date().getTime();
+      ws.send(JSON.stringify(msg));
+    } catch (err) {
+      console.log("Error getting rooms: " + err);
+    }
   }
 
-  sendMsgHistory(ws, room) {
-    // Get the message history from the database and save it in the room object
-    //TODO: Async functions!!
-    var msg_history = this.getData("messages", room);
-    // Send the message history to the client in the Msg object
-    var msg = new Msg();
-    msg.id = ws.user_id;
-    msg.author = "Server";
-    msg.content = this.rooms[room].msg_history;
-    msg.type = "msg_history";
-    msg.time = new Date().getTime();
-    ws.send(JSON.stringify(msg));
+  async sendMsgHistory(ws, room) {
+    try {
+      // Get the message history from the database and save it in the room object
+      //TODO: Async functions!!
+      var msg_history = this.getData("messages", room);
+      // Send the message history to the client in the Msg object
+      var msg = new Msg();
+      msg.id = ws.user_id;
+      msg.author = "Server";
+      msg.content = await this.getData("messages", room);
+      msg.type = "msg_history";
+      msg.time = new Date().getTime();
+      ws.send(JSON.stringify(msg));
+    } catch (err) {
+      console.log("Error getting message history: " + err);
+    }
   }
 
   sendRoomInfo(ws, room) {

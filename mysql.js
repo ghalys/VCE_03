@@ -81,17 +81,16 @@ class DB {
     }
   }
 
-  retrieveData(info, room) {
+  async retrieveData(info, room) {
     switch (info) {
       case "users":
-        this.getAllUsers();
-        break;
+        return await this.getAllUsers();
       case "rooms":
-        this.getAllRooms();
-        break;
+        return await this.getAllRooms();
       case "messages":
-        this.getMsgHistory(room);
-        break;
+        return await this.getMsgHistory(room);
+      default:
+        throw new Error("No info specified");
     }
   }
 
@@ -139,10 +138,13 @@ class DB {
   }
 
   getAllUsers() {
-    db.table("users").findAll((err, result) => {
-      if (err) throw err;
-      console.log(result);
-      this.users = result;
+    return new Promise((resolve, reject) => {
+      db.table("users").findAll((err, result) => {
+        if (err) reject(err);
+        console.log(result);
+        this.users = result;
+        resolve(result);
+      });
     });
   }
   getUser(id) {
@@ -154,10 +156,13 @@ class DB {
   }
 
   getAllRooms() {
-    db.table("rooms").findAll((err, result) => {
-      if (err) throw err;
-      console.log(result);
-      this.rooms = result;
+    return new Promise((resolve, reject) => {
+      db.table("rooms").findAll((err, result) => {
+        if (err) reject(err);
+        console.log(result);
+        this.rooms = result;
+        resolve(result);
+      });
     });
   }
 
@@ -172,16 +177,18 @@ class DB {
     if (!room) return console.log("No room specified");
     console.log("Getting messages from room " + room);
     // Get all the messages from the room ordered by timestamp
-    db.table("messages").findAll(
-      { room_id: room },
-      { order: "timestamp" },
-      (err, result) => {
-        if (err) throw err;
-        console.log(result);
-        // Store the messages in array
-        this.messages[room] = result;
-      }
-    );
+    return new Promise((resolve, reject) => {
+      db.table("messages").findAll(
+        { room_id: room },
+        { order: "timestamp" },
+        (err, result) => {
+          if (err) reject(err); // throw err;
+          console.log(result);
+          this.messages[room] = result; // locally store the messages
+          resolve(result); // return the messages for the resolve function
+        }
+      );
+    });
   }
 }
 
