@@ -48,28 +48,27 @@ class MyServer {
       const username = urlParams.get('username');
       const roomname = urlParams.get('roomname');
 
+
       // We define the User and its Id
       var newUser = new User(this.last_id,username,"online",new Date().getTime() );
-      // this.sendId(ws,this.last_id); //to the user
+      this.sendId(ws,this.last_id); //to the user
       this.last_id++;
+      //We associate the ws to its room
+      ws.room = roomname;
       //We define a client which associate the user to its client server
       var newClient = new Client(newUser, ws);
+
       //We communicate info about this incomming client and add him to the roomManager
       this.onConnection(roomname,newClient);
 
       
       // Handling incoming messages from the client
       ws.on("message", (msg) => {
+        console.log("Received message from client");
+
         var message = JSON.parse(msg);
-
-        /////////////INITIALISATION OF CLIENT/////////////
-        if (message.type="INIT"){
-        }
-
-
         this.onMessage(newClient, message);
 
-        console.log("Received message from client");
       });
 
       // Handling client disconnection
@@ -105,8 +104,8 @@ class MyServer {
     this.roomManager.addClientToRoom(room,newClient);
 
     //We update the activeUsers lists for all clients presents in the room
-    // this.sendUserJoin(newClient); 
-    // this.sendUsersOfRoom(newClient);
+    this.sendUserJoin(newClient); 
+    this.sendUsersOfRoom(newClient);
     
 
     // var path_info = url.parse(req.url);
@@ -122,14 +121,12 @@ class MyServer {
 
     // Switch case for all the types of messages
     switch (message.type) {
-      case "WELCOME":
-        this.createNewClient(message);
 
-        break;
       case "TEXT":
-        if(message.destination === undefined){
+        if (message.destination) {
           // Send the message to the room
           this.sendToRoom(client, message);
+
         }
         else{
           //Send the message to the specific user mentionned in message.destination
@@ -157,7 +154,7 @@ class MyServer {
   sendToUser(id,message,clientSender){
     //Sends the message to a specific Id user
     var clients = this.roomManager.getClientsInRoom(clientSender);
-    for (var client in clients){
+    for (let client of clients){
       if (client.id==id){
         client.server.send(JSON.stringify(message));
       }
@@ -167,8 +164,9 @@ class MyServer {
   sendToRoom(Client, message) {
     // Send the message to all other clients in the room
     var clients = this.roomManager.getClientsInRoom(Client);
-    for (var otherClient in clients){
-      if (otherClient.id != 0){
+
+    for (let otherClient of clients) {
+      if (otherClient.id != Client.id){
         otherClient.server.send(JSON.stringify(message));
       }
     }
@@ -199,7 +197,7 @@ class MyServer {
   sendUsersOfRoom(newClient){
     //send the info about all people connected to the new user
     var clients = this.roomManager.getClientsInRoom(newClient);
-    for (var client in clients){
+    for (let client of clients){
       if (client.id!=newClient.id){
         var msg = new Msg(
                           this.server_id,

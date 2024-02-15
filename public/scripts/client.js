@@ -46,8 +46,7 @@ class ServerClient{
   onData(ws_message){
     //when the client receive a message from the server
     this.info_received++;
-
-    var msg = JSON.parse(ws_message); //?? do we need to create a new Msgobject or it's already an object of this class?
+    var msg = JSON.parse(ws_message.data); //?? do we need to create a new Msgobject or it's already an object of this class?
     var message = new Msg(msg.id, msg.author, msg.content, msg.type, msg.time);
 
     switch(message.type)
@@ -139,10 +138,8 @@ class ServerClient{
   }
 
   setMyUser(message){
-    id = message.content;
     // Storing the information of the user in the device object
-    this.user_id = id;
-
+    this.user_id = message.content;
     this.on_ready()
     // Send status update to all users in the room
     // this.sendStatusUpdate(id, this.device.username, "I joined the room");

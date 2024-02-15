@@ -6,14 +6,15 @@ class MyChat {
     this.root = null;
     this.server = null;
     this.current_room_name = null;
-    this.my_user_id = null;
+    this.user_id = null;
     this.my_username = null;
     this.my_icon = null;
   }
   
   init(url, roomname, username, icon = "face"){       
     this.server = new ServerClient(url,roomname,username);
-    // Set the username
+
+    // Set the username and the id 
     this.my_username = username;
     
     // Set the name of the room
@@ -28,6 +29,7 @@ class MyChat {
     }
     
     this.server.on_ready = ()=>{
+      this.user_id = this.server.user_id;
     }
     
     this.server.on_user_connected = (id)=>{
@@ -57,7 +59,7 @@ class MyChat {
   // Displaying messages in the chat
   showMessage(msg) {
     var messageDiv = document.createElement("div");
-    if(msg.id == this.my_user_id){
+    if(msg.id == this.user_id){
       messageDiv.className ="mycontent";
     }
     else{
@@ -153,7 +155,7 @@ class MyChat {
   send_input(input){
     if (input.value!=""){
       var new_message = new Msg(
-        this.my_user_id,
+        this.user_id,
         this.my_username,
         input.value,
         "TEXT",
