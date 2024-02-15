@@ -46,13 +46,13 @@ class ServerClient{
   onData(ws_message){
     //when the client receive a message from the server
     this.info_received++;
-    var msg = JSON.parse(ws_message.data); //?? do we need to create a new Msgobject or it's already an object of this class?
+    var msg = JSON.parse(ws_message.data);
     var message = new Msg(msg.id, msg.author, msg.content, msg.type, msg.time);
 
     switch(message.type)
     {
-      case "YOUR_INFO"://still no message is send from the server
-        this.setMyUser(message);
+      case "YOUR_INFO":
+          this.setMyUser(message);
         break;
       case "TEXT":
           this.on_message(message);
@@ -73,18 +73,11 @@ class ServerClient{
     //When the user is connected
     this.is_connected = true;
     console.log("Connected!");
-
-    // //send a message with the username and the room 
-    // var msg = new Msg(
-    //   this.user_id,
-    //   this.username,
-    //   {username : this.username, roomname : this.active_room },
-    //   "INIT",
-    //   new Date().getTime());
   };
 
   setMyRoom(message){
-    //I have to complete it
+    //TODO we should use it somewhere. Maybe we should also define a new user which retrieve only the rooms which are present for the RoomSelection html. 
+    var rooms = message.content;
     console.log("I received the info about the room",message.content);
 
   }

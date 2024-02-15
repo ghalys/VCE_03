@@ -212,16 +212,14 @@ class MyServer {
 
 
   sendRooms(client) {
-    // Send the list of rooms to the client in the Msg object
+    //Send the list of rooms to the client in the Msg object
     var rooms = this.roomManager.getRoomNames();
-    for(var room in rooms){
-      var msg = new Msg(
-                        this.server_id,
-                        "Server",
-                        room,
-                        "ROOMS_INFO",
-                        new Date().getTime());
-    }
+    var msg = new Msg(
+                      this.server_id,
+                      "Server",
+                      rooms,
+                      "ROOMS_INFO",
+                      new Date().getTime());
     client.server.send(JSON.stringify(msg));
   }
 
@@ -242,17 +240,6 @@ class MyServer {
 //     // ws.send(JSON.stringify(msg));
 //   }
 
-//   sendRoomInfo(ws, room) {
-//     // Send the room information to the client in the Msg object
-//     var msg = new Msg(
-//                       ws.user_id,
-//                       "Server",
-//                       this.rooms[room],
-//                       msg.type = "room_info",
-//                       msg.time = new Date().getTime());
-                      
-//     ws.send(JSON.stringify(msg))
-//   }
 
 //   setData(data, info) {
 //     //Parameters: data, the data to be stored, info, the information where to store the data
