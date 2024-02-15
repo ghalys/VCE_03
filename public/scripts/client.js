@@ -15,7 +15,7 @@ class ServerClient{
     this.activeUsers = [];
     this.active_room = roomname;
 
-    this.user_id = 0;
+    this.user_id = -2;
     this.username = username;
     this.on_connect = null; //when connected
     this.on_ready = null; //when we have an ID from the server
@@ -28,10 +28,8 @@ class ServerClient{
   }
 
   connect_socket(){
-    this.socket = new WebSocket(this.url);
-    this.username ="ghaaa";
-    this.socket.username = this.username; //set the ws.username
-    
+    this.socket = new WebSocket(`${this.url}?username=${encodeURIComponent(this.username)}&roomname=${encodeURIComponent(this.active_room)}`);
+
     this.socket.onopen = (event) => this.onOpen(event);
     this.socket.onmessage = (event) => this.onData(event);
     this.socket.onclose = (event) => this.onClose(event);
@@ -76,6 +74,14 @@ class ServerClient{
     //When the user is connected
     this.is_connected = true;
     console.log("Connected!");
+
+    // //send a message with the username and the room 
+    // var msg = new Msg(
+    //   this.user_id,
+    //   this.username,
+    //   {username : this.username, roomname : this.active_room },
+    //   "INIT",
+    //   new Date().getTime());
   };
 
   setMyRoom(message){
@@ -137,7 +143,7 @@ class ServerClient{
     // Storing the information of the user in the device object
     this.user_id = id;
 
-    this.on_ready(id)
+    this.on_ready()
     // Send status update to all users in the room
     // this.sendStatusUpdate(id, this.device.username, "I joined the room");
   }

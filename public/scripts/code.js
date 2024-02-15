@@ -27,7 +27,7 @@ class MyChat {
       this.showMessage(message);
     }
     
-    this.server.on_ready = (id)=>{
+    this.server.on_ready = ()=>{
     }
     
     this.server.on_user_connected = (id)=>{

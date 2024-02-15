@@ -42,27 +42,39 @@ class MyServer {
 
     //when a new client is connected 
     this.wsServer.on("connection", (ws, req) => {
-      // console.log(ws);
-      // We define the User and its Id, should verify for username if I can get it now
-      var newUser = new User(this.last_id,"User_" + this.last_id,"online", new Date().getTime());
-      ws.id = this.last_id;  
+
+      //we retrieve the username and the current roomname from the client
+      const urlParams = new URLSearchParams(req.url.split('?')[1]);
+      const username = urlParams.get('username');
+      const roomname = urlParams.get('roomname');
+
+      // We define the User and its Id
+      var newUser = new User(this.last_id,username,"online",new Date().getTime() );
+      // this.sendId(ws,this.last_id); //to the user
       this.last_id++;
-      
       //We define a client which associate the user to its client server
       var newClient = new Client(newUser, ws);
       //We communicate info about this incomming client and add him to the roomManager
-      this.onConnection(ws.room,newClient);
+      this.onConnection(roomname,newClient);
 
+      
       // Handling incoming messages from the client
       ws.on("message", (msg) => {
         var message = JSON.parse(msg);
+
+        /////////////INITIALISATION OF CLIENT/////////////
+        if (message.type="INIT"){
+        }
+
+
         this.onMessage(newClient, message);
-        console.log("Received message");
+
+        console.log("Received message from client");
       });
 
       // Handling client disconnection
       ws.on("close", () => {
-        // console.log(`Client ${ws.user_name} disconnected`);
+        console.log("Client disconnected");
       });
 
     });
@@ -71,6 +83,15 @@ class MyServer {
 
   setupRoutes(app) {
     app.use("/", mainroutes);
+  }
+  sendId(ws,id){
+    var msg = new Msg(
+      this.server_id,
+      "Server",
+      id,
+      "YOUR_INFO",
+      new Date().getTime());
+    ws.send(JSON.stringify(msg));
   }
 
   listen(port) {
@@ -84,8 +105,8 @@ class MyServer {
     this.roomManager.addClientToRoom(room,newClient);
 
     //We update the activeUsers lists for all clients presents in the room
-    this.sendUserJoin(newClient); 
-    this.sendUsersOfRoom(newClient);
+    // this.sendUserJoin(newClient); 
+    // this.sendUsersOfRoom(newClient);
     
 
     // var path_info = url.parse(req.url);
@@ -101,7 +122,10 @@ class MyServer {
 
     // Switch case for all the types of messages
     switch (message.type) {
+      case "WELCOME":
+        this.createNewClient(message);
 
+        break;
       case "TEXT":
         if(message.destination === undefined){
           // Send the message to the room
@@ -112,11 +136,7 @@ class MyServer {
           var id = message.destination;
           this.sendToUser(id,message,client); //the client here is the sender
         }
-        break;
-          
-      case "YOUR_INFO":
-        break;
-            
+        break;           
     }
 
       // case "getRooms":

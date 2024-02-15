@@ -21,7 +21,7 @@ export class Client {
   constructor(user, server) {
     this.user = user;
     this.server = server;
-    this.id = server.id;
+    this.id = user.id;
   }
 }
 
