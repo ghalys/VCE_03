@@ -29,7 +29,8 @@ class ServerClient{
 
   connect_socket(){
     this.socket = new WebSocket(this.url);
-    this.socket.username = this.username;
+    this.username ="ghaaa";
+    this.socket.username = this.username; //set the ws.username
     
     this.socket.onopen = (event) => this.onOpen(event);
     this.socket.onmessage = (event) => this.onData(event);
@@ -38,21 +39,26 @@ class ServerClient{
   }
   
   send_message(message){
+      //Sends the message to the server
       var msg_json = JSON.stringify(message);
       this.socket.send(msg_json);
+      this.info_transmitted++;
     }
   
-  //when the client receive data from the server
   onData(ws_message){
-    info_received++;
+    //when the client receive a message from the server
+    this.info_received++;
 
     var msg = JSON.parse(ws_message); //?? do we need to create a new Msgobject or it's already an object of this class?
     var message = new Msg(msg.id, msg.author, msg.content, msg.type, msg.time);
 
     switch(message.type)
     {
-      case "YOUR_INFO":
-          this.setMyUser(message);
+      case "YOUR_INFO"://still no message is send from the server
+        this.setMyUser(message);
+        break;
+      case "TEXT":
+          this.on_message(message);
           break;
       case "ROOM_INFO":
           this.setMyRoom(message); 
@@ -63,28 +69,34 @@ class ServerClient{
       case "USER_LEFT":
           this.onUserLeft(message);
           break;
-      case "TEXT":
-          this.on_message(message);
-          break;
     }   
   };
 
   onOpen(){
+    //When the user is connected
+    this.is_connected = true;
     console.log("Connected!");
   };
 
-  setMyRoom(){
+  setMyRoom(message){
+    //I have to complete it
+    console.log("I received the info about the room",message.content);
+
   }
 
   onClose(){
-    console.log("we were disconnected to the server");
+    //When the connection is closed
+    this.is_connected = false;
+
     //try to reconnect if we were disconnected
     setTimeout(this.connect_socket(),3000);
+    console.log("we were disconnected to the server");
   };
 
   onUserJoin(message){
-    // var id = message.id;
+    //When a new user join the room
 
+    // var id = message.id;
     // // Add user to active users list if it is not already there
     
     var newUser = message.content;
@@ -97,16 +109,17 @@ class ServerClient{
       }
     }
     if (!user_exists) {
-      // var new_user = new User(id, message.author, "online", message.time);
       this.activeUsers.push(newUser);
     }
 
     this.on_user_connected(id);
-
   }
 
   onUserLeft(message){
-    var id = message.id;
+    //When an user quit the room
+
+    var user = message.content;
+    var id = user.id;
 
     // Change user status from active users list
     for (var user in this.activeUsers) {

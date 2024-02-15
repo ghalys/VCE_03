@@ -13,53 +13,57 @@ var PORT = 3000;
 
 class MyServer {
   constructor() {
-    this.rooms = {};
     this.roomManager = null;
-    // this.clients = [];
     this.db = {};
-    this.server = null;
+    this.server = null; //httpServer
     this.default_port = 3000;
-    this.wsServer = null;
+    this.wsServer = null;//webSocketServer
     this.last_id = 0;
     this.server_id = -1;
   }
   
   start() {
-  this.roomManager = new RoomManager();
-  // Create the database
-  // this.db = new DB();
-  // this.db.initializeTables();
+    this.roomManager = new RoomManager();
+    // Create the database
+    // this.db = new DB();
+    // this.db.initializeTables();
 
-  // Create the server and the websocket
-  const app = express();
-  const server = http.createServer(app);
-  this.server = server;
-  this.listen(); // Listen on the default port
+    // Create the server and the websocket
+    const app = express();
+    const server = http.createServer(app);
+    this.server = server;
+    this.listen(); // Listen on the default port
 
-  //const ws = new WebSocket("wss://ecv-etic.upf.edu/node/9022/");
-  const wsServer = new WebSocketServer({ server });
-  this.wsServer = wsServer;
-  this.setupRoutes(app); // Setup the routes
-  
-  this.wsServer.on("connection", (ws, req) => {
-      this.onConnection(ws,req)
+    //const ws = new WebSocket("wss://ecv-etic.upf.edu/node/9022/");
+    const wsServer = new WebSocketServer({ server });
+    this.wsServer = wsServer;
+    this.setupRoutes(app); // Setup the routes
+    
+
+    //when a new client is connected 
+    this.wsServer.on("connection", (ws, req) => {
+      // console.log(ws);
+      // We define the User and its Id, should verify for username if I can get it now
+      var newUser = new User(this.last_id,"User_" + this.last_id,"online", new Date().getTime());
+      ws.id = this.last_id;  
+      this.last_id++;
+      
+      //We define a client which associate the user to its client server
+      var newClient = new Client(newUser, ws);
+      //We communicate info about this incomming client and add him to the roomManager
+      this.onConnection(ws.room,newClient);
 
       // Handling incoming messages from the client
-      ws.on("message", (message) => {
-        console.log("Received message:", message);
+      ws.on("message", (msg) => {
+        var message = JSON.parse(msg);
+        this.onMessage(newClient, message);
+        console.log("Received message");
       });
 
       // Handling client disconnection
       ws.on("close", () => {
-      // console.log(`Client ${ws.user_name} disconnected`);
-  });
-
-      // Optionally, you can handle errors as well
-      ws.on("error", (error) => {
-      // console.log(`Client ${ws.user_name} disconnected with an error:`);
-      // console.log(error);
-
-    });
+        // console.log(`Client ${ws.user_name} disconnected`);
+      });
 
     });
   
@@ -75,73 +79,83 @@ class MyServer {
     this.server.listen(this.port);
   }
 
-  onConnection(ws, req) {
+  onConnection(room,newClient) {
     console.log("Websocket connection established");
+    this.roomManager.addClientToRoom(room,newClient);
 
-    // When a client connects
-    var newUser = new User(this.last_id,username="User_" + this.last_id,"online", new Date().getTime());
-    ws.id = this.last_id; // we should associate an id to the ws 
-    this.last_id++;
+    //We update the activeUsers lists for all clients presents in the room
+    this.sendUserJoin(newClient); 
+    this.sendUsersOfRoom(newClient);
     
-    var newClient = new Client(newUser, ws);
 
-    this.roomManager.addClientToRoom(ws.room,newClient);
-    
     // var path_info = url.parse(req.url);
     // var parameters = qs.parse(path_info.query);
-
     // // Room management
     // var room_name = path_info.pathname;
     // ws.room = room_name.substring(1, room_name.length); // Remove the first character '/'
 
-    this.sendUserJoin(newClient);
-    this.sendRoomInfo(newClient);
   }
 
   // Handling the messages received from the clients
-  onMessage(ws, message) {
-    // Parse the message
-    var msg = JSON.parse(message);
+  onMessage(client, message) {
+
     // Switch case for all the types of messages
-    switch (msg.type) {
+    switch (message.type) {
+
       case "TEXT":
-        // Send the message to the room
-        this.sendToRoom(msg.room, msg);
+        if(message.destination === undefined){
+          // Send the message to the room
+          this.sendToRoom(client, message);
+        }
+        else{
+          //Send the message to the specific user mentionned in message.destination
+          var id = message.destination;
+          this.sendToUser(id,message,client); //the client here is the sender
+        }
         break;
+          
       case "YOUR_INFO":
         break;
-      case "getUsers":
-        // Send the message to the room
-        this.sendUsers(ws);
-        break;
-      case "getRooms":
-        // Send the message to the room
-        this.sendRooms(ws);
-        break;
-      case "getMsgHistory":
-        // Send the message to the room
-        this.sendMsgHistory(ws, msg.room);
-        break;
-      case "getRoomInfo":
-        // Send the message to the room
-        this.sendRoomInfo(ws, msg.room);
-        break;
+            
+    }
+
+      // case "getRooms":
+      //   // Send the message to the room
+      //   this.sendRooms(ws);
+      //   break;
+      // case "getMsgHistory":
+      //   // Send the message to the room
+      //   this.sendMsgHistory(ws, msg.room);
+      //   break;
+      // case "getRoomInfo":
+      //   // Send the message to the room
+      //   this.sendRoomInfo(ws, msg.room);
+      //   break;
+  }
+  
+
+  sendToUser(id,message,clientSender){
+    //Sends the message to a specific Id user
+    var clients = this.roomManager.getClientsInRoom(clientSender);
+    for (var client in clients){
+      if (client.id==id){
+        client.server.send(JSON.stringify(message));
+      }
     }
   }
 
-
-  sendToRoom(newClient, msg) {
+  sendToRoom(Client, message) {
     // Send the message to all other clients in the room
-    var clients = this.roomManager.getClientsInRoom(newClient);
-    for (var client in clients){
-      if (client.id!=newClient.id){
-        client.server.send(JSON.stringify(msg));
+    var clients = this.roomManager.getClientsInRoom(Client);
+    for (var otherClient in clients){
+      if (otherClient.id != 0){
+        otherClient.server.send(JSON.stringify(message));
       }
     }
   }
 
   sendUserJoin(newClient) {
-    // Send the info about the user who joined the room to the rest of the users
+    // Send the info "USER_JOIN" to the rest of the users of the same room
     var msg = new Msg(
                      this.server_id,
                      "Server",
@@ -152,7 +166,7 @@ class MyServer {
   }
 
   sendUserLeft(Client) {
-    // Send the info about the user who quit the room to the rest of the users
+    // Send the info "USER_LEFT" to the rest of the users of the room
     var msg = new Msg(
                      this.server_id,
                      "Server",
@@ -162,98 +176,77 @@ class MyServer {
     this.sendToRoom(Client);
   }
 
-  sendRoomInfo(newClient){
-    //send to new user the info about all people connected
-    var msg = new Msg(
-                      this.server_id,
-                      "Server",
-                      client.user,
-                      "USER_JOIN",
-                      new Date().getTime());
-
+  sendUsersOfRoom(newClient){
+    //send the info about all people connected to the new user
     var clients = this.roomManager.getClientsInRoom(newClient);
     for (var client in clients){
       if (client.id!=newClient.id){
+        var msg = new Msg(
+                          this.server_id,
+                          "Server",
+                          client.user,
+                          "USER_JOIN",
+                          new Date().getTime());
         newClient.server.send(JSON.stringify(msg));
       }
     }
   }
-  createRoom(room) {
-    console.log("Creating room " + room);
-    this.rooms[room] = { clients: [] };
-  }
 
-  sendUsers(ws) {
-    // Send the list of users of the room to the client in the Msg object
-    var msg = new Msg(
-                     this.server_id,
-                     "Server",
-                     this.rooms[ws.room].clients,
-                     "users",
-                     new Date().getTime());
-    ws.send(JSON.stringify(msg));
-  }
 
-  sendRooms(ws) {
+  sendRooms(client) {
     // Send the list of rooms to the client in the Msg object
-    var msg = new Msg(
-                      ws.user_id,
-                      "Server",
-                      this.rooms,
-                      "rooms",
-                      new Date().getTime());
-    ws.send(JSON.stringify(msg));
+    var rooms = this.roomManager.getRoomNames();
+    for(var room in rooms){
+      var msg = new Msg(
+                        this.server_id,
+                        "Server",
+                        room,
+                        "ROOMS_INFO",
+                        new Date().getTime());
+    }
+    client.server.send(JSON.stringify(msg));
   }
 
+
+  //THIS PART WILL BE REVIEWED AFTER
 ///////////////////////////////////////////////////////////////////////////////////////
-  sendMsgHistory(ws, room) {
-    // Get the message history from the database and save it in the room object
-    //TODO: Async functions!!
-    var msg_history = this.getData("messages", room);
-    // Send the message history to the client in the Msg object
-    var msg = new Msg(
-                      ws.user_id,
-                      "Server",
-                      this.rooms[room].msg_history,
-                      "msg_history",
-                      msg.time = new Date().getTime());
-    // ws.send(JSON.stringify(msg));
-  }
+//   sendMsgHistory(ws, room) {
+//     // Get the message history from the database and save it in the room object
+//     //TODO: Async functions!!
+//     var msg_history = this.getData("messages", room);
+//     // Send the message history to the client in the Msg object
+//     var msg = new Msg(
+//                       ws.user_id,
+//                       "Server",
+//                       this.rooms[room].msg_history,
+//                       "msg_history",
+//                       msg.time = new Date().getTime());
+//     // ws.send(JSON.stringify(msg));
+//   }
 
-  sendRoomInfo(ws, room) {
-    // Send the room information to the client in the Msg object
-    var msg = new Msg(
-                      ws.user_id,
-                      "Server",
-                      this.rooms[room],
-                      msg.type = "room_info",
-                      msg.time = new Date().getTime());
+//   sendRoomInfo(ws, room) {
+//     // Send the room information to the client in the Msg object
+//     var msg = new Msg(
+//                       ws.user_id,
+//                       "Server",
+//                       this.rooms[room],
+//                       msg.type = "room_info",
+//                       msg.time = new Date().getTime());
                       
-    ws.send(JSON.stringify(msg))
-  }
+//     ws.send(JSON.stringify(msg))
+//   }
 
-  setData(data, info) {
-    //Parameters: data, the data to be stored, info, the information where to store the data
-    // Store the data in the database
+//   setData(data, info) {
+//     //Parameters: data, the data to be stored, info, the information where to store the data
+//     // Store the data in the database
 
-    // Let the db handle where to store the data
-    this.db.handleData(data, info);
-  }
+//     // Let the db handle where to store the data
+//     this.db.handleData(data, info);
+//   }
 
-  async getData(info, room = null) {
-    return await this.db.retrieveData(info, room);
-  // Linking to the database
-  } 
+//   async getData(info, room = null) {
+//     return await this.db.retrieveData(info, room);
+//   // Linking to the database
+//   } 
 }
-
-
-// var msg = new Msg(
-//   4,
-//   "Server",
-//   "helooo",
-//   "TEXT",
-//   new Date().getTime());
-// ws.send(JSON.stringify(msg));
-
-// export default MyServer;
 export default MyServer;

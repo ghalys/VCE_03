@@ -1,10 +1,11 @@
 export class Msg {
-  constructor(id,author,content,type,time,room,destination) {
+  constructor(id,author,content,type,time,destination) {
     this.id = id;
     this.author = author;
     this.content = content;
     this.type = type;
     this.time = time;
+    this.destination = destination;
   }
 }
 export class User {
@@ -31,11 +32,11 @@ export class Room{
     }
   
     addClient(client) {
-      this.users[client.id] = client;
+      this.clients[client.id] = client;
     }
   
     removeClient(client) {
-      delete this.users[client.id];
+      delete this.clients[client.id];
     }
   }
 
@@ -60,6 +61,10 @@ export class Room{
     getClientsInRoom(client) {
       var roomName = client.server.room;
       return this.rooms[roomName] ? Object.values(this.rooms[roomName].clients) : [];
+    }
+
+    getRoomNames() {
+      return Object.keys(this.rooms);
     }
 
   }
