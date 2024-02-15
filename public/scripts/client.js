@@ -45,10 +45,8 @@ class ServerClient{
   //when the client receive data from the server
   onData(ws_message){
     info_received++;
-    console.log(JSON.parse(ws_message));
-    console.log("#######################");
-    var msg = JSON.parse(ws_message.data);
-    console.log(msg);
+
+    var msg = JSON.parse(ws_message); //?? do we need to create a new Msgobject or it's already an object of this class?
     var message = new Msg(msg.id, msg.author, msg.content, msg.type, msg.time);
 
     switch(message.type)
@@ -85,9 +83,13 @@ class ServerClient{
   };
 
   onUserJoin(message){
-    var id = message.id;
+    // var id = message.id;
 
-    // Add user to active users list if it is not already there
+    // // Add user to active users list if it is not already there
+    
+    var newUser = message.content;
+    var id = newUser.id;
+    
     var user_exists = false;
     for (var user in this.activeUsers) {
       if (this.activeUsers[user].id == id) {
@@ -95,10 +97,12 @@ class ServerClient{
       }
     }
     if (!user_exists) {
-      var new_user = new User(id, message.author, "online", message.time);
-      this.activeUsers.push(new_user);
+      // var new_user = new User(id, message.author, "online", message.time);
+      this.activeUsers.push(newUser);
     }
+
     this.on_user_connected(id);
+
   }
 
   onUserLeft(message){
