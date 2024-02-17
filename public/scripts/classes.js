@@ -1,4 +1,4 @@
-class Msg {
+export class Msg {
   constructor() {
     this.id = null; // User ID
     this.author = null; // UserName
@@ -6,15 +6,26 @@ class Msg {
     this.type = null; // Type of message: text, join, leave
     this.time = null; // Time of message
   }
-}
-
-class User {
-  constructor() {
-    this.id = null;
-    this.username = null;
-    this.status = null;
-    this.time = null;
+  create(id, author, content, type, time = new Date().getTime()) {
+    this.id = id;
+    this.author = author;
+    this.content = content;
+    this.type = type;
+    this.time = time;
   }
 }
 
-export default { Msg, User };
+export class User {
+  constructor() {
+    this.id = null;
+    this.username = null;
+    this.password = null;
+    this.rooms = [];
+  }
+  create(id, username, password, rooms = []) {
+    this.id = id;
+    this.username = username;
+    this.password = password;
+    this.rooms = rooms;
+  }
+}

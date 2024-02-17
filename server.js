@@ -3,7 +3,7 @@ import http from "http";
 import { WebSocketServer } from "ws"; // Import the 'ws' library
 import WebSocket from "ws";
 import DB from "./db.js";
-import Msg from "./classes.js";
+import { Msg } from "./public/scripts/classes.js";
 
 import mainroutes from "./routes/mainroutes.js";
 
@@ -21,21 +21,21 @@ class MyServer {
     this.ws = null;
     this.last_id = 0;
   }
-  start() {
-    // Create the database
-    this.db = new DB();
-    this.db.initializeTables();
-
+  async start() {
     // Create the server and the websocket
     const app = express();
     const server = http.createServer(app);
     this.server = server;
-    //const ws = new WebSocket("wss://ecv-etic.upf.edu/node/9022/");
-    const ws = new WebSocketServer({ server: server });
+
+    // Create the database then do the rest
+    this.db = new DB();
+    await Promise.all([this.db.initializeTables()]);
+
+    const ws = new WebSocketServer({ server });
     this.ws = ws;
-    this.listen(); // Listen on the default port
-    this.setupRoutes(app); // Setup the routes
-    this.setupWebsocket(); // Setup the websocket
+    this.listen();
+    this.setupRoutes(app);
+    this.setupWebsocket();
   }
 
   setupRoutes(app) {
@@ -43,7 +43,7 @@ class MyServer {
   }
 
   setupWebsocket() {
-    ws.sendToClient = function (type, message) {
+    this.ws.sendToClient = function (type, message) {
       // Create instance of Msg with all the information
       var msg = new Msg();
       msg.id = this.user_id;
@@ -58,6 +58,7 @@ class MyServer {
 
     this.ws.on("connection", (ws, req) => {
       this.onConnection(ws, req);
+      console.log("User connected!");
     });
   }
 
@@ -74,10 +75,6 @@ class MyServer {
     this.last_id++;
 
     // WEBSOCKET EVENT HANDLERS
-    ws.on("connection", (ws) => {
-      console.log(`Client ${ws.user_name} connected`);
-    });
-
     ws.on("message", (message) => {
       this.onMessage(ws, message);
     });
@@ -89,25 +86,6 @@ class MyServer {
     ws.on("error", (error) => {
       console.log(`Client ${ws.user_name} disconnected with an error:`);
       console.log(error);
-    });
-
-    console.log("Websocket connection established");
-
-    var path_info = url.parse(req.url);
-    var parameters = qs.parse(path_info.query);
-
-    // Room management
-    var room_name = path_info.pathname;
-    ws.room = room_name.substring(1, room_name.length); // Remove the first character '/'
-
-    //Create the room if it does not exist
-    if (!this.rooms[ws.room]) this.createRoom(ws.room);
-    this.rooms[ws.room].clients.push(ws);
-    this.clients.push(ws);
-
-    // On message callback for the websocket
-    ws.onMessage((event) => {
-      this.onMessage(ws, event);
     });
   }
 
@@ -144,6 +122,10 @@ class MyServer {
       case "getRoomInfo":
         // Send the message to the room
         this.sendRoomInfo(ws, msg.room);
+        break;
+      case "saveData":
+        // Store the data in the database
+        this.setData(msg);
         break;
     }
   }
@@ -192,16 +174,12 @@ class MyServer {
 
   async sendMsgHistory(ws, room) {
     try {
-      // Get the message history from the database and save it in the room object
-      //TODO: Async functions!!
-      var msg_history = this.getData("messages", room);
+      // Get the message history from the database
+      var msg_history = await this.getData("messages", room);
       // Send the message history to the client in the Msg object
       var msg = new Msg();
-      msg.id = ws.user_id;
-      msg.author = "Server";
-      msg.content = await this.getData("messages", room);
-      msg.type = "msg_history";
-      msg.time = new Date().getTime();
+      msg.create(ws.user_id, "Server", msg_history, "msg_history");
+
       ws.send(JSON.stringify(msg));
     } catch (err) {
       console.log("Error getting message history: " + err);
@@ -211,20 +189,20 @@ class MyServer {
   sendRoomInfo(ws, room) {
     // Send the room information to the client in the Msg object
     var msg = new Msg();
-    msg.id = ws.user_id;
-    msg.author = "Server";
-    msg.content = this.rooms[room];
-    msg.type = "room_info";
-    msg.time = new Date().getTime();
+    msg.create(ws.user_id, "Server", this.rooms[room], "room_info");
+
     ws.send(JSON.stringify(msg));
   }
 
-  setData(data, info) {
-    //Parameters: data, the data to be stored, info, the information where to store the data
-    // Store the data in the database
+  setData(msg) {
+    // Store data with two msg objects encoupled in each other
+    // Msg1 ( type= savedata, content= Msg2)
+    // Msg2 ( type= whatToSave, content= data)
 
+    // extract the data (also a msg object) to be stored
+    var data = msg.content;
     // Let the db handle where to store the data
-    this.db.handleData(data, info);
+    this.db.handleData(data.content, data.type);
   }
 
   async getData(info, room = null) {
