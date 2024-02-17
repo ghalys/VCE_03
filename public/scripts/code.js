@@ -1,21 +1,5 @@
-class Msg {
-  constructor() {
-    this.id = null;
-    this.author = null;
-    this.content = null;
-    this.type = null;
-    this.time = null;
-  }
-}
-
-class User {
-  constructor() {
-    this.id = null;
-    this.username = null;
-    this.status = null;
-    this.time = null;
-  }
-}
+import Msg from "./classes.js";
+import User from "./classes.js";
 
 class MyChat {
   constructor() {
