@@ -57,6 +57,7 @@ class MyChat {
   }
   
   // Displaying messages in the chat
+  //TODO verifu if msg.id is good 
   showMessage(msg) {
     var messageDiv = document.createElement("div");
     if(msg.id == this.user_id){
@@ -92,7 +93,10 @@ class MyChat {
   // Sending messages
   sendMessage(msg,id) {
     // we precise the destination if there is an Id
-    if(id!==undefined){
+    if(id==undefined){
+      msg.destination = "room";
+    }
+    else{
       msg.destination = id; 
     }
     this.server.send_message(msg); 
@@ -152,6 +156,7 @@ class MyChat {
   }
   
   //send the input 
+  //TODO is it not better to specify the room with this.current_room_name? In this case we will not need a loop to get the room. but if we do so, we should imagine how to send a message to a specific user
   send_input(input){
     if (input.value!=""){
       var new_message = new Msg(
@@ -159,9 +164,7 @@ class MyChat {
         this.my_username,
         input.value,
         "TEXT",
-        new Date().toLocaleTimeString(),
-        this.current_room_name,
-        null
+        "room",
         );
         this.showMessage(new_message);
         this.sendMessage(new_message);

@@ -2,8 +2,8 @@ import express from "express";
 import http from "http";
 import { WebSocketServer } from 'ws'
 
-// import DB from "./db.js";
-import {Msg,User,Client,Room,RoomManager} from './public/scripts/Msg_User.js';
+import DB from "./db.js";
+import {Msg,User,Client,Room,RoomManager} from './public/scripts/classes.js';
 
 import mainroutes from "./routes/mainroutes.js";
 
@@ -22,16 +22,19 @@ class MyServer {
     this.server_id = -1;
   }
   
-  start() {
+  async start() {
     this.roomManager = new RoomManager();
-    // Create the database
-    // this.db = new DB();
-    // this.db.initializeTables();
 
     // Create the server and the websocket
     const app = express();
     const server = http.createServer(app);
     this.server = server;
+
+    //TODO 
+    // Create the database then do the rest
+    // this.db = new DB();
+    // await Promise.all([this.db.initializeTables()]);
+
     this.listen(); // Listen on the default port
 
     //const ws = new WebSocket("wss://ecv-etic.upf.edu/node/9022/");
@@ -50,7 +53,7 @@ class MyServer {
 
 
       // We define the User and its Id
-      var newUser = new User(this.last_id,username,"online",new Date().getTime() );
+      var newUser = new User(this.last_id,username,"online" );
       this.sendId(ws,this.last_id); //to the user
       this.last_id++;
       //We associate the ws to its room
@@ -83,13 +86,14 @@ class MyServer {
   setupRoutes(app) {
     app.use("/", mainroutes);
   }
+
   sendId(ws,id){
     var msg = new Msg(
       this.server_id,
       "Server",
       id,
-      "YOUR_INFO",
-      new Date().getTime());
+      "YOUR_INFO"
+      );
     ws.send(JSON.stringify(msg));
   }
 
@@ -123,10 +127,9 @@ class MyServer {
     switch (message.type) {
 
       case "TEXT":
-        if (message.destination) {
+        if (message.destination =="room") {
           // Send the message to the room
           this.sendToRoom(client, message);
-
         }
         else{
           //Send the message to the specific user mentionned in message.destination
@@ -135,22 +138,8 @@ class MyServer {
         }
         break;           
     }
-
-      // case "getRooms":
-      //   // Send the message to the room
-      //   this.sendRooms(ws);
-      //   break;
-      // case "getMsgHistory":
-      //   // Send the message to the room
-      //   this.sendMsgHistory(ws, msg.room);
-      //   break;
-      // case "getRoomInfo":
-      //   // Send the message to the room
-      //   this.sendRoomInfo(ws, msg.room);
-      //   break;
   }
   
-
   sendToUser(id,message,clientSender){
     //Sends the message to a specific Id user
     var clients = this.roomManager.getClientsInRoom(clientSender);
@@ -178,19 +167,17 @@ class MyServer {
                      this.server_id,
                      "Server",
                      newClient.user,
-                     "USER_JOIN",
-                     new Date().getTime());
+                     "USER_JOIN"
+                     );
     this.sendToRoom(newClient,msg);
   }
 
   sendUserLeft(Client) {
     // Send the info "USER_LEFT" to the rest of the users of the room
-    var msg = new Msg(
-                     this.server_id,
+    var msg = new Msg(this.server_id,
                      "Server",
                      Client.user,
-                     "USER_LEFT",
-                     new Date().getTime());
+                     "USER_LEFT");
     this.sendToRoom(Client);
   }
 
@@ -199,59 +186,87 @@ class MyServer {
     var clients = this.roomManager.getClientsInRoom(newClient);
     for (let client of clients){
       if (client.id!=newClient.id){
-        var msg = new Msg(
-                          this.server_id,
+        var msg = new Msg(this.server_id,
                           "Server",
                           client.user,
-                          "USER_JOIN",
-                          new Date().getTime());
+                          "USER_JOIN");
         newClient.server.send(JSON.stringify(msg));
       }
     }
   }
 
+  async sendUsers(ws) {
+    try {
+      // Send the list of users to the client in the Msg object
 
-  sendRooms(client) {
-    //Send the list of rooms to the client in the Msg object
-    var rooms = this.roomManager.getRoomNames();
-    var msg = new Msg(
-                      this.server_id,
-                      "Server",
-                      rooms,
-                      "ROOMS_INFO",
-                      new Date().getTime());
-    client.server.send(JSON.stringify(msg));
+      var msg = new Msg();
+      msg.id = ws.user_id;
+      msg.author = "Server";
+      msg.content = await this.getData("users");
+      msg.type = "users";
+      msg.time = new Date().getTime();
+      ws.send(JSON.stringify(msg));
+    } catch (err) {
+      console.log("Error getting users: " + err);
+    }
   }
 
+//TODO we should integrate functions below 
+  async sendRooms(ws) {
+    try {
+      // Send the list of rooms to the client in the Msg object
+      var msg = new Msg();
+      msg.id = ws.user_id;
+      msg.author = "Server";
+      msg.content = await this.getData("rooms");
+      msg.type = "rooms";
+      msg.time = new Date().getTime();
+      ws.send(JSON.stringify(msg));
+    } catch (err) {
+      console.log("Error getting rooms: " + err);
+    }
+  }
 
-  //THIS PART WILL BE REVIEWED AFTER
-///////////////////////////////////////////////////////////////////////////////////////
-//   sendMsgHistory(ws, room) {
-//     // Get the message history from the database and save it in the room object
-//     //TODO: Async functions!!
-//     var msg_history = this.getData("messages", room);
-//     // Send the message history to the client in the Msg object
-//     var msg = new Msg(
-//                       ws.user_id,
-//                       "Server",
-//                       this.rooms[room].msg_history,
-//                       "msg_history",
-//                       msg.time = new Date().getTime());
-//     // ws.send(JSON.stringify(msg));
-//   }
+//TODO we should integrate functions below 
+  async sendMsgHistory(ws, room) {
+    try {
+      // Get the message history from the database
+      var msg_history = await this.getData("messages", room);
+      // Send the message history to the client in the Msg object
+      var msg = new Msg();
+      msg.create(ws.user_id, "Server", msg_history, "msg_history");
 
+      ws.send(JSON.stringify(msg));
+    } catch (err) {
+      console.log("Error getting message history: " + err);
+    }
+  }
 
-//   setData(data, info) {
-//     //Parameters: data, the data to be stored, info, the information where to store the data
-//     // Store the data in the database
+//TODO we should integrate functions below 
+  sendRoomInfo(ws, room) {
+    // Send the room information to the client in the Msg object
+    var msg = new Msg();
+    msg.create(ws.user_id, "Server", this.rooms[room], "room_info");
 
-//     // Let the db handle where to store the data
-//     this.db.handleData(data, info);
-//   }
+    ws.send(JSON.stringify(msg));
+  }
 
-//   async getData(info, room = null) {
-//     return await this.db.retrieveData(info, room);
-//   // Linking to the database
-//   } 
+  //TODO we should integrate functions below 
+  setData(msg) {
+    // Store data with two msg objects encoupled in each other
+    // Msg1 ( type= savedata, content= Msg2)
+    // Msg2 ( type= whatToSave, content= data)
+
+    // extract the data (also a msg object) to be stored
+    var data = msg.content;
+    // Let the db handle where to store the data
+    this.db.handleData(data.content, data.type);
+  }
+
+  //TODO we should integrate functions below 
+  async getData(info, room = null) {
+    return await this.db.retrieveData(info, room);
+  }// Linking to the database
+   
 }
 export default MyServer;

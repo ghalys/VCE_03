@@ -47,7 +47,7 @@ class ServerClient{
     //when the client receive a message from the server
     this.info_received++;
     var msg = JSON.parse(ws_message.data);
-    var message = new Msg(msg.id, msg.author, msg.content, msg.type, msg.time);
+    var message = new Msg(msg.id, msg.author, msg.content, msg.type,msg.destination, msg.time);
 
     switch(message.type)
     {
@@ -76,7 +76,7 @@ class ServerClient{
   };
 
   setMyRoom(message){
-    //TODO we should use it somewhere. Maybe we should also define a new user which retrieve only the rooms which are present for the RoomSelection html. 
+    //TODO we should use "ROOM_INFO" somewhere when we fix it 
     var rooms = message.content;
     console.log("I received the info about the room",message.content);
 
