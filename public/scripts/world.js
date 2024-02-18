@@ -17,6 +17,7 @@ class Position {
     );
   }
 }
+
 class Character {
   static FACING = {
     RIGHT : 0,
@@ -31,12 +32,14 @@ class Character {
     WALK :[2,3,4,5,6,7,8,9]
   }
 
-  constructor(name, position = new Position(), facing = Character.FACING.FRONT, animation=Character.ANIMATION.TALK) {
-      this.name =name,
+  constructor(id,username, position = new Position(), facing = Character.FACING.FRONT, animation=Character.ANIMATION.TALK) {
+      this.id = id,
+      this.username =username,
       this.facing = facing,
       this.position = position,
       this.animation= animation
   }
+
   //function for changing face direction
   facingRight(){
     this.facing = Character.FACING.RIGHT;
@@ -65,21 +68,71 @@ class Character {
     this.animation = Character.ANIMATION.TALK;
   }
 
+  // function which allows us to move to a new point
   moveTo(newX, newY) {
     this.position.setPosition(newX, newY);
   }
+
+  // make the interpolate position with a factor t between the current position and the destination
   interpolatePosition(endPosition, t) {
     this.position = Position.interpolate(this.position, endPosition, t);
   }
 
 }
-//testing
-var avatar = new Character("avatar");
 
-var WORLD ={
-  people :
-  [avatar]
+class World{
+  constructor(myCharacter,list_characters){
+    this.myCharacter = myCharacter;
+    this.people = list_characters;
+    this.peopleById = null;
+  }
+
+  initialisation(){
+    //add character to people
+    for (const character of this.people) {
+      var id = character.id;
+      this.peopleById[id] = character;
+    }
+
+    //send the character state to the server every 50ms
+    setInterval(this.onTick,1000/20);
+  }
+  onTick(){
+    //send the character state to the server
+  }
+
+  addOrUpdateCharacter(character){
+    var id = character.id;
+    var person = this.peopleById(id);
+
+    //if the person doesn't exist, we add it to World
+    if(!person){
+      this.people.push(character);
+      this.peopleById[id] = character;
+    }
+    else{
+      this.peopleById[id] = character;
+    }
+  }
+
+  removeCharacter(character){
+    var person = this.peopleById(id);
+
+    //if the person doesn't exist, we do nothing
+    if(!person) return ;
+
+    var idx = this.people.indexOf(character);
+    this.people.splice(idx,1);
+    delete this.peopleById(character.id);
+  }
+
 }
+
+
+//testing
+var avatar = new Character(1,"avatar");
+var WORLD =new World(avatar,[]);
+
 
 //get image
 var images = {};
@@ -130,6 +183,7 @@ function draw()
     var character = WORLD.people[i];
     drawCharacter(ctx,character);
   }
+  drawCharacter(ctx,WORLD.myCharacter);
 }
 
 
@@ -147,10 +201,10 @@ function mainLoop()
 
   draw();
   var now = performance.now();
-  var elapsed_time = (now-last_time)/1000;
+  var dt = (now-last_time)/1000;
   last_time = now;
 
-  // update(dt);
+  update(dt);
 
 }
 
