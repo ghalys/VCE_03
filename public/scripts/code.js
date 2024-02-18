@@ -1,163 +1,71 @@
-import Msg from "./classes.js";
-import User from "./classes.js";
+import {Msg,User} from './classes.js';
+import ServerClient from './client.js';
 
 class MyChat {
   constructor() {
     this.root = null;
     this.server = null;
-    this.history = [];
     this.current_room_name = null;
-    this.activeUsers = [];
-    this.device = {};
+    this.user_id = null;
+    this.my_username = null;
+    this.my_icon = null;
   }
+  
+  init(url, roomname, username, icon = "face"){       
+    this.server = new ServerClient(url,roomname,username);
 
-  //Connect to chat server
-  connect(url, roomname, username, icon = "face") {
-    this.server = new SillyClient();
+    // Set the username and the id 
+    this.my_username = username;
+    
+    // Set the name of the room
     this.current_room_name = roomname;
-
-    this.server.connect(url, roomname);
-
-    this.server.on_connect = () => {
-      console.log("Connected!");
-    };
-
-    this.server.on_ready = (id) => {
-      console.log("Ready!");
-      console.log("My id is " + id);
-
-      // Storing the information of the user in the device object
-      this.device.id = id;
-      this.device.username = username;
-      this.device.icon = icon;
-
-      //Send status update to all users in the room
-      this.sendStatusUpdate(id, username, "I joined the room");
-
-      // Set the name of the room
-      this.setRoomName(roomname);
-
-      // Set the icon of the user
-      this.setUserIcon(icon);
-    };
-
-    this.server.on_error = (err) => {
-      console.log("Error: " + err);
-    };
-
-    //Gets invoked when a message is received
-    this.server.on_message = (id, msg) => {
-      console.log("A message was received");
-
-      //Check if the message is a JSON string
-      if (isJSONString(msg)) {
-        console.log("JSON string received");
-        console.log(msg);
-        var msg = JSON.parse(msg);
-        var new_message = new Msg();
-        new_message.create(msg.id, msg.author, msg.content, msg.type, msg.time);
-        switch (msg.type) {
-          case "text":
-            this.showMessage(new_message);
-            this.history.push(new_message);
-            break;
-          case "status-update":
-            if (msg.content.includes("joined")) {
-              // Add user to active users list if it is not already there
-              var user_exists = false;
-              for (var user in this.activeUsers) {
-                if (this.activeUsers[user].id == msg.id) {
-                  var user_exists = true;
-                }
-              }
-              if (!user_exists) {
-                var new_user = new User();
-                new_user.create(msg.id, msg.author, "online", msg.time);
-                this.activeUsers.push(new_user);
-              }
-
-              // Update active users display
-              this.getActiveUsers();
-            } else if (msg.content.includes("disconnected")) {
-              // Change user status from active users list
-
-              for (var user in this.activeUsers) {
-                if (this.activeUsers[user].id == msg.id) {
-                  this.activeUsers[user].status = "offline";
-                  this.activeUsers[user].time = msg.time;
-                }
-              }
-              // Update active users display
-              this.getActiveUsers();
-            }
-            break;
-        }
-      } else {
-        console.log("Text message received");
-        console.log(msg);
-        var new_message = new Msg();
-        new_message.create(
-          id,
-          "unknown",
-          msg,
-          "text",
-          new Date().toLocaleTimeString()
-        );
-      }
-    };
-
-    this.server.on_user_disconnected = (id) => {
-      // Send status update to all users in the room
-
-      // Find the username of the user that disconnected
-      var temp_username = "unknown";
-
-      for (var user in this.activeUsers) {
-        if (this.activeUsers[user].id == id) {
-          var temp_username = this.activeUsers[user].username;
-        }
-      }
-
-      // Send status update to all users in the room and update active users list
-      this.sendStatusUpdate(id, temp_username, "User disconnected");
-    };
-
-    this.server.on_user_connected = (id) => {
-      console.log("A new User connected");
-      // Send the new user the history of the chat
-      this.sendHistory(id);
-      // Send the new user our status information
-      this.sendStatusUpdate(
-        this.device.id,
-        this.device.username,
-        "User joined",
-        id
-      );
-    };
-  }
-
-  //Sending status updates to all or specific users
-  sendStatusUpdate(id, username, status, specific_user = null) {
-    var status_update = new Msg();
-    status_update.create(
-      id,
-      username,
-      status,
-      "status-update",
-      new Date().toLocaleTimeString()
-    );
-    var status_update_json = JSON.stringify(status_update);
-    if (specific_user != null) {
-      this.sendMessage(status_update_json, specific_user);
-    } else {
-      this.sendMessage(status_update_json);
+    document.getElementById("room-name-header").textContent = roomname;
+    
+    // Set the icon of the user
+    this.setUserIcon(icon);
+    
+    this.server.on_message=(message)=>{
+      this.showMessage(message);
     }
+    
+    this.server.on_ready = ()=>{
+      this.user_id = this.server.user_id;
+    }
+    
+    this.server.on_user_connected = (id)=>{
+      // Update active users display
+      this.displayActiveUsers();
+    }
+    
+    this.server.on_user_disconnected = (id)=>{
+      // Update active users display
+      this.displayActiveUsers();
+    }
+    
+    this.server.connect_socket();
+    
+    this.on_chat_historic=(messages)=>{
+    }
+  };
+  
+  //Setting user icon
+  setUserIcon(icon) {
+    this.my_icon = icon;
+    document.getElementById("user-icon").innerHTML = icon;
+    // Make icon size bigger
+    document.getElementById("user-icon").style.fontSize = "40px";
   }
-
-  //Displaying messages in the chat
-  showMessage(Msg) {
+  
+  // Displaying messages in the chat
+  //TODO verifu if msg.id is good 
+  showMessage(msg) {
     var messageDiv = document.createElement("div");
-    messageDiv.className = "msg";
+    if(msg.id == this.user_id){
+      messageDiv.className ="mycontent";
+    }
+    else{
+      messageDiv.className = "msg";
+    }
 
     var authorP = document.createElement("p");
     authorP.className = "author";
@@ -168,11 +76,12 @@ class MyChat {
     var timeP = document.createElement("p");
     timeP.className = "time";
 
-    authorP.textContent = Msg.author;
-    contentP.textContent = Msg.content;
-    timeP.textContent = Msg.time;
+    authorP.textContent = msg.author;
+    contentP.textContent = msg.content;
+    timeP.textContent = msg.time;
 
-    //Append elements to the message div
+    // Append elements to the message div
+
     messageDiv.appendChild(authorP);
     messageDiv.appendChild(contentP);
     messageDiv.appendChild(timeP);
@@ -181,59 +90,45 @@ class MyChat {
     this.root.querySelector(".msgs").scrollTop = 10000000; //Scroll to bottom
   }
 
-  //Sending messages
-  sendMessage(msg) {
-    this.server.sendMessage(msg);
-  }
-
-  //Setting room name
-  setRoomName(roomname) {
-    document.getElementById("room-name-header").textContent = roomname;
-  }
-
-  //Setting user icon
-  setUserIcon(icon) {
-    document.getElementById("user-icon").innerHTML = icon;
-    // Make icon size bigger
-    document.getElementById("user-icon").style.fontSize = "40px";
-  }
-
-  //Sending history to new users
-  sendHistory(id) {
-    // Sending the new user the history of the chat
-    for (var i = 0; i < this.history.length; i++) {
-      var msg = this.history[i];
-      var msg_json = JSON.stringify(msg);
-      this.server.sendMessage(msg_json, id);
+  // Sending messages
+  sendMessage(msg,id) {
+    // we precise the destination if there is an Id
+    if(id==undefined){
+      msg.destination = "room";
     }
+    else{
+      msg.destination = id; 
+    }
+    this.server.send_message(msg); 
   }
 
-  //Getting active users
-  getActiveUsers() {
+
+  //Display the updated active users list
+  displayActiveUsers() {
     // Clearing user list
     document.getElementById("user-list").innerHTML = "";
-
-    var active_users = this.activeUsers;
+    
+    var active_users = this.server.activeUsers;
 
     for (var user in active_users) {
       // Creating user div
       var user_div = document.createElement("div");
       user_div.className = "single_user";
       user_div.id = active_users[user].id;
-
+      
       // Creating user name and status html elements
       var user_name = document.createElement("p");
       user_name.className = "user_name";
       user_name.textContent = active_users[user].username;
-
+      
       var user_status = document.createElement("p");
       user_status.className = "user_status";
       user_status.textContent =
-        active_users[user].status + " since " + active_users[user].time;
-
+      active_users[user].status + " since " + active_users[user].time;
+      
       user_div.appendChild(user_name);
       user_div.appendChild(user_status);
-
+      
       document.getElementById("user-list").appendChild(user_div);
     }
   }
@@ -243,100 +138,38 @@ class MyChat {
     var elem = document.createElement("div");
     elem.innerHTML = " <div class='msgs'> </div>";
     container.appendChild(elem);
-
+    
+    //send message when the keydown button is pressed
     var input = document.querySelector("input.chat");
     input.addEventListener("keydown", (e) => {
       if (e.code == "Enter") {
-        var new_message = new Msg();
-        new_message.create(
-          this.device.id,
-          this.device.username,
-          input.value,
-          "text",
-          new Date().toLocaleTimeString()
-        );
+        this.send_input(input);
+    }});
 
-        var msg_json = JSON.stringify(new_message);
-
-        this.history.push(new_message);
-        this.showMessage(new_message);
-        this.sendMessage(msg_json);
-        input.value = "";
-      }
+    //send message when the sendButton is clicked    
+    const button = document.getElementById("sendButton");
+    button.addEventListener("click", () => {
+      this.send_input(input);
     });
+
     this.root = elem;
   }
+  
+  //send the input 
+  //TODO is it not better to specify the room with this.current_room_name? In this case we will not need a loop to get the room. but if we do so, we should imagine how to send a message to a specific user
+  send_input(input){
+    if (input.value!=""){
+      var new_message = new Msg(
+        this.user_id,
+        this.my_username,
+        input.value,
+        "TEXT",
+        "room",
+        );
+        this.showMessage(new_message);
+        this.sendMessage(new_message);
+        input.value = "";
+      } 
+    }
 }
-
-function isJSONString(str) {
-  try {
-    JSON.parse(str);
-  } catch (e) {
-    return false;
-  }
-  return true;
-}
-
-var FelixChat = new MyChat();
-
-FelixChat.create(document.querySelector("#mychat"));
-
-//Managing Login and Room selection
-//Connecting to another instance for getting the list of rooms
-
-async function getRooms() {
-  var server = new SillyClient();
-  server.connect("wss://ecv-etic.upf.edu/node/9000/ws/");
-  var report = await server.getReport();
-  var rooms = report.rooms;
-  //Add rooms to the selection list
-  for (var i in rooms) {
-    var room = i;
-    var activeUsers = rooms[i];
-    var option = document.createElement("option");
-    option.value = room;
-    option.innerHTML = room + " (" + activeUsers + ")";
-    document.getElementById("room-list").appendChild(option);
-  }
-}
-
-//Displaying all existing rooms
-getRooms();
-
-//Submitting Login and Room selection
-document
-  .getElementById("login-button")
-  .addEventListener("click", connectToChat);
-
-function connectToChat() {
-  if (document.getElementById("room-name").value == "") {
-    var element = document.getElementById("room-list");
-    var selectedOption = element.options[element.selectedIndex];
-    var room = selectedOption.value;
-    console.log("The selected room is: " + room);
-  } else {
-    var room = document.getElementById("room-name").value;
-  }
-
-  var username = document.getElementById("username").value;
-
-  var icon_list = document.getElementById("icon_list");
-  var selected_icon = icon_list.options[icon_list.selectedIndex];
-  var icon = selected_icon.value;
-
-  //Clear inputs for next login
-  document.getElementById("username").value = "";
-  document.getElementById("room-name").value = "";
-
-  //Connect to chat
-  FelixChat.connect(
-    "wss://ecv-etic.upf.edu/node/9000/ws/",
-    room,
-    username,
-    icon
-  );
-
-  //Display chat page
-  document.getElementById("login-page").style.display = "none";
-  document.getElementById("chat-page").style.display = "block";
-}
+export default MyChat;
