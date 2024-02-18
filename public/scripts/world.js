@@ -1,4 +1,24 @@
 var canvas = document.querySelector("canvas");
+
+//here we can store the keyboard state
+var keys = {};
+
+function onKeyDown( event ) { 
+   //process key down event
+   //mark it as being pressed
+   keys[ event.key ] = true;
+};
+
+function onKeyUp( event ) { 
+   //process key up event
+   //mark it as being released
+   keys[ event.key ] = false;
+};
+
+document.body.addEventListener("keydown", onKeyDown );
+document.body.addEventListener("keyup", onKeyUp );
+
+
 class Position {
   constructor(x = 0, y = 0) {
     this.x = x;
@@ -66,6 +86,27 @@ class Character {
   }
   animatTalk(){
     this.animation = Character.ANIMATION.TALK;
+  }
+
+  //walk to the right
+  moveToRight(dt){
+    this.facingRight();
+    this.animatWalk();
+    this.position.x += dt*32;
+  }
+  //walk to the left
+  moveToLeft(dt){
+    this.facingLeft();
+    this.animatWalk();
+    this.position.x -= dt*32;
+  }
+  //sit down
+  sitDown(){
+    this.animatSit();
+  }
+  //stand up
+  standUp(){
+    this.animatIdle();
   }
 
   // function which allows us to move to a new point
@@ -192,6 +233,19 @@ var last_time = performance.now();
 
 function update(dt)
 {
+  WORLD.myCharacter.animatIdle();
+  if(keys["ArrowRight"]){
+    WORLD.myCharacter.moveToRight(dt);
+  }
+  else if (keys["ArrowLeft"]){
+    WORLD.myCharacter.moveToLeft(dt);
+  }
+  else if (keys["ArrowDown"]) {
+    WORLD.myCharacter.sitDown();
+  }
+  else if (keys["ArrowUp"]) {
+    WORLD.myCharacter.standUp();// not needed now 
+  }
 
 }
 
