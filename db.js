@@ -91,9 +91,11 @@ class DB {
     }
   }
 
-  addUser(name, password, rooms = []) {
+  addUser(name, password, rooms) {
     // encrypt password with md5 and extra string for security
     var encrypt_pw = md5(password + "salt");
+
+    var rooms = rooms || "Hall"; 
 
     // Save the user using a query because the save method of the wrapper is not working
     // while avoiding SQL injection
@@ -138,7 +140,7 @@ class DB {
 
   getAllUsers() {
     // Returns a promise with the result of the query
-    return this.db.table("users_test").findAll((err, result) => {
+    return this.db.table("users_FG").findAll((err, result) => {
       if (err) throw err;
       console.log(result);
       this.users = result;

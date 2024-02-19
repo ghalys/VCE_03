@@ -1,8 +1,9 @@
 import express from "express";
 import http from "http";
-import { WebSocketServer } from "ws";
+import { WebSocketServer, WebSocket } from "ws";
 
 import DB from "./db.js";
+
 import {
   Msg,
   User,
@@ -20,7 +21,7 @@ class MyServer {
     this.roomManager = null;
     this.db = {};
     this.server = null; //httpServer
-    this.default_port = 3000;
+    this.default_port = 9022;
     this.wsServer = null; //webSocketServer
     this.last_id = 0;
     this.server_id = -1;
@@ -41,8 +42,8 @@ class MyServer {
 
     this.listen(); // Listen on the default port
 
-    const ws = new WebSocket("wss://ecv-etic.upf.edu/node/9022/");
-    //const wsServer = new WebSocketServer({ server });
+    //const wsServer = new WebSocket("wss://ecv-etic.upf.edu/node/9022/ws/");
+    const wsServer = new WebSocketServer({ server });
     this.wsServer = wsServer;
     this.setupRoutes(app); // Setup the routes
 

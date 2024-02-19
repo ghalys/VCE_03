@@ -14,7 +14,7 @@ router.all("/", (req, res) => {
 });
 
 router.all("/register", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "register.html"));
+  res.send(path.join(__dirname, "public", "register.html"));
 });
 
 router.all("/chat", (req, res) => {
