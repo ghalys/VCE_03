@@ -59,11 +59,6 @@ body {
   height: 10vh;
 }
 
-.chat-name {
-  font-size: 15px;
-  font-weight: bold;
-}
-
 .last-message {
   font-size: small;
   color: gray;
