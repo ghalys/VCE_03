@@ -18,4 +18,5 @@
   padding: 0;
   margin: 0;
   background-color: var(--secondary-background-color);
+  border-radius: 10px 10px 10px 10px;
 }
