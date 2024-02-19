@@ -1,15 +1,19 @@
 import express from "express";
 import http from "http";
-import { WebSocketServer } from 'ws'
+import { WebSocketServer } from "ws";
 
 import DB from "./db.js";
-import {Msg,User,Client,Room,RoomManager} from './public/scripts/classes.js';
+import {
+  Msg,
+  User,
+  Client,
+  Room,
+  RoomManager,
+} from "./public/scripts/classes.js";
 
 import mainroutes from "./routes/mainroutes.js";
 
 var PORT = 3000;
-
-
 
 class MyServer {
   constructor() {
@@ -17,11 +21,11 @@ class MyServer {
     this.db = {};
     this.server = null; //httpServer
     this.default_port = 3000;
-    this.wsServer = null;//webSocketServer
+    this.wsServer = null; //webSocketServer
     this.last_id = 0;
     this.server_id = -1;
   }
-  
+
   async start() {
     this.roomManager = new RoomManager();
 
@@ -30,31 +34,27 @@ class MyServer {
     const server = http.createServer(app);
     this.server = server;
 
-    //TODO 
     // Create the database then do the rest
-    // this.db = new DB();
-    // await Promise.all([this.db.initializeTables()]);
+    this.db = new DB();
+    await Promise.all([this.db.initializeTables()]);
 
     this.listen(); // Listen on the default port
 
-    //const ws = new WebSocket("wss://ecv-etic.upf.edu/node/9022/");
-    const wsServer = new WebSocketServer({ server });
+    const ws = new WebSocket("wss://ecv-etic.upf.edu/node/9022/");
+    //const wsServer = new WebSocketServer({ server });
     this.wsServer = wsServer;
     this.setupRoutes(app); // Setup the routes
-    
 
-    //when a new client is connected 
+    //when a new client is connected
     this.wsServer.on("connection", (ws, req) => {
-
       //we retrieve the username and the current roomname from the client
-      const urlParams = new URLSearchParams(req.url.split('?')[1]);
-      const username = urlParams.get('username');
-      const roomname = urlParams.get('roomname');
-
+      const urlParams = new URLSearchParams(req.url.split("?")[1]);
+      const username = urlParams.get("username");
+      const roomname = urlParams.get("roomname");
 
       // We define the User and its Id
-      var newUser = new User(this.last_id,username,"online" );
-      this.sendId(ws,this.last_id); //to the user
+      var newUser = new User(this.last_id, username, "online");
+      this.sendId(ws, this.last_id); //to the user
       this.last_id++;
       //We associate the ws to its room
       ws.room = roomname;
@@ -62,38 +62,29 @@ class MyServer {
       var newClient = new Client(newUser, ws);
 
       //We communicate info about this incomming client and add him to the roomManager
-      this.onConnection(roomname,newClient);
+      this.onConnection(roomname, newClient);
 
-      
       // Handling incoming messages from the client
       ws.on("message", (msg) => {
         console.log("Received message from client");
 
         var message = JSON.parse(msg);
         this.onMessage(newClient, message);
-
       });
 
       // Handling client disconnection
       ws.on("close", () => {
         console.log("Client disconnected");
       });
-
     });
-  
-  };
+  }
 
   setupRoutes(app) {
     app.use("/", mainroutes);
   }
 
-  sendId(ws,id){
-    var msg = new Msg(
-      this.server_id,
-      "Server",
-      id,
-      "YOUR_INFO"
-      );
+  sendId(ws, id) {
+    var msg = new Msg(this.server_id, "Server", id, "YOUR_INFO");
     ws.send(JSON.stringify(msg));
   }
 
@@ -103,48 +94,43 @@ class MyServer {
     this.server.listen(this.port);
   }
 
-  onConnection(room,newClient) {
+  onConnection(room, newClient) {
     console.log("Websocket connection established");
-    this.roomManager.addClientToRoom(room,newClient);
+    this.roomManager.addClientToRoom(room, newClient);
 
     //We update the activeUsers lists for all clients presents in the room
-    this.sendUserJoin(newClient); 
+    this.sendUserJoin(newClient);
     this.sendUsersOfRoom(newClient);
-    
 
     // var path_info = url.parse(req.url);
     // var parameters = qs.parse(path_info.query);
     // // Room management
     // var room_name = path_info.pathname;
     // ws.room = room_name.substring(1, room_name.length); // Remove the first character '/'
-
   }
 
   // Handling the messages received from the clients
   onMessage(client, message) {
-
     // Switch case for all the types of messages
     switch (message.type) {
-
       case "TEXT":
-        if (message.destination =="room") {
+        if (message.destination == "room") {
           // Send the message to the room
           this.sendToRoom(client, message);
-        }
-        else{
+        } else {
           //Send the message to the specific user mentionned in message.destination
           var id = message.destination;
-          this.sendToUser(id,message,client); //the client here is the sender
+          this.sendToUser(id, message, client); //the client here is the sender
         }
-        break;           
+        break;
     }
   }
-  
-  sendToUser(id,message,clientSender){
+
+  sendToUser(id, message, clientSender) {
     //Sends the message to a specific Id user
     var clients = this.roomManager.getClientsInRoom(clientSender);
-    for (let client of clients){
-      if (client.id==id){
+    for (let client of clients) {
+      if (client.id == id) {
         client.server.send(JSON.stringify(message));
       }
     }
@@ -155,7 +141,7 @@ class MyServer {
     var clients = this.roomManager.getClientsInRoom(Client);
 
     for (let otherClient of clients) {
-      if (otherClient.id != Client.id){
+      if (otherClient.id != Client.id) {
         otherClient.server.send(JSON.stringify(message));
       }
     }
@@ -163,33 +149,22 @@ class MyServer {
 
   sendUserJoin(newClient) {
     // Send the info "USER_JOIN" to the rest of the users of the same room
-    var msg = new Msg(
-                     this.server_id,
-                     "Server",
-                     newClient.user,
-                     "USER_JOIN"
-                     );
-    this.sendToRoom(newClient,msg);
+    var msg = new Msg(this.server_id, "Server", newClient.user, "USER_JOIN");
+    this.sendToRoom(newClient, msg);
   }
 
   sendUserLeft(Client) {
     // Send the info "USER_LEFT" to the rest of the users of the room
-    var msg = new Msg(this.server_id,
-                     "Server",
-                     Client.user,
-                     "USER_LEFT");
+    var msg = new Msg(this.server_id, "Server", Client.user, "USER_LEFT");
     this.sendToRoom(Client);
   }
 
-  sendUsersOfRoom(newClient){
+  sendUsersOfRoom(newClient) {
     //send the info about all people connected to the new user
     var clients = this.roomManager.getClientsInRoom(newClient);
-    for (let client of clients){
-      if (client.id!=newClient.id){
-        var msg = new Msg(this.server_id,
-                          "Server",
-                          client.user,
-                          "USER_JOIN");
+    for (let client of clients) {
+      if (client.id != newClient.id) {
+        var msg = new Msg(this.server_id, "Server", client.user, "USER_JOIN");
         newClient.server.send(JSON.stringify(msg));
       }
     }
@@ -211,7 +186,7 @@ class MyServer {
     }
   }
 
-//TODO we should integrate functions below 
+  //TODO we should integrate functions below
   async sendRooms(ws) {
     try {
       // Send the list of rooms to the client in the Msg object
@@ -227,7 +202,7 @@ class MyServer {
     }
   }
 
-//TODO we should integrate functions below 
+  //TODO we should integrate functions below
   async sendMsgHistory(ws, room) {
     try {
       // Get the message history from the database
@@ -242,7 +217,7 @@ class MyServer {
     }
   }
 
-//TODO we should integrate functions below 
+  //TODO we should integrate functions below
   sendRoomInfo(ws, room) {
     // Send the room information to the client in the Msg object
     var msg = new Msg();
@@ -251,7 +226,7 @@ class MyServer {
     ws.send(JSON.stringify(msg));
   }
 
-  //TODO we should integrate functions below 
+  //TODO we should integrate functions below
   setData(msg) {
     // Store data with two msg objects encoupled in each other
     // Msg1 ( type= savedata, content= Msg2)
@@ -263,10 +238,9 @@ class MyServer {
     this.db.handleData(data.content, data.type);
   }
 
-  //TODO we should integrate functions below 
+  //TODO we should integrate functions below
   async getData(info, room = null) {
     return await this.db.retrieveData(info, room);
-  }// Linking to the database
-   
+  } // Linking to the database
 }
 export default MyServer;

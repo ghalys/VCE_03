@@ -15,11 +15,17 @@ import md5 from "md5";
 class DB {
   constructor() {
     this.client = mysql.createConnection({
-      database: "VCE",
-      user: "root",
-      password: "root",
-      host: "localhost",
+      database: "ecv-2019",
+      user: "ecv-user",
+      password: "ecv-upf-2019",
+      host: "127.0.0.1",
     });
+    // this.client = mysql.createConnection({
+    //   database: "VCE",
+    //   user: "root",
+    //   password: "root",
+    //   host: "localhost",
+    // });
     this.db = wrapper.wrap(this.client);
     this.users = [];
     this.rooms = [];
