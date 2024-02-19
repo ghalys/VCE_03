@@ -1,7 +1,22 @@
+:root {
+  --primary-color: #6f50d6;
+  --secondary-color: #59a4b8;
+  --primary-background-color: #8ee2d7;
+  --secondary-background-color: #d9ede6;
+}
+
 * {
   margin: 0;
   padding: 0;
 }
+
+.chat-window,
+.msg,
+.mycontent {
+  font-family: Arial, sans-serif;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .chat-window {
   grid-column: 3 / 4;
   grid-row: 1 / 5;
@@ -9,7 +24,6 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  border: 1px solid cyan;
 }
 
 .chat-info {
@@ -18,8 +32,10 @@
   align-items: center;
   justify-content: space-between;
   height: 20vh;
-  border: 1px solid red;
-  margin: 2px;
+  padding: 10px;
+  background-color: var(--primary-background-color);
+  border-bottom: 1px solid #ccc;
+  border-radius: 5%;
 }
 
 .chat-name {
@@ -34,6 +50,7 @@
   overflow: auto;
   grid-row: 2 / 4;
   flex-grow: 1;
+  background-color: var(--secondary-background-color);
 }
 
 .chat-input {
@@ -41,6 +58,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: var(--primary-background-color);
+  border-radius: 5%;
 }
 
 .text-input {
@@ -69,9 +88,9 @@ input {
   padding: 8px;
   margin: 5px;
   border: 1px solid #ccc;
-  border-radius: 4px;
   box-sizing: border-box;
   width: 100%;
+  background-color: var(--secondary-background-color);
 }
 
 .msg {

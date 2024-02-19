@@ -1,8 +1,8 @@
-import MyChat from './code.js';
+import MyChat from "./code.js";
 
 var ourPort = "9022";
 // var ourUrl = "wss://ecv-etic.upf.edu/node/"+ourPort+"/ws/";
-var ourUrl = "ws://localhost:3000"
+var ourUrl = "ws://localhost:3000";
 var FelixChat = new MyChat();
 FelixChat.create(document.querySelector("#mychat"));
 //Managing Login and Room selection
@@ -54,12 +54,7 @@ function connectToChat() {
   document.getElementById("room-name").value = "";
 
   //Connect to chat
-  FelixChat.init(
-    ourUrl,
-    room,
-    username,
-    icon
-  );
+  FelixChat.init(ourUrl, room, username, icon);
 
   //Display chat page
   document.getElementById("login-page").style.display = "none";

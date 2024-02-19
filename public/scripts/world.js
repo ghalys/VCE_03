@@ -3,21 +3,20 @@ var canvas = document.querySelector("canvas");
 //here we can store the keyboard state
 var keys = {};
 
-function onKeyDown( event ) { 
-   //process key down event
-   //mark it as being pressed
-   keys[ event.key ] = true;
-};
+function onKeyDown(event) {
+  //process key down event
+  //mark it as being pressed
+  keys[event.key] = true;
+}
 
-function onKeyUp( event ) { 
-   //process key up event
-   //mark it as being released
-   keys[ event.key ] = false;
-};
+function onKeyUp(event) {
+  //process key up event
+  //mark it as being released
+  keys[event.key] = false;
+}
 
-document.body.addEventListener("keydown", onKeyDown );
-document.body.addEventListener("keyup", onKeyUp );
-
+document.body.addEventListener("keydown", onKeyDown);
+document.body.addEventListener("keyup", onKeyUp);
 
 class Position {
   constructor(x = 0, y = 0) {
@@ -40,72 +39,78 @@ class Position {
 
 class Character {
   static FACING = {
-    RIGHT : 0,
-    FRONT : 1,
-    LEFT  : 2,
-    BACK  : 3
-  }
+    RIGHT: 0,
+    FRONT: 1,
+    LEFT: 2,
+    BACK: 3,
+  };
   static ANIMATION = {
-    IDLE :[0],
-    TALK : [0,1],
-    SIT : [13],
-    WALK :[2,3,4,5,6,7,8,9]
-  }
+    IDLE: [0],
+    TALK: [0, 1],
+    SIT: [13],
+    WALK: [2, 3, 4, 5, 6, 7, 8, 9],
+  };
 
-  constructor(id,username, position = new Position(), facing = Character.FACING.FRONT, animation=Character.ANIMATION.TALK) {
-      this.id = id,
-      this.username =username,
-      this.facing = facing,
-      this.position = position,
-      this.animation= animation
+  constructor(
+    id,
+    username,
+    position = new Position(),
+    facing = Character.FACING.FRONT,
+    animation = Character.ANIMATION.TALK
+  ) {
+    (this.id = id),
+      (this.username = username),
+      (this.facing = facing),
+      (this.position = position),
+      (this.animation = animation);
   }
 
   //function for changing face direction
-  facingRight(){
+  facingRight() {
     this.facing = Character.FACING.RIGHT;
   }
-  facingLeft(){
+  facingLeft() {
     this.facing = Character.FACING.LEFT;
   }
-  facingFront(){
+  facingFront() {
     this.facing = Character.FACING.FRONT;
   }
-  facingBack(){
+  facingBack() {
     this.facing = Character.FACING.BACK;
   }
 
   //function for changing the animation
-  animatIdle(){
+  animatIdle() {
     this.animation = Character.ANIMATION.IDLE;
   }
-  animatWalk(){
+  animatWalk() {
     this.animation = Character.ANIMATION.WALK;
   }
-  animatSit(){
+  animatSit() {
     this.animation = Character.ANIMATION.SIT;
   }
-  animatTalk(){
+  animatTalk() {
     this.animation = Character.ANIMATION.TALK;
   }
 
   //walk to the right
-  moveToRight(dt){
+  moveToRight(dt) {
     this.facingRight();
     this.animatWalk();
-    this.position.x += dt*32;
+    this.position.x += dt * 32;
   }
   //walk to the left
-  moveToLeft(dt){
+  moveToLeft(dt) {
     this.facingLeft();
     this.animatWalk();
-    this.position.x -= dt*32;
+    this.position.x -= dt * 32;
   }
   //sit down
-  sitDown(){
+  sitDown() {
     this.animatSit();
   }
   //stand up
-  standUp(){
+  standUp() {
     this.animatIdle();
   }
 
@@ -118,17 +123,16 @@ class Character {
   interpolatePosition(endPosition, t) {
     this.position = Position.interpolate(this.position, endPosition, t);
   }
-
 }
 
-class World{
-  constructor(myCharacter,list_characters){
+class World {
+  constructor(myCharacter, list_characters) {
     this.myCharacter = myCharacter;
     this.people = list_characters;
     this.peopleById = null;
   }
 
-  initialisation(){
+  initialisation() {
     //add character to people
     for (const character of this.people) {
       var id = character.id;
@@ -136,44 +140,40 @@ class World{
     }
 
     //send the character state to the server every 50ms
-    setInterval(this.onTick,1000/20);
+    setInterval(this.onTick, 1000 / 20);
   }
-  onTick(){
+  onTick() {
     //send the character state to the server
   }
 
-  addOrUpdateCharacter(character){
+  addOrUpdateCharacter(character) {
     var id = character.id;
     var person = this.peopleById(id);
 
     //if the person doesn't exist, we add it to World
-    if(!person){
+    if (!person) {
       this.people.push(character);
       this.peopleById[id] = character;
-    }
-    else{
+    } else {
       this.peopleById[id] = character;
     }
   }
 
-  removeCharacter(character){
+  removeCharacter(character) {
     var person = this.peopleById(id);
 
     //if the person doesn't exist, we do nothing
-    if(!person) return ;
+    if (!person) return;
 
     var idx = this.people.indexOf(character);
-    this.people.splice(idx,1);
+    this.people.splice(idx, 1);
     delete this.peopleById(character.id);
   }
-
 }
 
-
 //testing
-var avatar = new Character(1,"avatar");
-var WORLD =new World(avatar,[]);
-
+var avatar = new Character(1, "avatar");
+var WORLD = new World(avatar, []);
 
 //get image
 var images = {};
@@ -183,84 +183,85 @@ function getImage(url, callback) {
     return;
   }
   var img = new Image();
-  img.onload = function() {
+  img.onload = function () {
     images[url] = img;
     callback(img);
   };
-  img.onerror = function() {
+  img.onerror = function () {
     console.error("Failed to load image at " + url);
   };
   img.src = url;
 }
 
 function drawCharacter(ctx, character) {
-  getImage("Avatar.png", function(img) {
+  getImage("Avatar.png", function (img) {
     ctx.imageSmoothingEnabled = false;
-    
+
     // Define a speed modifier
-    var speedModifier = 0.5; 
+    var speedModifier = 0.5;
 
     // Adjust the frame calculation to include the speed modifier
-    var frame_num = Math.floor((performance.now() / 100 * speedModifier) % character.animation.length);
+    var frame_num = Math.floor(
+      ((performance.now() / 100) * speedModifier) % character.animation.length
+    );
     var anim = character.animation;
     var frame = anim[frame_num % anim.length];
-    ctx.drawImage(img, 32 * frame, 64 * character.facing, 32, 64, character.position.x-16, character.position.y-64, 32*2, 64*2);
+    ctx.drawImage(
+      img,
+      32 * frame,
+      64 * character.facing,
+      32,
+      64,
+      character.position.x - 16,
+      character.position.y - 64,
+      32 * 2,
+      64 * 2
+    );
   });
 }
 
-function draw()
-{
+function draw() {
   var rect = canvas.parentNode.getBoundingClientRect();
   canvas.width = Math.floor(rect.width);
   canvas.height = Math.floor(rect.height);
 
-  var  ctx = canvas.getContext("2d");
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+  var ctx = canvas.getContext("2d");
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.resetTransform();
-  ctx.translate(canvas.width/2,canvas.height*(2/3));
-  ctx.scale(2,2);
+  ctx.translate(canvas.width / 2, canvas.height * (2 / 3));
+  ctx.scale(2, 2);
 
-  for(var i = 0; i < WORLD.people.length; ++i){
+  for (var i = 0; i < WORLD.people.length; ++i) {
     var character = WORLD.people[i];
-    drawCharacter(ctx,character);
+    drawCharacter(ctx, character);
   }
-  drawCharacter(ctx,WORLD.myCharacter);
+  drawCharacter(ctx, WORLD.myCharacter);
 }
-
 
 var last_time = performance.now();
 
-
-function update(dt)
-{
+function update(dt) {
   WORLD.myCharacter.animatIdle();
-  if(keys["ArrowRight"]){
+  if (keys["ArrowRight"]) {
     WORLD.myCharacter.moveToRight(dt);
-  }
-  else if (keys["ArrowLeft"]){
+  } else if (keys["ArrowLeft"]) {
     WORLD.myCharacter.moveToLeft(dt);
-  }
-  else if (keys["ArrowDown"]) {
+  } else if (keys["ArrowDown"]) {
     WORLD.myCharacter.sitDown();
+  } else if (keys["ArrowUp"]) {
+    WORLD.myCharacter.standUp(); // not needed now
   }
-  else if (keys["ArrowUp"]) {
-    WORLD.myCharacter.standUp();// not needed now 
-  }
-
 }
 
-function mainLoop()
-{
+function mainLoop() {
   requestAnimationFrame(mainLoop);
 
   draw();
   var now = performance.now();
-  var dt = (now-last_time)/1000;
+  var dt = (now - last_time) / 1000;
   last_time = now;
 
   update(dt);
-
 }
-
 
 mainLoop();
