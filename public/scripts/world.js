@@ -81,6 +81,7 @@ class Character {
       this.animation= animation,
       this.onMyWay = false // is True when there is a mouse click and the user should go to somewhere till he arrives
   }
+  
 
   //function for changing face direction
   facingRight(){
@@ -301,7 +302,7 @@ function update(dt)
   }
   else if (keys["ArrowUp"]) {
     WORLD.myCharacter.onMyWay = false;
-    WORLD.myCharacter.standUp();// not needed now 
+    WORLD.myCharacter.facingFront();// not needed now 
   }
 
   if (WORLD.myCharacter.onMyWay || mouse_clicked){
