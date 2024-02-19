@@ -255,6 +255,9 @@ function drawCharacter(ctx, character) {
     var anim = character.animation;
     var frame = anim[frame_num % anim.length];
     ctx.drawImage(img, 32 * frame, 64 * character.facing, 32, 64, character.position.x-32, character.position.y-64, 32*2, 64*2);
+    ctx.font = "10px Arial"; // Définit la taille et le type de police
+    ctx.fillStyle = "red";
+    ctx.fillText(character.username, character.position.x-16, character.position.y-64);
   });
 }
 
