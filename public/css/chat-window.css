@@ -3,7 +3,7 @@
   padding: 0;
 }
 .chat-window {
-  grid-column: 2 / 3;
+  grid-column: 3 / 4;
   grid-row: 1 / 5;
   overflow: clip;
   display: flex;
@@ -82,7 +82,7 @@ input {
   background-color: #f1f1f1;
 }
 
-.mycontent{
+.mycontent {
   margin-left: auto;
   width: fit-content;
   margin-bottom: 10px;
@@ -110,7 +110,6 @@ input {
 .content {
   margin-top: 5px;
 }
-
 
 .time {
   font-size: 12px;

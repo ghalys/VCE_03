@@ -16,7 +16,13 @@
       <h1>Login Page</h1>
       <form id="chat-form">
         <label for="username">Username:</label>
-        <input type="text" id="username" name="username" autocomplete="username" required />
+        <input
+          type="text"
+          id="username"
+          name="username"
+          autocomplete="username"
+          required
+        />
         <label for="icon_list">Select your icon</label>
         <span class="material-symbols-outlined"> face </span>
         <span class="material-symbols-outlined"> face_2</span>
@@ -65,7 +71,7 @@
             <div class="icon">
               <span class="material-symbols-outlined"> search </span>
             </div>
-            <input type="text" placeholder="Search" id = "Search"/>
+            <input type="text" placeholder="Search" id="Search" />
           </div>
           <h2>Online Users</h2>
           <div class="user-list" id="user-list"></div>
@@ -86,6 +92,11 @@
             </div>
           </div>
         </div>
+        <span id="canvas">
+          <link rel="stylesheet" href="css/World.css" />
+          <div id="CanvasContainer"><canvas></canvas></div>
+          <script src="scripts/world.js"></script>
+        </span>
         <div class="chat-window">
           <div class="chat-info">
             <img id="chat-picture" class="profile-picture" src="UPFt_rgb.png" />
@@ -104,7 +115,12 @@
               </div>
             </div>
             <div class="text-input">
-              <input class="chat" id="chat_input" type="text" placeholder="Type a message" />
+              <input
+                class="chat"
+                id="chat_input"
+                type="text"
+                placeholder="Type a message"
+              />
             </div>
             <button id="sendButton">
               <div class="icon">

@@ -1,5 +1,6 @@
-#CanvasContainer{
-  width : 100%;
+#CanvasContainer {
+  grid-column: 2 / 3;
+  width: 100%;
   height: 400px;
   padding: 0;
   margin: 0;
