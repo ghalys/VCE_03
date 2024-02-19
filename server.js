@@ -36,6 +36,7 @@ class MyServer {
 
     // Create the database then do the rest
     this.db = new DB();
+
     await Promise.all([this.db.initializeTables()]);
 
     this.listen(); // Listen on the default port

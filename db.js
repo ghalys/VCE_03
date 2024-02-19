@@ -20,6 +20,7 @@ class DB {
       password: "ecv-upf-2019",
       host: "127.0.0.1",
     });
+
     // this.client = mysql.createConnection({
     //   database: "VCE",
     //   user: "root",
