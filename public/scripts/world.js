@@ -194,7 +194,7 @@ function getImage(url, callback) {
 }
 
 function drawCharacter(ctx, character) {
-  getImage("Avatar.png", function (img) {
+  getImage("media/Avatar.png", function (img) {
     ctx.imageSmoothingEnabled = false;
 
     // Define a speed modifier
