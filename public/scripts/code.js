@@ -23,6 +23,8 @@ class MyChat {
     
     // Set the icon of the user
     this.setUserIcon(icon);
+
+    
     
     this.server.on_message=(message)=>{
       this.showMessage(message);
@@ -57,7 +59,6 @@ class MyChat {
   }
   
   // Displaying messages in the chat
-  //TODO verifu if msg.id is good 
   showMessage(msg) {
     var messageDiv = document.createElement("div");
     if(msg.id == this.user_id){

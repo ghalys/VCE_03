@@ -19,10 +19,10 @@ export class User {
 }
 
 export class Client {
-  constructor(user, server) {
+  constructor(user, WSserver, agent) {
     this.user = user;
-    this.server = server;
-    this.id = user.id;
+    this.WSserver = WSserver;
+    this.agent = agent;
   }
 }
 
@@ -70,3 +70,4 @@ export class RoomManager {
   }
 
 }
+

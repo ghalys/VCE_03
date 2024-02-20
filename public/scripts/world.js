@@ -51,15 +51,15 @@ class Position {
     this.y = y;
   }
 
-  static interpolate(start, end, t) {
-    return new Position(
-      start.x + (end.x - start.x) * t,
-      start.y + (end.y - start.y) * t
-    );
-  }
+  // static interpolate(start, end, t) {
+  //   return new Position(
+  //     start.x + (end.x - start.x) * t,
+  //     start.y + (end.y - start.y) * t
+  //   );
+  // }
 }
 
-class Character {
+class Agent {
   static FACING = {
     RIGHT : 0,
     FRONT : 1,
@@ -73,7 +73,7 @@ class Character {
     WALK :[2,3,4,5,6,7,8,9]
   }
 
-  constructor(id,username, position = new Position(), facing = Character.FACING.FRONT, animation=Character.ANIMATION.TALK) {
+  constructor(id,username, position = new Position(), facing = Agent.FACING.FRONT, animation=Agent.ANIMATION.IDLE) {
       this.id = id,
       this.username =username,
       this.facing = facing,
@@ -82,33 +82,47 @@ class Character {
       this.onMyWay = false // is True when there is a mouse click and the user should go to somewhere till he arrives
   }
   
+  sendJSON(){
+    return {
+            id : this.id,
+            facing: this.facing,
+            position : this.position,
+            animation :this.animation,
+            }
+  }
+  updateFromJSON(msgJSON){
+    this.facing = msgJSON.facing;
+    this.facing = msgJSON.facing;
+    this.position = msgJSON.position;
+    this.animation= msgJSON.animation;
+    }
 
   //function for changing face direction
   facingRight(){
-    this.facing = Character.FACING.RIGHT;
+    this.facing = Agent.FACING.RIGHT;
   }
   facingLeft(){
-    this.facing = Character.FACING.LEFT;
+    this.facing = Agent.FACING.LEFT;
   }
   facingFront(){
-    this.facing = Character.FACING.FRONT;
+    this.facing = Agent.FACING.FRONT;
   }
   facingBack(){
-    this.facing = Character.FACING.BACK;
+    this.facing = Agent.FACING.BACK;
   }
 
   //function for changing the animation
   animatIdle(){
-    this.animation = Character.ANIMATION.IDLE;
+    this.animation = Agent.ANIMATION.IDLE;
   }
   animatWalk(){
-    this.animation = Character.ANIMATION.WALK;
+    this.animation = Agent.ANIMATION.WALK;
   }
   animatSit(){
-    this.animation = Character.ANIMATION.SIT;
+    this.animation = Agent.ANIMATION.SIT;
   }
   animatTalk(){
-    this.animation = Character.ANIMATION.TALK;
+    this.animation = Agent.ANIMATION.TALK;
   }
 
   //walk to the right
@@ -166,63 +180,70 @@ class Character {
     }
   }
   // make the interpolate position with a factor t between the current position and the destination
-  interpolatePosition(endPosition, t) {
-    this.position = Position.interpolate(this.position, endPosition, t);
-  }
+  // interpolatePosition(endPosition, t) {
+  //   this.position = Position.interpolate(this.position, endPosition, t);
+  // }
 
 }
 
 class World{
-  constructor(myCharacter,list_characters){
-    this.myCharacter = myCharacter;
-    this.people = list_characters;
+  constructor(myAgent,list_Agents){
+    this.myAgent = myAgent;
+    this.people = list_Agents;
     this.peopleById = null;
   }
 
   initialisation(){
-    //add character to people
-    for (const character of this.people) {
-      var id = character.id;
-      this.peopleById[id] = character;
-    }
+    //add Agent to people
+    // for (const Agent of this.people) {
+    //   var id = Agent.id;
+    //   this.peopleById[id] = Agent;
+    // }
 
-    //send the character state to the server every 50ms
+    //send the Agent state to the server every 50ms
     setInterval(this.onTick,1000/20);
   }
-  onTick(){
-    //send the character state to the server
-  }
 
-  addOrUpdateCharacter(character){
-    var id = character.id;
+  onTick(){
+    //send the Agent state to the server
+    var myState = this.myAgent.sendJSON();
+    
+  }
+  receivedJSON(agent){
+    
+  }
+  
+
+  addOrUpdateAgent(Agent){
+    var id = Agent.id;
     var person = this.peopleById(id);
 
     //if the person doesn't exist, we add it to World
     if(!person){
-      this.people.push(character);
-      this.peopleById[id] = character;
+      this.people.push(Agent);
+      this.peopleById[id] = Agent;
     }
     else{
-      this.peopleById[id] = character;
+      this.peopleById[id] = Agent;
     }
   }
 
-  removeCharacter(character){
+  removeAgent(Agent){
     var person = this.peopleById(id);
 
     //if the person doesn't exist, we do nothing
     if(!person) return ;
 
-    var idx = this.people.indexOf(character);
+    var idx = this.people.indexOf(Agent);
     this.people.splice(idx,1);
-    delete this.peopleById(character.id);
+    delete this.peopleById(Agent.id);
   }
 
 }
 
 
 //testing
-var avatar = new Character(1,"avatar");
+var avatar = new Agent(1,"avatar");
 var WORLD =new World(avatar,[]);
 
 
@@ -244,7 +265,7 @@ function getImage(url, callback) {
   img.src = url;
 }
 
-function drawCharacter(ctx, character) {
+function drawAgent(ctx, Agent) {
   getImage("Avatar.png", function(img) {
     ctx.imageSmoothingEnabled = false;
     
@@ -252,13 +273,15 @@ function drawCharacter(ctx, character) {
     var speedModifier = 0.5; 
 
     // Adjust the frame calculation to include the speed modifier
-    var frame_num = Math.floor((performance.now() / 100 * speedModifier) % character.animation.length);
-    var anim = character.animation;
+    var frame_num = Math.floor((performance.now() / 100 * speedModifier) % Agent.animation.length);
+    var anim = Agent.animation;
     var frame = anim[frame_num % anim.length];
-    ctx.drawImage(img, 32 * frame, 64 * character.facing, 32, 64, character.position.x-32, character.position.y-64, 32*2, 64*2);
-    ctx.font = "10px Arial"; // Définit la taille et le type de police
+    ctx.drawImage(img, 32 * frame, 64 * Agent.facing, 32, 64, Agent.position.x-32, Agent.position.y-64, 32*2, 64*2);
+    
+    // write the username on the top of the agent
+    ctx.font = "10px Arial"; 
     ctx.fillStyle = "red";
-    ctx.fillText(character.username, character.position.x-16, character.position.y-64);
+    ctx.fillText(Agent.username, Agent.position.x-16, Agent.position.y-64);
   });
 }
 
@@ -275,10 +298,10 @@ function draw()
   ctx.scale(2,2);
 
   for(var i = 0; i < WORLD.people.length; ++i){
-    var character = WORLD.people[i];
-    drawCharacter(ctx,character);
+    var Agent = WORLD.people[i];
+    drawAgent(ctx,Agent);
   }
-  drawCharacter(ctx,WORLD.myCharacter);
+  drawAgent(ctx,WORLD.myAgent);
 }
 
 
@@ -287,27 +310,27 @@ var last_time = performance.now();
 
 function update(dt)
 {
-  WORLD.myCharacter.animatIdle();
+  WORLD.myAgent.animatIdle();
   if(keys["ArrowRight"]){
-    WORLD.myCharacter.onMyWay = false;
-    WORLD.myCharacter.moveToRight(dt);
+    WORLD.myAgent.onMyWay = false;
+    WORLD.myAgent.moveToRight(dt);
   }
   else if (keys["ArrowLeft"]){
-    WORLD.myCharacter.onMyWay = false;
-    WORLD.myCharacter.moveToLeft(dt);
+    WORLD.myAgent.onMyWay = false;
+    WORLD.myAgent.moveToLeft(dt);
   }
   else if (keys["ArrowDown"]) {
-    WORLD.myCharacter.onMyWay = false;
-    WORLD.myCharacter.sitDown();
+    WORLD.myAgent.onMyWay = false;
+    WORLD.myAgent.sitDown();
   }
   else if (keys["ArrowUp"]) {
-    WORLD.myCharacter.onMyWay = false;
-    WORLD.myCharacter.facingFront();// not needed now 
+    WORLD.myAgent.onMyWay = false;
+    WORLD.myAgent.facingFront();// not needed now 
   }
 
-  if (WORLD.myCharacter.onMyWay || mouse_clicked){
-    WORLD.myCharacter.onMyWay = true;
-    WORLD.myCharacter.walkTo(mouse_pos[0],dt);
+  if (WORLD.myAgent.onMyWay || mouse_clicked){
+    WORLD.myAgent.onMyWay = true;
+    WORLD.myAgent.walkTo(mouse_pos[0],dt);
   }
 
 }
@@ -322,7 +345,6 @@ function mainLoop()
   last_time = now;
 
   update(dt);
-
 }
 
 

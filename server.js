@@ -3,9 +3,11 @@ import http from "http";
 import { WebSocketServer } from 'ws'
 
 import DB from "./db.js";
+import {Agent} from './public/script/world.js';
 import {Msg,User,Client,Room,RoomManager} from './public/scripts/classes.js';
 
 import mainroutes from "./routes/mainroutes.js";
+import { client } from "websocket";
 
 var PORT = 3000;
 
@@ -37,7 +39,6 @@ class MyServer {
 
     this.listen(); // Listen on the default port
 
-    //const ws = new WebSocket("wss://ecv-etic.upf.edu/node/9022/");
     const wsServer = new WebSocketServer({ server });
     this.wsServer = wsServer;
     this.setupRoutes(app); // Setup the routes
@@ -50,16 +51,10 @@ class MyServer {
       const urlParams = new URLSearchParams(req.url.split('?')[1]);
       const username = urlParams.get('username');
       const roomname = urlParams.get('roomname');
-
-
-      // We define the User and its Id
-      var newUser = new User(this.last_id,username,"online" );
-      this.sendId(ws,this.last_id); //to the user
+      
+      //we create the new client with its user and agent and ws
+      var newClient = createNewClient(this.last_id,username,ws);
       this.last_id++;
-      //We associate the ws to its room
-      ws.room = roomname;
-      //We define a client which associate the user to its client server
-      var newClient = new Client(newUser, ws);
 
       //We communicate info about this incomming client and add him to the roomManager
       this.onConnection(roomname,newClient);
@@ -77,10 +72,30 @@ class MyServer {
       // Handling client disconnection
       ws.on("close", () => {
         console.log("Client disconnected");
+        //inform everyone that the client has left
+        this.sendUserLeft(Client);
+        // save the last position of the character
+
       });
 
     });
   
+  };
+
+  createNewClient(id,username,ws){
+      // We define the User and its Id
+      var newUser = new User(id,username,"online" );
+      // we send the id to the user
+      this.sendId(ws,id); 
+      //We associate the ws to its room
+      ws.room = roomname;
+      // We create a new agent
+      var newAgent = new Agent(id,username);
+
+      //We define a client which associate the user to its client server
+      var newClient = new Client(newUser, ws, newAgent);
+
+      return newClient;
   };
 
   setupRoutes(app) {
@@ -108,7 +123,9 @@ class MyServer {
     this.roomManager.addClientToRoom(room,newClient);
 
     //We update the activeUsers lists for all clients presents in the room
-    this.sendUserJoin(newClient); 
+    this.sendUserJoin(newClient);
+
+    //send the info about all people connected to the new user
     this.sendUsersOfRoom(newClient);
     
 
@@ -144,7 +161,7 @@ class MyServer {
     //Sends the message to a specific Id user
     var clients = this.roomManager.getClientsInRoom(clientSender);
     for (let client of clients){
-      if (client.id==id){
+      if (client.user.id==id){
         client.server.send(JSON.stringify(message));
       }
     }
@@ -155,7 +172,7 @@ class MyServer {
     var clients = this.roomManager.getClientsInRoom(Client);
 
     for (let otherClient of clients) {
-      if (otherClient.id != Client.id){
+      if (otherClient.user.id != Client.user.id){
         otherClient.server.send(JSON.stringify(message));
       }
     }
@@ -171,6 +188,17 @@ class MyServer {
                      );
     this.sendToRoom(newClient,msg);
   }
+  
+  sendAvatar(Client){
+    // Send the state of the Avatar to to the rest of users of the same room
+    var msg = new Msg(
+                      this.server_id,
+                      "Server",
+                      Client.Agent,
+                      "AGENT_STATE"
+                      );
+    this.sendToRoom(Client,msg);
+  }
 
   sendUserLeft(Client) {
     // Send the info "USER_LEFT" to the rest of the users of the room
@@ -185,12 +213,12 @@ class MyServer {
     //send the info about all people connected to the new user
     var clients = this.roomManager.getClientsInRoom(newClient);
     for (let client of clients){
-      if (client.id!=newClient.id){
+      if (client.user.id!=newClient.user.id){
         var msg = new Msg(this.server_id,
                           "Server",
                           client.user,
                           "USER_JOIN");
-        newClient.server.send(JSON.stringify(msg));
+        newClient.WSserver.send(JSON.stringify(msg));
       }
     }
   }
