@@ -3,11 +3,10 @@ import http from "http";
 import { WebSocketServer } from 'ws'
 
 import DB from "./db.js";
-import {Agent} from './public/script/world.js';
-import {Msg,User,Client,Room,RoomManager} from './public/scripts/classes.js';
+import {Msg,User,Client,Room,RoomManager,Agent} from './public/scripts/classes.js';
 
 import mainroutes from "./routes/mainroutes.js";
-import { client } from "websocket";
+// import { client } from "websocket";
 
 var PORT = 3000;
 
@@ -53,7 +52,7 @@ class MyServer {
       const roomname = urlParams.get('roomname');
       
       //we create the new client with its user and agent and ws
-      var newClient = createNewClient(this.last_id,username,ws);
+      var newClient = this.createNewClient(this.last_id,username,roomname,ws);
       this.last_id++;
 
       //We communicate info about this incomming client and add him to the roomManager
@@ -82,7 +81,7 @@ class MyServer {
   
   };
 
-  createNewClient(id,username,ws){
+  createNewClient(id,username,roomname,ws){
       // We define the User and its Id
       var newUser = new User(id,username,"online" );
       // we send the id to the user
@@ -139,7 +138,6 @@ class MyServer {
 
   // Handling the messages received from the clients
   onMessage(client, message) {
-
     // Switch case for all the types of messages
     switch (message.type) {
 
@@ -162,7 +160,7 @@ class MyServer {
     var clients = this.roomManager.getClientsInRoom(clientSender);
     for (let client of clients){
       if (client.user.id==id){
-        client.server.send(JSON.stringify(message));
+        client.WSserver.send(JSON.stringify(message));
       }
     }
   }
@@ -170,10 +168,9 @@ class MyServer {
   sendToRoom(Client, message) {
     // Send the message to all other clients in the room
     var clients = this.roomManager.getClientsInRoom(Client);
-
     for (let otherClient of clients) {
       if (otherClient.user.id != Client.user.id){
-        otherClient.server.send(JSON.stringify(message));
+        otherClient.WSserver.send(JSON.stringify(message));
       }
     }
   }
