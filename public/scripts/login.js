@@ -51,7 +51,8 @@ loginForm.addEventListener("submit", function (event) {
     if (response) {
       // User is authenticated
       // Redirect to the chat page with new instance of Client
-      window.location.href = "https://ecv-etic.upf.edu/node/9022/chat";
+      window.location.href =
+        "https://ecv-etic.upf.edu/node/9022/room_selection";
       const chat = new MyChat();
       chat.init("wss://ecv-etic.upf.edu/node/9022/ws/", "Hall", username);
     } else {
