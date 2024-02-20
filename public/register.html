@@ -10,35 +10,34 @@
 
   <body>
     <div class="center-container">
-      <div id="loginSection">
+      <form id="loginSection">
         <h2 id="welcome">Registration</h2>
 
-        <div id="username">
-          <label>Username :</label>
+        <label>Username :</label>
+        <input
+          id="usernameInput"
+          type="text"
+          placeholder="Enter your username"
+          name="username"
+          required
+        /><br />
+        <div id="usernameAvailability"></div>
+
+        <label>Password :</label>
+        <div id="input_password">
           <input
-            id="usernameInput"
-            type="text"
-            placeholder="Enter your username"
-          />
-          <div id="usernameAvailability"></div>
+            id="passwordInput"
+            type="password"
+            placeholder="Enter a password"
+            name="password"
+            required
+          /><br <img src="media/eye_icon_opened.png" id="eyeIconOpened" />
+          <!-- <button id="eyeIconClosed"><img src="eye_icon_closed.png" id="eye_Icon"></button> -->
         </div>
 
-        <div id="password">
-          <label>Password :</label>
-          <div id="input_password">
-            <input
-              id="passwordInput"
-              type="password"
-              placeholder="Enter a password"
-            />
-            <img src="media/eye_icon_opened.png" id="eyeIconOpened" />
-            <!-- <button id="eyeIconClosed"><img src="eye_icon_closed.png" id="eye_Icon"></button> -->
-          </div>
-        </div>
-
-        <button class="joinButton">Register</button>
-      </div>
+        <button type="submit" class="joinButton">Register</button>
+      </form>
     </div>
-    <script src="scripts/registration.js"></script>
+    <script type="module" src="scripts/registration.js"></script>
   </body>
 </html>

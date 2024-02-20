@@ -4,35 +4,37 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="css/register.css" />
-
     <title>ChatApp</title>
   </head>
 
   <body>
     <div class="center-container">
-      <div id="loginSection">
+      <form id="loginSection">
         <h2 id="welcome">Welcome to the ChatApp</h2>
-        <div id="username">
-          <label>Username :</label>
-          <input type="text" placeholder="Enter your username" />
-        </div>
-        <div id="password">
-          <label>Password :</label>
-          <input type="text" placeholder="Enter your password" />
-        </div>
+        <label>Username :</label>
+        <input
+          id="username"
+          type="text"
+          placeholder="Enter your username"
+          name="username"
+          required
+        /><br />
+
+        <label>Password :</label>
+        <input
+          id="password"
+          type="password"
+          placeholder="Enter your password"
+          name="password"
+          required
+        /><br />
+
         <div id="register">
           <p id="registerLink">Don't have an account? <a>Register here</a>.</p>
         </div>
-
-        <button class="joinButton">Join Chat</button>
-      </div>
+        <button type="submit" class="joinbutton">Join Chat</button>
+      </form>
     </div>
   </body>
-  <script>
-    document
-      .getElementById("registerLink")
-      .addEventListener("click", function () {
-        window.location.href = "node/9022/register";
-      });
-  </script>
+  <script type="module" src="scripts/login.js"></script>
 </html>

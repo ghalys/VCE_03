@@ -1,20 +1,19 @@
 import express from "express";
 import path from "path";
 
-const __dirname = path.resolve(path.dirname(""));
+const __dirname = path.resolve();
 
 const router = express.Router();
-
-router.use(express.static(path.join(__dirname, "public")));
 
 console.log("THIS IS THE " + __dirname);
 
 router.all("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "login.html"));
+  console.log("Serving index.html");
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 router.all("/register", (req, res) => {
-  res.send(path.join(__dirname, "public", "register.html"));
+  res.sendFile(path.join(__dirname, "public", "register.html"));
 });
 
 router.all("/chat", (req, res) => {

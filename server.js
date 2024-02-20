@@ -1,6 +1,7 @@
 import express from "express";
 import http from "http";
 import { WebSocketServer, WebSocket } from "ws";
+import path from "path";
 
 import DB from "./db.js";
 
@@ -12,7 +13,7 @@ import {
   RoomManager,
 } from "./public/scripts/classes.js";
 
-import mainroutes from "./routes/mainroutes.js";
+import router from "./routes/mainroutes.js";
 
 var PORT = 3000;
 
@@ -82,7 +83,9 @@ class MyServer {
   }
 
   setupRoutes(app) {
-    app.use("/", mainroutes);
+    const __dirname = path.resolve();
+    app.use(express.static(path.join(__dirname, "public")));
+    app.use(router);
   }
 
   sendId(ws, id) {
@@ -125,6 +128,17 @@ class MyServer {
           this.sendToUser(id, message, client); //the client here is the sender
         }
         break;
+      case "LOGIN":
+        this.validateUserInfo(
+          client,
+          message.content.username,
+          message.content.password
+        );
+        break;
+      case "REGISTER":
+        // Register the user in the database
+        this.db.addUser(message.content.username, message.content.password);
+        break;
     }
   }
 
@@ -135,6 +149,23 @@ class MyServer {
       if (client.id == id) {
         client.server.send(JSON.stringify(message));
       }
+    }
+  }
+
+  async validateUserInfo(client, user, password) {
+    // Check if the user is in the database
+    // Check if the password is correct
+    // Return true if the user is valid, false otherwise
+    try {
+      var validUser = false;
+      var user = await this.db.validateUserInfo(user, password);
+      if (user) {
+        validUser = true; // UserInfo is valid
+      }
+      var login_msg = new Msg(this.server_id, "Server", validUser, "LOGIN");
+      client.server.send(JSON.stringify(login_msg));
+    } catch (err) {
+      console.log("Error getting user: " + err);
     }
   }
 
