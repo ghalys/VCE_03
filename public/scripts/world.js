@@ -1,17 +1,20 @@
 export class World{
-  constructor(myAgent,list_Agents,canvas){
+  constructor(myAgent,canvas){
     this.myAgent = myAgent;
     this.peopleById = {};
     this.images = {};
-    this.this.canvas = canvas;
+    this.canvas = canvas;
     this.WSserver = null;
   }
 
-  initialisation(id){
+  set_ID(id){
     this.myAgent.setId = id;
-
+  }
+  initialisation(){
+    console.log(this.myAgent);
+    console.log("tick should start correctly");
     //send the Agent state to the server every 50ms
-    setInterval(this.onTick,1000/20);
+    // setInterval(this.onTick,1000/20);
   }
 
   onTick(){
@@ -91,7 +94,7 @@ export class World{
     ctx.translate(this.canvas.width/2,this.canvas.height*(2/3));
     ctx.scale(2,2);
 
-    for (let id in peopleById) {
+    for (let id in this.peopleById) {
       var Agent = this.peopleById[id];
       this.drawAgent(ctx,Agent);
     }

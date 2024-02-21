@@ -35,29 +35,33 @@ function connectToChat() {
   document.getElementById("username").value = "";
   document.getElementById("room-name").value = "";
 
-  var room = "room1"//TODO - we have to remove this at the end
+  var room = "hall"//TODO - we have to remove this at the end
 
-  var myAvatar = new Agent(-2,username);// 2 is a temporary Id
-  var myWorld =new World(myAvatar,[],canvas);
+  var myAgent = new Agent(-2,username);// 2 is a temporary Id
+  var myWorld =new World(myAgent,canvas);
 
   //Connect to chat
   FelixChat.init(
     ourUrl,
-    room,
     username,
     myWorld,
+    room,
     icon
   );
 
   //Display chat page
   document.getElementById("login-page").style.display = "none";
   document.getElementById("chat-page").style.display = "block";
-
-
+  
+  //here we can store the keyboard state
+  var keys = {};
+  //here we can store the mouse position and state 
+  var mouse_pos = [0,0];
+  var mouse_buttons = 0;
+  var mouse_clicked = false;
+  
   function Listeners(){
 
-    //here we can store the keyboard state
-    var keys = {};
     
     function onKeyDown( event ) { 
       //process key down event
@@ -74,10 +78,6 @@ function connectToChat() {
     document.body.addEventListener("keyup", onKeyUp );
     
     
-    //here we can store the mouse position and state 
-    var mouse_pos = [0,0];
-    var mouse_buttons = 0;
-    var mouse_clicked = false;
     function onMouse(e){
       mouse_buttons = e.buttons;
       // if(mouse_buttons ==1){

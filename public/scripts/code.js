@@ -9,9 +9,10 @@ class MyChat {
     this.user_id = null;
     this.my_username = null;
     this.my_icon = null;
+    this.myWorld = null;
   }
   
-  init(url, roomname, username, myWorld,icon = "face"){       
+  init(url, username, myWorld, roomname="hall",icon = "face"){       
     this.server = new ServerClient(url,roomname,username);
 
     // Set the username and the world
@@ -31,11 +32,18 @@ class MyChat {
     this.server.on_message=(message)=>{
       this.showMessage(message);
     }
+
     
     this.server.on_ready = ()=>{
       //this function is called after that the server has sent the id to the client
-      this.user_id = this.server.user_id;     
-      this.myWorld.initialisation(this.server.user_id);
+      this.user_id = this.server.user_id; 
+      //set the Id of my agent in myWorld
+      this.myWorld.set_ID(this.server.user_id);
+      //send my agent to the server to create a instance of client there
+      this.server.sendAgent(this.myWorld.myAgent);    
+      //start onTick in myWorld
+      this.myWorld.initialisation();
+
     }
     this.server.on_state_update = (state)=>{
       this.myWorld.receivedJSON(state);

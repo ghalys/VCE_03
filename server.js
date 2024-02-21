@@ -48,31 +48,48 @@ class MyServer {
 
       //we retrieve the username and the current roomname from the client
       const urlParams = new URLSearchParams(req.url.split('?')[1]);
-      const username = urlParams.get('username');
       const roomname = urlParams.get('roomname');
       
-      //we create the new client with its user and agent and ws
-      var newClient = this.createNewClient(this.last_id,username,roomname,ws);
+      
+      // we send the id to the user
+      this.sendId(ws,this.id); 
       this.last_id++;
+      
+      //We associate the ws to its room
+      ws.room = roomname;
 
-      //We communicate info about this incomming client and add him to the roomManager
-      this.onConnection(roomname,newClient);
-
+      var client = null;
       
       // Handling incoming messages from the client
       ws.on("message", (msg) => {
-        console.log("Received message from client");
-
         var message = JSON.parse(msg);
-        this.onMessage(newClient, message);
+
+        //if the message received is about the newUser
+        if(message.type=="NEW_AGENT"){//should be received after seting the id
+          console.log("Received agent from client");
+
+          var newAgent = message.content;
+
+          //we create the new client with its user and agent and ws
+          client = this.createNewClient(newAgent,roomname,ws);
+          
+          //We communicate info about this incomming client and add him to the roomManager
+          this.onConnection(roomname,client);
+        
+        }
+
+        this.onMessage(client, message);
 
       });
 
       // Handling client disconnection
       ws.on("close", () => {
         console.log("Client disconnected");
+
+        // we should remove the client from RoomManager
+        this.roomManager.removeClientFromRoom(roomname, client);
         //inform everyone that the client has left
-        this.sendUserLeft(Client);
+        this.sendUserLeft(client);
         // save the last position of the character
 
       });
@@ -81,13 +98,12 @@ class MyServer {
   
   };
 
-  createNewClient(id,username,roomname,ws){
+  createNewClient(agent,roomname,ws){
+      var id = agent.id;
+      var username = agent.username;
       // We define the User and its Id
-      var newUser = new User(id,username,"online" );
-      // we send the id to the user
-      this.sendId(ws,id); 
-      //We associate the ws to its room
-      ws.room = roomname;
+      var newUser = new User(id,username,"online",agent );
+
       // We create a new agent
       var newAgent = new Agent(id,username);
 
@@ -138,8 +154,14 @@ class MyServer {
 
   // Handling the messages received from the clients
   onMessage(client, message) {
+    console.log("Received message from client ");
+
     // Switch case for all the types of messages
     switch (message.type) {
+
+      case "AGENT_STATE":
+          this.sendToRoom(client, message);
+      break;
 
       case "TEXT":
         if (message.destination =="room") {
@@ -153,8 +175,6 @@ class MyServer {
         }
         break; 
       
-        case "AGENT_STATE":
-          this.sendToRoom(client, message);
 
     }
   }

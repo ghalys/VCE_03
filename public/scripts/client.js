@@ -29,7 +29,7 @@ class ServerClient{
   }
 
   connect_socket(){
-    this.socket = new WebSocket(`${this.url}?username=${encodeURIComponent(this.username)}&roomname=${encodeURIComponent(this.active_room)}`);
+    this.socket = new WebSocket(`${this.url}?roomname=${encodeURIComponent(this.active_room)}`);
 
     this.socket.onopen = (event) => this.onOpen(event);
     this.socket.onmessage = (event) => this.onData(event);
@@ -157,6 +157,14 @@ class ServerClient{
                       "AGENT_STATE");
     this.send_message(msg);
   }
+  sendAgent(agent){
+    var msg = new Msg(
+      this.user_id,
+      this.username,
+      agent,
+      "NEW_AGENT");
+    this.send_message(msg);
+  } 
 }
 export default ServerClient;
 
