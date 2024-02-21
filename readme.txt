@@ -1,49 +1,35 @@
-# About me 
+# About us 
 Name: Felix Marxen         
 NIA: 273350
 E-Mail : felix.marxen01@estudiant.upf.edu
 
-# About my code 
-
-## HTML 
-I used the google material icons as additional ressource for some icons. 
-
-## CSS
-I divided the css code into three files: ``layout.css`` , ``sidebar.css`` and ``chat-window.css``. 
-
-## JavaScript
-The structure of my .js file goes like this: 
-- Class definitions with their functions 
-- Additional functions
-- Handling the connection to the server and login 
-    
-
-### Class definitions
-I added the User and Msg class and oriented the MyChat class on the one we saw in the lecture. 
-For the MyChat Class a lot of the functions get invoked when a connection is established: 
-- Other Users get informed 
-- The name of the room in the HTML is set 
-- The icon of the user in the HTML is set 
-
-For the on_message function of the server these actions happen: 
-- Checks if the message is an object and needs to be handled as such 
-- Depending on what the msg is we do: 
-    - text: 
-        - show the message in the chat
-        - add message to history
-    - status-update:
-        -update other users about the change via and saving the users information in an array
-
-For the rest of the code I hope the comments clear up any confusions that might come up, otherwise I apologize for that.
+name : Ahmed Ghaly
+Surname : Sentissi El Idrissi
+Mail : ahmedghaly.sentissi01@estudiant.upf.edu
+NIA : 289371
 
 
-Things that I couldn't finish in time (but are shown in the interface): 
-- Setting Buttons
-- Emoji Button 
-- Private Chats 
-- Chat Pictures 
-- Functionality of searchbar 
-- Modern Looking Interface...
+# About our code 
+
+What we have done :
+- We removed any call to SillyClient from the chat from Assignment 1
+- We coded our own server using nodejs (using httpd + WebSocket server)
+- We connect the chat client to your own server using a Websocket
+- Users have a visual representation of themselves into the screen. the click works well
+- "The server must handle messages between users, so when a user sends a message the
+server decides who must receive that message and sends it to them based on how far they
+are from the user sending the message." Is partially done but not implemented as we can send a message to a specific client inside a room. -> lack of time
+- Users must login using a password that is stored in a database in the backend
+
+What we have not done:
+- Users should be able to change rooms by walking to doors in the map. -> not enough time 
+- If a user reconnect after disconnecting, he must appear in the same place as he was the last time he connected.
+
+
+Things that we couldn't finish in time: 
+- Changing rooms (going back to the hall)
+- Changing background image of canvas
+- Letting the user choose its avatar.
 
 
 

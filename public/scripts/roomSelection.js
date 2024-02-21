@@ -10,7 +10,6 @@ var ourUrl = testingLocally
   : "wss://ecv-etic.upf.edu/node/" + ourPort + "/ws/";
 var FelixChat = new MyChat();
 FelixChat.create(document.getElementById("mychat"));
-//TODO - we can create a kind of user to have info about rooms
 
 //Submitting Login and Room selection
 document
@@ -37,7 +36,6 @@ function connectToChat() {
   var selected_icon = icon_list.options[icon_list.selectedIndex];
   var icon = selected_icon.value;
 
-  //Clear inputs for next login //TODO - ??
   document.getElementById("room-name").value = "";
 
   var room = "hall"; //TODO - we have to remove this at the end

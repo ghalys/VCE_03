@@ -35,7 +35,7 @@ export class World {
     if (id in this.peopleById) {
       this.peopleById[id].updateFromJSON(agentState);
     } else {
-      //TODO - Maybe we will need more info to get for the first time
+      //TODO - Maybe we will need more info to get for the first time like which avatar is chosen
       var agent = new Agent(id, agentState.username); // we have to create a new agent
       agent.updateFromJSON(agentState);
       this.peopleById[id] = agent;

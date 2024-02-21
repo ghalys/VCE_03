@@ -48,7 +48,7 @@ class MyChat {
 
     this.server.on_user_connected = (agent) => {
       // Update active users display
-      // this.displayActiveUsers();//TODO - to fix
+      // this.displayActiveUsers();//TODO - to fix display active users to see who is in the room
 
       this.myWorld.addOrUpdateAgent(agent);
     };
@@ -170,7 +170,6 @@ class MyChat {
   }
 
   //send the input
-  //TODO is it not better to specify the room with this.current_room_name? In this case we will not need a loop to get the room. but if we do so, we should imagine how to send a message to a specific user
   send_input(input) {
     if (input.value != "") {
       console.log("input value: " + input.value);
