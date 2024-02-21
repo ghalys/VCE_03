@@ -16,8 +16,9 @@ router.all("/register", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "register.html"));
 });
 
-router.all("/room_selection", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "room_selection.html"));
+// Room selection ignores the username
+router.all("/room_selection/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "main.html"));
 });
 
 router.all("/chat", (req, res) => {

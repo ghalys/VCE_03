@@ -4,7 +4,14 @@ import { WebSocketServer, WebSocket } from "ws";
 import path from "path";
 
 import DB from "./db.js";
-import {Msg,User,Client,Room,RoomManager,Agent} from './public/scripts/classes.js';
+import {
+  Msg,
+  User,
+  Client,
+  Room,
+  RoomManager,
+  Agent,
+} from "./public/scripts/classes.js";
 
 import router from "./routes/mainroutes.js";
 
@@ -43,43 +50,40 @@ class MyServer {
     //when a new client is connected
     this.wsServer.on("connection", (ws, req) => {
       //we retrieve the username and the current roomname from the client
-      const urlParams = new URLSearchParams(req.url.split('?')[1]);
-      const roomname = urlParams.get('roomname');
-      
-      
+      const urlParams = new URLSearchParams(req.url.split("?")[1]);
+      const roomname = urlParams.get("roomname");
+
       // we send the id to the user
-      this.sendId(ws,this.last_id); 
+      this.sendId(ws, this.last_id);
       this.last_id++;
-      
+
       //We associate the ws to its room
       ws.room = roomname;
-      
+
       //create a temporary client
       var client = new Client(null, ws);
-      
+
       // Handling incoming messages from the client
       ws.on("message", (msg) => {
         var message = JSON.parse(msg);
 
         //if the message received is about the newUser
-        if(message.type=="NEW_AGENT"){//should be received after seting the id
+        if (message.type == "NEW_AGENT") {
+          //should be received after seting the id
           console.log("Received agent from client");
 
           var newAgent = message.content;
 
           //we replace the temporary client with the new client created with its user and agent and ws
-          client = this.createNewClient(newAgent,ws);
+          client = this.createNewClient(newAgent, ws);
           //We communicate info about this incomming client and add him to the roomManager
-          this.onConnection(roomname,client);
+          this.onConnection(roomname, client);
 
           //
-        
-        }
-        else{ //a normal message should be treated
+        } else {
+          //a normal message should be treated
           this.onMessage(client, message);
         }
-
-
       });
 
       // Handling client disconnection
@@ -91,26 +95,24 @@ class MyServer {
         //inform everyone that the client has left
         this.sendUserLeft(client);
         // save the last position of the character
-
       });
     });
-  
-  };
+  }
 
-  createNewClient(agent,ws){
-      var id = agent.id;
-      var username = agent.username;
-      // We define the User and its Id
-      var newUser = new User(id,username,"online",agent );
+  createNewClient(agent, ws) {
+    var id = agent.id;
+    var username = agent.username;
+    // We define the User and its Id
+    var newUser = new User(id, username, "online", agent);
 
-      // We create a new agent
-      var newAgent = new Agent(id,username);
+    // We create a new agent
+    var newAgent = new Agent(id, username);
 
-      //We define a client which associate the user to its client server
-      var newClient = new Client(newUser, ws, newAgent);
+    //We define a client which associate the user to its client server
+    var newClient = new Client(newUser, ws, newAgent);
 
-      return newClient;
-  };
+    return newClient;
+  }
 
   setupRoutes(app) {
     const __dirname = path.resolve();
@@ -138,7 +140,7 @@ class MyServer {
 
     //send the info about all people connected to the new user
     this.sendUsersOfRoom(newClient);
-    
+
     //TODO -  send messages to the client
     // var array = null;
     // for (let msg in array){
@@ -154,17 +156,15 @@ class MyServer {
 
   // Handling the messages received from the clients
   onMessage(client, message) {
-    
     // Switch case for all the types of messages
     switch (message.type) {
-      
-        case "AGENT_STATE":
+      case "AGENT_STATE":
         this.sendToRoom(client, message);
         break;
-        
-        case "TEXT":
+
+      case "TEXT":
         console.log("Received message from client ");
-        if (message.destination =="room") {
+        if (message.destination == "room") {
           // Send the message to the room
           this.sendToRoom(client, message);
         } else {
@@ -182,7 +182,11 @@ class MyServer {
         break;
       case "REGISTER":
         // Register the user in the database
-        this.registerUser(client, message.content.username, message.content.password); 
+        this.registerUser(
+          client,
+          message.content.username,
+          message.content.password
+        );
         break;
     }
   }
@@ -190,8 +194,8 @@ class MyServer {
   sendToUser(id, message, clientSender) {
     //Sends the message to a specific Id user
     var clients = this.roomManager.getClientsInRoom(clientSender);
-    for (let client of clients){
-      if (client.user.id==id){
+    for (let client of clients) {
+      if (client.user.id == id) {
         client.WSserver.send(JSON.stringify(message));
       }
     }
@@ -208,20 +212,25 @@ class MyServer {
         validUser = true; // UserInfo is valid
       }
       var login_msg = new Msg(this.server_id, "Server", validUser, "LOGIN");
-      client.server.send(JSON.stringify(login_msg));
+
+      client.WSserver.send(JSON.stringify(login_msg));
     } catch (err) {
       console.log("Error getting user: " + err);
     }
   }
 
-  registerUser(client, username, password){
+  registerUser(client, username, password) {
     this.db.addUser(username, password);
-    // Check if User is sucessfully added and send Client 
+    // Check if User is sucessfully added and send Client
     this.db.validateUserInfo(username).then((response) => {
-      var register_msg = new Msg(this.server_id, "Server", response, "REGISTER"); 
-      client.server.send(JSON.stringify(register_msg)); 
-    }); 
-
+      var register_msg = new Msg(
+        this.server_id,
+        "Server",
+        response,
+        "REGISTER"
+      );
+      client.WSserver.send(JSON.stringify(register_msg));
+    });
   }
 
   async validateUserInfo(client, user, password) {
@@ -235,27 +244,31 @@ class MyServer {
         validUser = true; // UserInfo is valid
       }
       var login_msg = new Msg(this.server_id, "Server", validUser, "LOGIN");
-      client.server.send(JSON.stringify(login_msg));
+      client.WSserver.send(JSON.stringify(login_msg));
     } catch (err) {
       console.log("Error getting user: " + err);
     }
   }
 
-  registerUser(client, username, password){
+  registerUser(client, username, password) {
     this.db.addUser(username, password);
-    // Check if User is sucessfully added and send Client 
+    // Check if User is sucessfully added and send Client
     this.db.validateUserInfo(username).then((response) => {
-      var register_msg = new Msg(this.server_id, "Server", response, "REGISTER"); 
-      client.server.send(JSON.stringify(register_msg)); 
-    }); 
-
+      var register_msg = new Msg(
+        this.server_id,
+        "Server",
+        response,
+        "REGISTER"
+      );
+      client.WSserver.send(JSON.stringify(register_msg));
+    });
   }
 
   sendToRoom(Client, message) {
     // Send the message to all other clients in the room
     var clients = this.roomManager.getClientsInRoom(Client);
     for (let otherClient of clients) {
-      if (otherClient.user.id != Client.user.id){
+      if (otherClient.user.id != Client.user.id) {
         otherClient.WSserver.send(JSON.stringify(message));
       }
     }
@@ -266,25 +279,19 @@ class MyServer {
     var msg = new Msg(this.server_id, "Server", newClient.user, "USER_JOIN");
     this.sendToRoom(newClient, msg);
   }
-  
+
   sendUserLeft(Client) {
     // Send the info "USER_LEFT" to the rest of the users of the room
-    var msg = new Msg(this.server_id,
-                     "Server",
-                     Client.user,
-                     "USER_LEFT");
-    this.sendToRoom(Client,msg);
+    var msg = new Msg(this.server_id, "Server", Client.user, "USER_LEFT");
+    this.sendToRoom(Client, msg);
   }
 
   sendUsersOfRoom(newClient) {
     //send the info about all people connected to the new user
     var clients = this.roomManager.getClientsInRoom(newClient);
-    for (let client of clients){
-      if (client.user.id!=newClient.user.id){
-        var msg = new Msg(this.server_id,
-                          "Server",
-                          client.user,
-                          "USER_JOIN");
+    for (let client of clients) {
+      if (client.user.id != newClient.user.id) {
+        var msg = new Msg(this.server_id, "Server", client.user, "USER_JOIN");
         newClient.WSserver.send(JSON.stringify(msg));
       }
     }

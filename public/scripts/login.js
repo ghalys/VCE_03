@@ -1,7 +1,7 @@
 import { Msg } from "./classes.js";
 import MyChat from "./code.js";
 
-const testingLocally = false; // Change to true if testing locally
+const testingLocally = true; // Change to true if testing locally
 
 // Redirect to the Register page when the link is clicked
 document.getElementById("registerLink").addEventListener("click", function () {
@@ -56,8 +56,12 @@ loginForm.addEventListener("submit", function (event) {
       // User is authenticated
       // Redirect to the chat page with new instance of Client
       window.location.href = testingLocally
-        ? "http://localhost:9022/room_selection"
-        : "https://ecv-etic.upf.edu/node/9022/room_selection";
+        ? `http://localhost:9022/room_selection?username=${encodeURIComponent(
+            username
+          )}`
+        : `https://ecv-etic.upf.edu/node/9022/room_selection?username=${encodeURIComponent(
+            username
+          )}`;
     } else {
       // User is not authenticated
       // Show an alert
