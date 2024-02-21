@@ -5,7 +5,6 @@ class ServerClient {
     this.url = url;
     this.socket = null;
     this.is_connected = false;
-    this.room = { name: "", clients: [], updated: false };
     this.clients = {};
     this.num_clients = 0;
     this.info_transmitted = 0;
@@ -84,7 +83,7 @@ class ServerClient {
   }
 
   setMyRoom(message) {
-    //TODO we should use "ROOM_INFO" somewhere when we fix it
+    //TODO we should use "ROOM_INFO" to get the information about all rooms present 
     var rooms = message.content;
     console.log("I received the info about the room", message.content);
   }

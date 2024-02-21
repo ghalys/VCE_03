@@ -112,6 +112,7 @@ export class Agent {
   setId(id){
       this.id=id;
   }
+
   //function for changing face direction
   facingRight(){
     this.facing = Agent.FACING.RIGHT;
@@ -170,7 +171,8 @@ export class Agent {
   walkTo(newX,dt){
 
     if(newX>this.position.x){ //we move to the right
-      if(Math.abs(newX-this.position.x)<=32*dt){ //if we are close
+      //if we are close to the destination
+      if(Math.abs(newX-this.position.x)<=32*dt){ 
         var dx = newX-this.position.x;
         this.moveToRight(dx/32);
         this.onMyWay = false
@@ -194,10 +196,6 @@ export class Agent {
       this.onMyWay = false;
     }
   }
-  // make the interpolate position with a factor t between the current position and the destination
-  // interpolatePosition(endPosition, t) {
-  //   this.position = Position.interpolate(this.position, endPosition, t);
-  // }
 
 }
 class Position {
@@ -210,13 +208,4 @@ class Position {
     this.x = x;
     this.y = y;
   }
-
-  // static interpolate(start, end, t) {
-  //   return new Position(
-  //     start.x + (end.x - start.x) * t,
-  //     start.y + (end.y - start.y) * t
-  //   );
-  // }
 }
-
-
