@@ -83,6 +83,7 @@ loginForm.addEventListener("submit", function (event) {
             window.location.href = testingLocally
               ? "http://localhost:9022/"
               : "https://ecv-etic.upf.edu/node/9022/";
+            ws.close();
           } else {
             alert("Error registering the user");
           }
