@@ -11,18 +11,20 @@ class MyChat {
     this.my_icon = null;
   }
   
-  init(url, roomname, username, icon = "face"){       
+  init(url, roomname, username, myWorld,icon = "face"){       
     this.server = new ServerClient(url,roomname,username);
 
-    // Set the username and the id 
+    // Set the username and the world
     this.my_username = username;
+    this.myWorld = myWorld;
+    myWorld.server = this.server;
     
     // Set the name of the room
     this.current_room_name = roomname;
     document.getElementById("room-name-header").textContent = roomname;
     
     // Set the icon of the user
-    this.setUserIcon(icon);
+    // this.setUserIcon(icon); //TODO - we should fix the icon or remove it
 
     
     
@@ -31,17 +33,26 @@ class MyChat {
     }
     
     this.server.on_ready = ()=>{
-      this.user_id = this.server.user_id;
+      //this function is called after that the server has sent the id to the client
+      this.user_id = this.server.user_id;     
+      this.myWorld.initialisation(this.server.user_id);
+    }
+    this.server.on_state_update = (state)=>{
+      this.myWorld.receivedJSON(state);
     }
     
-    this.server.on_user_connected = (id)=>{
+    this.server.on_user_connected = (agent)=>{
       // Update active users display
       this.displayActiveUsers();
+      this.myWorld.addOrUpdateAgent(agent);
+
     }
     
-    this.server.on_user_disconnected = (id)=>{
+    this.server.on_user_disconnected = (agent)=>{
       // Update active users display
       this.displayActiveUsers();
+      this.myWorld.removeAgent(agent);
+
     }
     
     this.server.connect_socket();

@@ -151,7 +151,11 @@ class MyServer {
           var id = message.destination;
           this.sendToUser(id,message,client); //the client here is the sender
         }
-        break;           
+        break; 
+      
+        case "AGENT_STATE":
+          this.sendToRoom(client, message);
+
     }
   }
   

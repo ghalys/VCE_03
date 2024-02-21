@@ -10,11 +10,13 @@ export class Msg {
 }
 
 export class User {
-  constructor(id, username, status, time  = new Date().toLocaleTimeString()) {
+  constructor(id, username, status,agent, time  = new Date().toLocaleTimeString()) {
     this.id = id;
     this.username = username;
     this.status = status;
     this.time = time;
+    this.agent = agent;
+
   }
 }
 
@@ -22,7 +24,6 @@ export class Client {
   constructor(user, WSserver, agent) {
     this.user = user;
     this.WSserver = WSserver;
-    this.agent = agent;
   }
 }
 
@@ -104,11 +105,13 @@ export class Agent {
   }
   updateFromJSON(msgJSON){
     this.facing = msgJSON.facing;
-    this.facing = msgJSON.facing;
     this.position = msgJSON.position;
     this.animation= msgJSON.animation;
     }
 
+  setId(id){
+      this.id=id;
+  }
   //function for changing face direction
   facingRight(){
     this.facing = Agent.FACING.RIGHT;

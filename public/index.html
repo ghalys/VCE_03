@@ -10,18 +10,17 @@
     <link rel="stylesheet" href="css/layout.css" />
     <link rel="stylesheet" href="css/chat-window.css" />
     <link rel="stylesheet" href="css/sidebar.css" />
+    <link rel="stylesheet" href="css/world.css" />
   </head>
   <body>
+
+    <!-- username and roomname for testing -->
     <div id="login-page">
       <h1>Login Page</h1>
       <form id="chat-form">
-        <link rel="stylesheet" href="css/World.css" />
-        <div id="CanvasContainer"><canvas></canvas></div>
-        <script src="scripts/world.js"></script>
-        
         <label for="username">Username:</label>
-        <input type="text" id="username" name="username" autocomplete="username" required />
-        <label for="icon_list">Select your icon</label>
+        <input type="text" id="username" name="username" required />
+        <label >Select your icon</label>
         <span class="material-symbols-outlined"> face </span>
         <span class="material-symbols-outlined"> face_2</span>
         <span class="material-symbols-outlined"> face_3</span>
@@ -51,9 +50,12 @@
       </form>
     </div>
 
-    <span id="chat-page">
+    <!-- chat_page -->
+
+
+    <span id="chat-page" style="display: none">
       <div class="grid-container">
-        <div class="sidebar">
+        <!-- <div class="sidebar">
           <div class="user-info">
             <span class="material-symbols-outlined" id="user-icon"></span>
             <div class="new-chat">
@@ -69,7 +71,7 @@
             <div class="icon">
               <span class="material-symbols-outlined"> search </span>
             </div>
-            <input type="text" placeholder="Search" id = "Search"/>
+            <input type="text" placeholder="Search" id="Search" />
           </div>
           <h2>Online Users</h2>
           <div class="user-list" id="user-list"></div>
@@ -82,18 +84,27 @@
                 src="UPFt_rgb.png"
               />
               <div class="chat-details">
-                <!-- This part is not implemented, only  dummy display-->
+                 This part is not implemented, only  dummy display
                 <div class="chat-name">Username1</div>
                 <div class="last-message">So good to hear from you</div>
               </div>
               <div class="last-message-time">23:22</div>
             </div>
           </div>
+        </div> -->
+
+        <div class="world-room" id="canvas">
+          <div class="chat-name" id="room-name-header"><p>Chat Name</p></div>
+          <div id="CanvasContainer"><canvas></canvas></div>
         </div>
+
         <div class="chat-window">
           <div class="chat-info">
-            <img id="chat-picture" class="profile-picture" src="UPFt_rgb.png" />
-            <div class="chat-name" id="room-name-header"></div>
+            <img
+              id="chat-picture"
+              class="profile-picture"
+              src="media/upf_logo.png"
+            />
             <div class="settings">
               <div class="icon">
                 <span class="material-symbols-outlined"> settings </span>
@@ -108,7 +119,12 @@
               </div>
             </div>
             <div class="text-input">
-              <input class="chat" id="chat_input" type="text" placeholder="Type a message" />
+              <input
+                class="chat"
+                id="chat_input"
+                type="text"
+                placeholder="Type a message"
+              />
             </div>
             <button id="sendButton">
               <div class="icon">
@@ -119,7 +135,10 @@
         </div>
       </div>
     </span>
+
+
     <script type="module" src="scripts/roomSelection.js"></script>
+    <script type="module" src="scripts/world.js"></script>
     <!-- <script type="text/javascript" src="scripts/code.js"></script> -->
   </body>
 </html>

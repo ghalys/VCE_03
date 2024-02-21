@@ -14,9 +14,6 @@
   display: block;
 }
 
-#login-page {
-  display: none;
-}
 
 .grid-container {
   display: grid;
