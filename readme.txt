@@ -10,8 +10,10 @@ NIA : 289371
 
 
 # About our code 
+## How to run the server 
+node routes/index.js // from there everything gets started 
 
-What we have done :
+## What we have done :
 - We removed any call to SillyClient from the chat from Assignment 1
 - We coded our own server using nodejs (using httpd + WebSocket server)
 - We connect the chat client to your own server using a Websocket
@@ -21,7 +23,7 @@ server decides who must receive that message and sends it to them based on how f
 are from the user sending the message." Is partially done but not implemented as we can send a message to a specific client inside a room. -> lack of time
 - Users must login using a password that is stored in a database in the backend
 
-What we have not done:
+## What we have not done:
 - Users should be able to change rooms by walking to doors in the map. -> not enough time 
 - If a user reconnect after disconnecting, he must appear in the same place as he was the last time he connected.
 
