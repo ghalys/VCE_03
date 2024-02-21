@@ -30,6 +30,9 @@ Things that we couldn't finish in time:
 - Changing rooms (going back to the hall)
 - Changing background image of canvas
 - Letting the user choose its avatar.
+- Getting a complete Message History of the room from the database
+    - Right now the saving of the messages work but because of many problems that the node-mysql-wrapper caused we didn't have enough time to fix those 
+    
 
 
 
