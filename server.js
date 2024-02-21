@@ -137,7 +137,7 @@ class MyServer {
         break;
       case "REGISTER":
         // Register the user in the database
-        this.db.addUser(message.content.username, message.content.password);
+        this.registerUser(client, message.content.username, message.content.password); 
         break;
     }
   }
@@ -167,6 +167,16 @@ class MyServer {
     } catch (err) {
       console.log("Error getting user: " + err);
     }
+  }
+
+  registerUser(client, username, password){
+    this.db.addUser(username, password);
+    // Check if User is sucessfully added and send Client 
+    this.db.validateUserInfo(username).then((response) => {
+      var register_msg = new Msg(this.server_id, "Server", response, "REGISTER"); 
+      client.server.send(JSON.stringify(register_msg)); 
+    }); 
+
   }
 
   sendToRoom(Client, message) {

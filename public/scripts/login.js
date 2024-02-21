@@ -3,12 +3,12 @@ import MyChat from "./code.js";
 
 // Redirect to the Register page when the link is clicked
 document.getElementById("registerLink").addEventListener("click", function () {
-  window.location.href = "/register";
+  window.location.href = "https://ecv-etic.upf.edu/node/9022/register";
 });
 
 const loginForm = document.getElementById("loginSection");
 
-const ws = new Websocket("wss://ecv-etic.upf.edu/node/9022/ws/");
+const ws = new WebSocket("wss://ecv-etic.upf.edu/node/9022/ws/");
 // for local testing
 //const ws = new WebSocket("ws://localhost:9022");
 
@@ -51,9 +51,9 @@ loginForm.addEventListener("submit", function (event) {
     if (response) {
       // User is authenticated
       // Redirect to the chat page with new instance of Client
-      window.location.href = "/chat";
+      window.location.href = "https://ecv-etic.upf.edu/node/9022/chat";
       const chat = new MyChat();
-      chat.init("ws://localhost:9022", "Hall", username);
+      chat.init("wss://ecv-etic.upf.edu/node/9022/ws/", "Hall", username);
     } else {
       // User is not authenticated
       // Show an alert

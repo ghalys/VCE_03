@@ -5,7 +5,7 @@ const __dirname = path.resolve();
 
 const router = express.Router();
 
-console.log("THIS IS THE " + __dirname);
+console.log("THIS IS THE " + __dirname); 
 
 router.all("/", (req, res) => {
   console.log("Serving index.html");

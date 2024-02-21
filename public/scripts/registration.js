@@ -1,6 +1,6 @@
 import { Msg } from "./classes.js";
 
-const ws = new Websocket("wss://ecv-etic.upf.edu/node/9022/ws/");
+const ws = new WebSocket("wss://ecv-etic.upf.edu/node/9022/ws/");
 // for local testing
 //const ws = new WebSocket("ws://localhost:9022");
 
@@ -56,21 +56,21 @@ loginForm.addEventListener("submit", function (event) {
 
   if (username !== "" && password !== "") {
     isAvailable(username).then((response) => {
-      if (!response) {
+      if (response) {
         alert("Username is not available");
       } else {
         const registerInfo = new Msg(
           id,
           "register-client",
           { username: username, password: password },
-          "LOGIN"
+          "REGISTER"
         );
         ws.send(JSON.stringify(registerInfo));
         const waitForResponse = new Promise((resolve) => {
           ws.addEventListener("message", function (message) {
             console.log("Received message from server: " + message.data);
             var msg = JSON.parse(message.data);
-            if (msg.type == "LOGIN") {
+            if (msg.type == "REGISTER") {
               resolve(msg.content);
             }
           });
@@ -78,7 +78,7 @@ loginForm.addEventListener("submit", function (event) {
         waitForResponse.then((response) => {
           if (response) {
             alert("User registered successfully");
-            window.location.href = "/";
+            window.location.href = "https://ecv-etic.upf.edu/node/9022/";
           } else {
             alert("Error registering the user");
           }
