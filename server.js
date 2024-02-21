@@ -1,12 +1,12 @@
 import express from "express";
 import http from "http";
 import { WebSocketServer, WebSocket } from "ws";
+import path from "path";
 
 import DB from "./db.js";
 import {Msg,User,Client,Room,RoomManager,Agent} from './public/scripts/classes.js';
 
-import mainroutes from "./routes/mainroutes.js";
-// import { client } from "websocket";
+import router from "./routes/mainroutes.js";
 
 var PORT = 3000;
 
@@ -53,8 +53,9 @@ class MyServer {
       
       //We associate the ws to its room
       ws.room = roomname;
-
-      var client = null;
+      
+      //create a temporary client
+      var client = new Client(null, ws);
       
       // Handling incoming messages from the client
       ws.on("message", (msg) => {
@@ -66,8 +67,8 @@ class MyServer {
 
           var newAgent = message.content;
 
-          //we create the new client with its user and agent and ws
-          client = this.createNewClient(newAgent,roomname,ws);
+          //we replace the temporary client with the new client created with its user and agent and ws
+          client = this.createNewClient(newAgent,ws);
           //We communicate info about this incomming client and add him to the roomManager
           this.onConnection(roomname,client);
 
@@ -96,7 +97,7 @@ class MyServer {
   
   };
 
-  createNewClient(agent,roomname,ws){
+  createNewClient(agent,ws){
       var id = agent.id;
       var username = agent.username;
       // We define the User and its Id
@@ -112,7 +113,9 @@ class MyServer {
   };
 
   setupRoutes(app) {
-    app.use("/", mainroutes);
+    const __dirname = path.resolve();
+    app.use(express.static(path.join(__dirname, "public")));
+    app.use(router);
   }
 
   sendId(ws, id) {
@@ -169,9 +172,18 @@ class MyServer {
           var id = message.destination;
           this.sendToUser(id, message, client); //the client here is the sender
         }
-        break; 
-      
-
+        break;
+      case "LOGIN":
+        this.validateUserInfo(
+          client,
+          message.content.username,
+          message.content.password
+        );
+        break;
+      case "REGISTER":
+        // Register the user in the database
+        this.registerUser(client, message.content.username, message.content.password); 
+        break;
     }
   }
 
@@ -183,6 +195,60 @@ class MyServer {
         client.WSserver.send(JSON.stringify(message));
       }
     }
+  }
+
+  async validateUserInfo(client, user, password) {
+    // Check if the user is in the database
+    // Check if the password is correct
+    // Return true if the user is valid, false otherwise
+    try {
+      var validUser = false;
+      var user = await this.db.validateUserInfo(user, password);
+      if (user) {
+        validUser = true; // UserInfo is valid
+      }
+      var login_msg = new Msg(this.server_id, "Server", validUser, "LOGIN");
+      client.server.send(JSON.stringify(login_msg));
+    } catch (err) {
+      console.log("Error getting user: " + err);
+    }
+  }
+
+  registerUser(client, username, password){
+    this.db.addUser(username, password);
+    // Check if User is sucessfully added and send Client 
+    this.db.validateUserInfo(username).then((response) => {
+      var register_msg = new Msg(this.server_id, "Server", response, "REGISTER"); 
+      client.server.send(JSON.stringify(register_msg)); 
+    }); 
+
+  }
+
+  async validateUserInfo(client, user, password) {
+    // Check if the user is in the database
+    // Check if the password is correct
+    // Return true if the user is valid, false otherwise
+    try {
+      var validUser = false;
+      var user = await this.db.validateUserInfo(user, password);
+      if (user) {
+        validUser = true; // UserInfo is valid
+      }
+      var login_msg = new Msg(this.server_id, "Server", validUser, "LOGIN");
+      client.server.send(JSON.stringify(login_msg));
+    } catch (err) {
+      console.log("Error getting user: " + err);
+    }
+  }
+
+  registerUser(client, username, password){
+    this.db.addUser(username, password);
+    // Check if User is sucessfully added and send Client 
+    this.db.validateUserInfo(username).then((response) => {
+      var register_msg = new Msg(this.server_id, "Server", response, "REGISTER"); 
+      client.server.send(JSON.stringify(register_msg)); 
+    }); 
+
   }
 
   sendToRoom(Client, message) {
