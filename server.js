@@ -52,7 +52,7 @@ class MyServer {
       
       
       // we send the id to the user
-      this.sendId(ws,this.id); 
+      this.sendId(ws,this.last_id); 
       this.last_id++;
       
       //We associate the ws to its room
@@ -69,6 +69,7 @@ class MyServer {
           console.log("Received agent from client");
 
           var newAgent = message.content;
+          console.log("id issss "+newAgent.id);
 
           //we create the new client with its user and agent and ws
           client = this.createNewClient(newAgent,roomname,ws);
@@ -77,8 +78,10 @@ class MyServer {
           this.onConnection(roomname,client);
         
         }
+        else{ //a normal message should be treated
+          this.onMessage(client, message);
+        }
 
-        this.onMessage(client, message);
 
       });
 
@@ -154,16 +157,16 @@ class MyServer {
 
   // Handling the messages received from the clients
   onMessage(client, message) {
-    console.log("Received message from client ");
-
+    
     // Switch case for all the types of messages
     switch (message.type) {
-
+      
       case "AGENT_STATE":
-          this.sendToRoom(client, message);
-      break;
-
-      case "TEXT":
+        this.sendToRoom(client, message);
+        break;
+        
+        case "TEXT":
+        console.log("Received message from client ");
         if (message.destination =="room") {
           // Send the message to the room
           this.sendToRoom(client, message);
@@ -193,6 +196,11 @@ class MyServer {
     // Send the message to all other clients in the room
     var clients = this.roomManager.getClientsInRoom(Client);
     for (let otherClient of clients) {
+      if (message.type == "TEXT"){
+        console.log(clients)
+        console.log("id of other client " +  otherClient.user.id)
+      }
+
       if (otherClient.user.id != Client.user.id){
         otherClient.WSserver.send(JSON.stringify(message));
       }

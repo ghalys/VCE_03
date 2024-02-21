@@ -7,22 +7,24 @@ export class World{
     this.WSserver = null;
   }
 
-  set_ID(id){
-    this.myAgent.setId = id;
+  set_ID_and_Server(WSServer){
+    this.myAgent.setId(WSServer.user_id);
+    this.WSserver = WSServer;
+    console.log("myagentzef  id   "+WSServer.user_id);
+
   }
   initialisation(){
     console.log(this.myAgent);
     console.log("tick should start correctly");
     //send the Agent state to the server every 50ms
-    // setInterval(this.onTick,1000/20);
+    setInterval(this.onTick,1000/20);
   }
 
-  onTick(){
+  onTick= ()=>{
     //Create the Agent state to the server
     var myState = this.myAgent.sendJSON();
     this.WSserver.sendAgentState(myState);
     // Send it 
-    
   }
   receivedJSON(state){
     this.peopleById[state.id].updateFromJSON(state);

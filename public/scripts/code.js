@@ -37,10 +37,13 @@ class MyChat {
     this.server.on_ready = ()=>{
       //this function is called after that the server has sent the id to the client
       this.user_id = this.server.user_id; 
-      //set the Id of my agent in myWorld
-      this.myWorld.set_ID(this.server.user_id);
+      //set the Id of my agent and the client server in myWorld
+      this.myWorld.set_ID_and_Server(this.server);
       //send my agent to the server to create a instance of client there
-      this.server.sendAgent(this.myWorld.myAgent);    
+      this.server.sendAgent(this.myWorld.myAgent);
+      console.log("myagent  id   "+this.myWorld.myAgent.id);
+ 
+       
       //start onTick in myWorld
       this.myWorld.initialisation();
 
