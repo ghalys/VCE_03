@@ -47,14 +47,13 @@ class DB {
       // Table messages_FG saves the messages of the chat with
       // a new id, the id of the user who sent the message, the id of the room where the message was sent, the message, the type of message and the timestamp
       queryAsync(
-        "CREATE TABLE IF NOT EXISTS messages_FG (message_id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, room_id INT, message TEXT, type VARCHAR(50), timestamp DATETIME, FOREIGN KEY (user_id) REFERENCES users_FG(user_id) ON DELETE CASCADE, FOREIGN KEY (room_id) REFERENCES rooms_FG(room_id) ON DELETE CASCADE)"
+        "CREATE TABLE IF NOT EXISTS messages_FG2 (message_id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, room_id INT, message TEXT, type VARCHAR(50), timestamp DATETIME)"
       ),
     ]);
   }
 
   handleData(data, info) {
     console.log("Data received from the Server");
-
     switch (info) {
       case "users":
         this.addUser(data.user_name, data.password);
@@ -116,15 +115,23 @@ class DB {
     );
   }
 
-  addMessages(user_id, room_id, message) {
+  async addMessages(user_id, room_name, msg) {
     // Parse the Json string to a message object
-    var msg = JSON.parse(message);
+    console.log("Message is being saved" + JSON.stringify(msg)); 
+    
+    //Room Id
+    const room_id = 12; 
+
+    // Get current date and time
+    const currentDate = new Date();
+    // Format the date and time as 'YYYY-MM-DD HH:MM:SS'
+    const formattedDateTime = currentDate.toISOString().slice(0, 19).replace('T', ' ');
 
     // Save the message to the database using query because the save method of the wrapper is not working
     // while avoiding SQL injection
     this.client.query(
-      "INSERT INTO messages_FG (user_id, room_id, message, type, timestamp) VALUES (?, ?, ?, ?, ?)",
-      [user_id, room_id, msg.content, msg.type, msg.time],
+      "INSERT INTO messages_FG2 (user_id, room_id, message, type, timestamp) VALUES (?, ?, ?, ?, ?)",
+      [user_id, room_id, msg.content, msg.type, formattedDateTime],
       (err, result) => {
         if (err) throw err;
         console.log(`Message ${msg.content} added to the database`);
@@ -192,12 +199,12 @@ class DB {
     });
   }
 
-  getRoom(id) {
+  getRoom(name) {
     // Returns a promise with the result of the query
-    return this.db.table("rooms_FG").find({ room_id: id }, (err, result) => {
+    return this.db.table("rooms_FG").find({ room_name: name }, (err, result) => {
       if (err) throw err;
       console.log(result);
-      this.rooms = result;
+      
     });
   }
 
@@ -210,7 +217,7 @@ class DB {
     // while avoiding SQL injection
     return new Promise((resolve, reject) => {
       this.client.query(
-        "SELECT * FROM messages_FG WHERE room_id = ? ORDER BY timestamp",
+        "SELECT * FROM messages_FG2 WHERE room_id = ? ORDER BY timestamp",
         [room],
         (err, result) => {
           if (err) throw err;

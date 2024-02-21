@@ -65,10 +65,10 @@ class MyServer {
 
           //we replace the temporary client with the new client created with its user and agent and ws
           client = this.createNewClient(newAgent, ws);
+
           //We communicate info about this incomming client and add him to the roomManager
           this.onConnection(roomname, client);
 
-          //
         } else {
           //a normal message should be treated
           this.onMessage(client, message);
@@ -78,12 +78,13 @@ class MyServer {
       // Handling client disconnection
       ws.on("close", () => {
         console.log("Client disconnected");
-
         // we should remove the client from RoomManager
         this.roomManager.removeClientFromRoom(roomname, client);
+
         //inform everyone that the client has left
         this.sendUserLeft(client);
-        // save the last position of the character
+
+        //TODO save the last position of the character
       });
     });
   }
@@ -383,7 +384,7 @@ class MyServer {
     // extract the data (also a msg object) to be stored
     var data = msg.content;
     // Let the db handle where to store the data
-    this.db.handleData(data.content, data.type);
+    this.db.handleData(data, msg.type);
   }
 
   //TODO we should integrate functions below
