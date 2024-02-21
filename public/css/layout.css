@@ -11,13 +11,12 @@
 }
 
 #chat-page {
-  display: block;
-}
-
-#login-page {
   display: none;
 }
 
+#login-page {
+  display: block;
+}
 
 .grid-container {
   display: grid;

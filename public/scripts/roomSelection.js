@@ -38,7 +38,6 @@ function connectToChat() {
   var icon = selected_icon.value;
 
   //Clear inputs for next login //TODO - ??
-  document.getElementById("username").value = "";
   document.getElementById("room-name").value = "";
 
   var room = "hall"; //TODO - we have to remove this at the end
