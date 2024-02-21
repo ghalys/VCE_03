@@ -74,6 +74,8 @@ class MyServer {
           client = this.createNewClient(newAgent,roomname,ws);
           //We communicate info about this incomming client and add him to the roomManager
           this.onConnection(roomname,client);
+
+          //
         
         }
         else{ //a normal message should be treated
@@ -144,6 +146,11 @@ class MyServer {
     //send the info about all people connected to the new user
     this.sendUsersOfRoom(newClient);
     
+    //TODO -  send messages to the client
+    // var array = null;
+    // for (let msg in array){
+    //   this.newClient.wsServer.send(msg);
+    // }
 
     // var path_info = url.parse(req.url);
     // var parameters = qs.parse(path_info.query);
