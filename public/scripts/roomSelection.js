@@ -2,7 +2,7 @@ import MyChat from "./code.js";
 import { World } from "./world.js";
 import { Agent } from "./classes.js";
 
-const testingLocally = true; // Change to true if testing locally
+const testingLocally = false; // Change to true if testing locally
 
 var ourPort = "9022";
 var ourUrl = testingLocally
@@ -46,6 +46,7 @@ function connectToChat() {
   var myWorld = new World(myAgent, canvas);
 
   //Connect to chat
+  console.log(ourUrl);
   FelixChat.init(ourUrl, username, myWorld, room, icon);
 
   //Display chat page

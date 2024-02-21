@@ -4,7 +4,7 @@ import { Msg, User } from "./public/scripts/classes.js";
 import util from "util";
 import md5 from "md5";
 
-const testingLocally = true; // Change to true if testing locally
+const testingLocally = false; // Change to true if testing locally
 
 // Class to manage the database
 class DB {
