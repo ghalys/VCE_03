@@ -19,7 +19,8 @@ class ServerClient{
     this.username = username;
     this.on_connect = null; //when connected
     this.on_ready = null; //when we have an ID from the server
-    this.on_message = null; //when somebody sends a message
+    this.on_message = null; //when we receive a message
+    this.on_state_update = null; //when we receive a agent state update
     this.on_close = null; //when the server closes
     this.on_user_connected = null; //new user connected
     this.on_user_disconnected = null; //user leaves
@@ -28,7 +29,7 @@ class ServerClient{
   }
 
   connect_socket(){
-    this.socket = new WebSocket(`${this.url}?username=${encodeURIComponent(this.username)}&roomname=${encodeURIComponent(this.active_room)}`);
+    this.socket = new WebSocket(`${this.url}?roomname=${encodeURIComponent(this.active_room)}`);
 
     this.socket.onopen = (event) => this.onOpen(event);
     this.socket.onmessage = (event) => this.onData(event);
@@ -66,6 +67,8 @@ class ServerClient{
       case "USER_LEFT":
           this.onUserLeft(message);
           break;
+      case "AGENT_STATE":
+          this.onAgentState(message);
     }   
   };
 
@@ -94,10 +97,10 @@ class ServerClient{
   onUserJoin(message){
     //When a new user join the room
 
-    // var id = message.id;
     // // Add user to active users list if it is not already there
     
     var newUser = message.content;
+    
     var id = newUser.id;
     
     var user_exists = false;
@@ -109,8 +112,9 @@ class ServerClient{
     if (!user_exists) {
       this.activeUsers.push(newUser);
     }
-
-    this.on_user_connected(id);
+    
+    var newAgent = newUser.agent;
+    this.on_user_connected(newAgent);
   }
 
   onUserLeft(message){
@@ -118,25 +122,48 @@ class ServerClient{
 
     var user = message.content;
     var id = user.id;
-
     // Change user status from active users list
-    for (var user in this.activeUsers) {
-      if (this.activeUsers[user].id == id) {
-        this.activeUsers[user].status = "offline";
-        this.activeUsers[user].time = message.time;
+    for (var USER in this.activeUsers) {
+      if (this.activeUsers[USER].id == id) {
+        this.activeUsers[USER].status = "offline";
+        this.activeUsers[USER].time = message.time;
       }
     }
-    this.on_user_disconnected(id);
-
+    
+    var agent = user.agent;
+    this.on_user_disconnected(agent);
   }
 
   setMyUser(message){
     // Storing the information of the user in the device object
     this.user_id = message.content;
-    this.on_ready()
+    this.on_ready();
     // Send status update to all users in the room
     // this.sendStatusUpdate(id, this.device.username, "I joined the room");
   }
+
+  onAgentState(message){
+    //the state present in the content is processed by myWorld
+    //see Mychat
+    this.on_state_update(message.content); 
+  }
+
+  sendAgentState(state){
+    var msg = new Msg(
+                      this.user_id,
+                      this.username,
+                      state,
+                      "AGENT_STATE");
+    this.send_message(msg);
+  }
+  sendAgent(agent){
+    var msg = new Msg(
+      this.user_id,
+      this.username,
+      agent,
+      "NEW_AGENT");
+    this.send_message(msg);
+  } 
 }
 export default ServerClient;
 

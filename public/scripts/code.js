@@ -9,39 +9,64 @@ class MyChat {
     this.user_id = null;
     this.my_username = null;
     this.my_icon = null;
+    this.myWorld = null;
   }
+  
+  init(url, username, myWorld, roomname="hall",icon = "face"){       
+    this.server = new ServerClient(url,roomname,username);
 
-  init(url, roomname, username, icon = "face") {
-    this.server = new ServerClient(url, roomname, username);
-
-    // Set the username and the id
+    // Set the username and the world
     this.my_username = username;
-
+    this.myWorld = myWorld;
+    myWorld.server = this.server;
+    
     // Set the name of the room
     this.current_room_name = roomname;
     document.getElementById("room-name-header").textContent = roomname;
 
     // Set the icon of the user
-    this.setUserIcon(icon);
+    // this.setUserIcon(icon); //TODO - we should fix the icon or remove it
 
-    this.server.on_message = (message) => {
+    
+    
+    this.server.on_message=(message)=>{
       this.showMessage(message);
-    };
+    }
 
-    this.server.on_ready = () => {
-      this.user_id = this.server.user_id;
-    };
+    
+    this.server.on_ready = ()=>{
+      //this function is called after that the server has sent the id to the client
+      this.user_id = this.server.user_id; 
+      //set the Id of my agent and the client server in myWorld
+      this.myWorld.set_ID_and_Server(this.server);
+      //send my agent to the server to create a instance of client there
+      this.server.sendAgent(this.myWorld.myAgent);
+ 
+       
+      //start onTick in myWorld
+      this.myWorld.initialisation();
 
-    this.server.on_user_connected = (id) => {
+    }
+    this.server.on_state_update = (state)=>{
+      this.myWorld.addOrUpdateAgent(state);
+    }
+    
+    this.server.on_user_connected = (agent)=>{
+      
       // Update active users display
-      this.displayActiveUsers();
-    };
+      // this.displayActiveUsers();//TODO - to fix
+      
+      this.myWorld.addOrUpdateAgent(agent);
 
-    this.server.on_user_disconnected = (id) => {
+    }
+    
+    this.server.on_user_disconnected = (agent)=>{
       // Update active users display
-      this.displayActiveUsers();
-    };
+      // this.displayActiveUsers(); //TODO - 
 
+      this.myWorld.removeAgent(agent);
+    }
+    
     this.server.connect_socket();
 
     this.on_chat_historic = (messages) => {};
@@ -56,7 +81,6 @@ class MyChat {
   }
 
   // Displaying messages in the chat
-  //TODO verifu if msg.id is good
   showMessage(msg) {
     var messageDiv = document.createElement("div");
     if (msg.id == this.user_id) {

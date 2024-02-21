@@ -1,267 +1,113 @@
-var canvas = document.querySelector("canvas");
+import {Agent} from './classes.js';
 
-//here we can store the keyboard state
-var keys = {};
-
-function onKeyDown(event) {
-  //process key down event
-  //mark it as being pressed
-  keys[event.key] = true;
-}
-
-function onKeyUp(event) {
-  //process key up event
-  //mark it as being released
-  keys[event.key] = false;
-}
-
-document.body.addEventListener("keydown", onKeyDown);
-document.body.addEventListener("keyup", onKeyUp);
-
-class Position {
-  constructor(x = 0, y = 0) {
-    this.x = x;
-    this.y = y;
+export class World{
+  constructor(myAgent,canvas){
+    this.myAgent = myAgent;
+    this.peopleById = {};
+    this.images = {};
+    this.canvas = canvas;
+    this.WSserver = null;
   }
 
-  setPosition(x, y) {
-    this.x = x;
-    this.y = y;
+  set_ID_and_Server(WSServer){
+    this.myAgent.setId(WSServer.user_id);
+    this.WSserver = WSServer;
+
+  }
+  initialisation(){
+    console.log("tick should start correctly");
+    //send the Agent state to the server every 50ms
+    setInterval(this.onTick,1000/20);
+  }
+  
+  onTick= ()=>{
+    //Create the Agent state to the server
+    var myState = this.myAgent.sendJSON();
+    this.WSserver.sendAgentState(myState);
+    // Send it 
   }
 
-  static interpolate(start, end, t) {
-    return new Position(
-      start.x + (end.x - start.x) * t,
-      start.y + (end.y - start.y) * t
-    );
-  }
-}
 
-class Character {
-  static FACING = {
-    RIGHT: 0,
-    FRONT: 1,
-    LEFT: 2,
-    BACK: 3,
-  };
-  static ANIMATION = {
-    IDLE: [0],
-    TALK: [0, 1],
-    SIT: [13],
-    WALK: [2, 3, 4, 5, 6, 7, 8, 9],
-  };
-
-  constructor(
-    id,
-    username,
-    position = new Position(),
-    facing = Character.FACING.FRONT,
-    animation = Character.ANIMATION.TALK
-  ) {
-    (this.id = id),
-      (this.username = username),
-      (this.facing = facing),
-      (this.position = position),
-      (this.animation = animation);
+  leaveTheRoom(){
+    this.peopleById ={};
   }
 
-  //function for changing face direction
-  facingRight() {
-    this.facing = Character.FACING.RIGHT;
-  }
-  facingLeft() {
-    this.facing = Character.FACING.LEFT;
-  }
-  facingFront() {
-    this.facing = Character.FACING.FRONT;
-  }
-  facingBack() {
-    this.facing = Character.FACING.BACK;
-  }
-
-  //function for changing the animation
-  animatIdle() {
-    this.animation = Character.ANIMATION.IDLE;
-  }
-  animatWalk() {
-    this.animation = Character.ANIMATION.WALK;
-  }
-  animatSit() {
-    this.animation = Character.ANIMATION.SIT;
-  }
-  animatTalk() {
-    this.animation = Character.ANIMATION.TALK;
-  }
-
-  //walk to the right
-  moveToRight(dt) {
-    this.facingRight();
-    this.animatWalk();
-    this.position.x += dt * 32;
-  }
-  //walk to the left
-  moveToLeft(dt) {
-    this.facingLeft();
-    this.animatWalk();
-    this.position.x -= dt * 32;
-  }
-  //sit down
-  sitDown() {
-    this.animatSit();
-  }
-  //stand up
-  standUp() {
-    this.animatIdle();
-  }
-
-  // function which allows us to move to a new point
-  moveTo(newX, newY) {
-    this.position.setPosition(newX, newY);
-  }
-
-  // make the interpolate position with a factor t between the current position and the destination
-  interpolatePosition(endPosition, t) {
-    this.position = Position.interpolate(this.position, endPosition, t);
-  }
-}
-
-class World {
-  constructor(myCharacter, list_characters) {
-    this.myCharacter = myCharacter;
-    this.people = list_characters;
-    this.peopleById = null;
-  }
-
-  initialisation() {
-    //add character to people
-    for (const character of this.people) {
-      var id = character.id;
-      this.peopleById[id] = character;
+  addOrUpdateAgent(agentState){
+    var id = agentState.id;
+    if (id in this.peopleById) {
+      this.peopleById[id].updateFromJSON(agentState);
+    }
+    else{
+      //TODO - Maybe we will need more info to get for the first time
+      var agent = new Agent(id,agentState.username);// we have to create a new agent
+      agent.updateFromJSON(agentState);
+      this.peopleById[id] = agent;
     }
 
-    //send the character state to the server every 50ms
-    setInterval(this.onTick, 1000 / 20);
-  }
-  onTick() {
-    //send the character state to the server
   }
 
-  addOrUpdateCharacter(character) {
-    var id = character.id;
-    var person = this.peopleById(id);
-
-    //if the person doesn't exist, we add it to World
-    if (!person) {
-      this.people.push(character);
-      this.peopleById[id] = character;
-    } else {
-      this.peopleById[id] = character;
+  removeAgent(agent_state){
+    //if the id is present, we remove the agent from myWorld
+    if (agent_state.id in this.peopleById) {
+      delete this.peopleById[agent_state.id];
     }
   }
+  
+  //get image
+  getImage(url, callback) {
+    if (this.images[url]) {
+      callback(this.images[url]);
+      return;
+    }
+    var img = new Image();
+    img.onload = ()=> {
+      this.images[url] = img;
+      callback(img);
+    };
+    img.onerror = function() {
+      console.error("Failed to load image at " + url);
+    };
+    img.src = url;
+  }
 
-  removeCharacter(character) {
-    var person = this.peopleById(id);
+  
+  drawAgent(ctx, Agent) {
+    this.getImage("Avatar.png", (img)=> {
+      ctx.imageSmoothingEnabled = false;
+      
+      // Define a speed modifier
+      var speedModifier = 0.5; 
 
-    //if the person doesn't exist, we do nothing
-    if (!person) return;
+      // Adjust the frame calculation to include the speed modifier
+      var frame_num = Math.floor((performance.now() / 100 * speedModifier) % Agent.animation.length);
+      var anim = Agent.animation;
+      var frame = anim[frame_num % anim.length];
+      ctx.drawImage(img, 32 * frame, 64 * Agent.facing, 32, 64, Agent.position.x-32, Agent.position.y-64, 32*2, 64*2);
+      
+      // write the username on the top of the agent
+      ctx.font = "10px Arial"; 
+      ctx.fillStyle = "red";
+      ctx.fillText(Agent.username, Agent.position.x-16, Agent.position.y-64);
+      });
+  }
 
-    var idx = this.people.indexOf(character);
-    this.people.splice(idx, 1);
-    delete this.peopleById(character.id);
+  draw(){
+    var rect = this.canvas.parentNode.getBoundingClientRect();
+    this.canvas.width = Math.floor(rect.width);
+    this.canvas.height = Math.floor(rect.height);
+
+    var  ctx = this.canvas.getContext("2d");
+    ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
+    ctx.resetTransform();
+    ctx.translate(this.canvas.width/2,this.canvas.height*(2/3));
+    ctx.scale(2,2);
+
+    for (let id in this.peopleById) {
+      var Agent = this.peopleById[id];
+      this.drawAgent(ctx,Agent);
+    }
+
+    this.drawAgent(ctx,this.myAgent);
   }
 }
 
-//testing
-var avatar = new Character(1, "avatar");
-var WORLD = new World(avatar, []);
-
-//get image
-var images = {};
-function getImage(url, callback) {
-  if (images[url]) {
-    callback(images[url]);
-    return;
-  }
-  var img = new Image();
-  img.onload = function () {
-    images[url] = img;
-    callback(img);
-  };
-  img.onerror = function () {
-    console.error("Failed to load image at " + url);
-  };
-  img.src = url;
-}
-
-function drawCharacter(ctx, character) {
-  getImage("media/Avatar.png", function (img) {
-    ctx.imageSmoothingEnabled = false;
-
-    // Define a speed modifier
-    var speedModifier = 0.5;
-
-    // Adjust the frame calculation to include the speed modifier
-    var frame_num = Math.floor(
-      ((performance.now() / 100) * speedModifier) % character.animation.length
-    );
-    var anim = character.animation;
-    var frame = anim[frame_num % anim.length];
-    ctx.drawImage(
-      img,
-      32 * frame,
-      64 * character.facing,
-      32,
-      64,
-      character.position.x - 16,
-      character.position.y - 64,
-      32 * 2,
-      64 * 2
-    );
-  });
-}
-
-function draw() {
-  var rect = canvas.parentNode.getBoundingClientRect();
-  canvas.width = Math.floor(rect.width);
-  canvas.height = Math.floor(rect.height);
-
-  var ctx = canvas.getContext("2d");
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.resetTransform();
-  ctx.translate(canvas.width / 2, canvas.height * (2 / 3));
-  ctx.scale(2, 2);
-
-  for (var i = 0; i < WORLD.people.length; ++i) {
-    var character = WORLD.people[i];
-    drawCharacter(ctx, character);
-  }
-  drawCharacter(ctx, WORLD.myCharacter);
-}
-
-var last_time = performance.now();
-
-function update(dt) {
-  WORLD.myCharacter.animatIdle();
-  if (keys["ArrowRight"]) {
-    WORLD.myCharacter.moveToRight(dt);
-  } else if (keys["ArrowLeft"]) {
-    WORLD.myCharacter.moveToLeft(dt);
-  } else if (keys["ArrowDown"]) {
-    WORLD.myCharacter.sitDown();
-  } else if (keys["ArrowUp"]) {
-    WORLD.myCharacter.standUp(); // not needed now
-  }
-}
-
-function mainLoop() {
-  requestAnimationFrame(mainLoop);
-
-  draw();
-  var now = performance.now();
-  var dt = (now - last_time) / 1000;
-  last_time = now;
-
-  update(dt);
-}
-
-mainLoop();
