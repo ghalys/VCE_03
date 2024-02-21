@@ -95,7 +95,7 @@ class DB {
     // encrypt password with md5 and extra string for security
     var encrypt_pw = md5(password + "salt");
 
-    var rooms = rooms || "Hall"; 
+    var rooms = rooms || "Hall";
 
     // Save the user using a query because the save method of the wrapper is not working
     // while avoiding SQL injection
@@ -147,12 +147,45 @@ class DB {
     });
   }
 
-  getUser(id) {
+  validateUserInfo(name, password) {
     // Returns a promise with the result of the query
-    return this.db.table("users").find({ user_id: id }, (err, result) => {
-      if (err) throw err;
-      console.log(result);
-      this.users = result;
+    if (password) {
+      const encrypt_pw = md5(password + "salt");
+      // Using a SQL query because the wrapper always returns the entire table
+      // while avoiding SQL injection
+      // returning a promise with the result of the query
+      return new Promise((resolve, reject) => {
+        this.client.query(
+          "SELECT * FROM users_FG WHERE user_name = ? AND password = ?",
+          [name, encrypt_pw],
+          (err, result) => {
+            if (err) throw err;
+            console.log(result);
+            if (result.length === 0) {
+              console.log("No user found");
+              resolve(null);
+              return;
+            }
+            resolve(result[0]);
+          }
+        );
+      });
+    }
+    return new Promise((resolve, reject) => {
+      this.client.query(
+        "SELECT * FROM users_FG WHERE user_name = ?",
+        [name],
+        (err, result) => {
+          if (err) throw err;
+          console.log(result);
+          if (result.length === 0) {
+            console.log("No user found");
+            resolve(null);
+            return;
+          }
+          resolve(result[0]);
+        }
+      );
     });
   }
 
@@ -178,13 +211,21 @@ class DB {
     if (!room) return console.log("No room specified");
     console.log("Getting messages from room " + room);
     // Get all the messages from the room ordered by timestamp
-    return this.db
-      .table("messages_FG")
-      .findAll({ room }, { order: "timestamp" }, (err, result) => {
-        if (err) throw err;
-        console.log(result);
-        this.messages[room] = result;
-      });
+    // Returns a promise with the result of the query
+    // because the wrapper is not working properly
+    // while avoiding SQL injection
+    return new Promise((resolve, reject) => {
+      this.client.query(
+        "SELECT * FROM messages_FG WHERE room_id = ? ORDER BY timestamp",
+        [room],
+        (err, result) => {
+          if (err) throw err;
+          console.log(result);
+          this.messages[room] = result;
+          resolve(result);
+        }
+      );
+    });
   }
 }
 
