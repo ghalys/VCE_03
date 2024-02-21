@@ -65,9 +65,8 @@ class DB {
       case "messages":
         this.addMessages(
           data.user_id,
-          data.room_id,
-          data.message,
-          data.timestamp
+          data.destination,
+          data
         );
         break;
     }

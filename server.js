@@ -1,31 +1,20 @@
 import express from "express";
 import http from "http";
-import { WebSocketServer, WebSocket } from "ws";
+import { WebSocketServer } from "ws";
 import path from "path";
-
 import DB from "./db.js";
-import {
-  Msg,
-  User,
-  Client,
-  Room,
-  RoomManager,
-  Agent,
-} from "./public/scripts/classes.js";
-
+import {Msg,User,Client,RoomManager,Agent,} from "./public/scripts/classes.js";
 import router from "./routes/mainroutes.js";
-
-var PORT = 3000;
 
 class MyServer {
   constructor() {
-    this.roomManager = null;
-    this.db = {};
+    this.roomManager = null; //The manager of the room, see the class in classes.js
+    this.db = {}; // Our database
     this.server = null; //httpServer
-    this.default_port = 9022;
+    this.default_port = 9022; //our port on ecv-etic.upf.edu 
     this.wsServer = null; //webSocketServer
-    this.last_id = 0;
-    this.server_id = -1;
+    this.last_id = 0;  // every user will get a unique id
+    this.server_id = -1; // the id of the server
   }
 
   async start() {
@@ -141,6 +130,9 @@ class MyServer {
     //send the info about all people connected to the new user
     this.sendUsersOfRoom(newClient);
 
+    //send the history of messages to the new user
+    this.sendMsgHistory(newClient, room);
+
     //TODO -  send messages to the client
     // var array = null;
     // for (let msg in array){
@@ -167,11 +159,17 @@ class MyServer {
         if (message.destination == "room") {
           // Send the message to the room
           this.sendToRoom(client, message);
+
+          // Save message in the database
+          var db_msg = new Msg(message.id, "Server", message, "messages");
+          this.setData(db_msg);
+
         } else {
           //Send the message to the specific user mentionned in message.destination
           var id = message.destination;
           this.sendToUser(id, message, client); //the client here is the sender
         }
+
         break;
       case "LOGIN":
         this.validateUserInfo(
@@ -329,16 +327,39 @@ class MyServer {
     }
   }
 
-  //TODO we should integrate functions below
-  async sendMsgHistory(ws, room) {
+  //sendHistory of messages
+  async sendMsgHistory(client, room) {
     try {
       // Get the message history from the database
+      // Array of messages with message_id, user_id, room_id, message, type and timestamp
       var msg_history = await this.getData("messages", room);
-      // Send the message history to the client in the Msg object
-      var msg = new Msg();
-      msg.create(ws.user_id, "Server", msg_history, "msg_history");
 
-      ws.send(JSON.stringify(msg));
+      // Get the users so we can send the user name with the message
+      // Array of users with user_id, user_name, encrypted_password and rooms
+
+      // Add the user name to the message
+      var users = await this.getData("users");
+      for (let row of msg_history) {
+        for (let user of users) {
+          if (row.user_id == user.user_id) {
+            row.user_name = user.user_name;
+          }
+        }
+      }
+
+      // Send the message history to the client in the Msg object
+      for (let row of msg_history) {
+        var msg = new Msg();
+        msg.create(
+          row.user_id,
+          row.user_name,
+          row.message,
+          row.type,
+          room,
+          row.timestamp
+        );
+        client.WSserver.send(JSON.stringify(msg));
+      }
     } catch (err) {
       console.log("Error getting message history: " + err);
     }
