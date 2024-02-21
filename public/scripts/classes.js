@@ -107,7 +107,7 @@ export class Agent {
     this.facing = msgJSON.facing;
     this.position = msgJSON.position;
     this.animation= msgJSON.animation;
-    }
+  }
 
   setId(id){
       this.id=id;

@@ -69,11 +69,9 @@ class MyServer {
           console.log("Received agent from client");
 
           var newAgent = message.content;
-          console.log("id issss "+newAgent.id);
 
           //we create the new client with its user and agent and ws
           client = this.createNewClient(newAgent,roomname,ws);
-          
           //We communicate info about this incomming client and add him to the roomManager
           this.onConnection(roomname,client);
         
@@ -196,11 +194,6 @@ class MyServer {
     // Send the message to all other clients in the room
     var clients = this.roomManager.getClientsInRoom(Client);
     for (let otherClient of clients) {
-      if (message.type == "TEXT"){
-        console.log(clients)
-        console.log("id of other client " +  otherClient.user.id)
-      }
-
       if (otherClient.user.id != Client.user.id){
         otherClient.WSserver.send(JSON.stringify(message));
       }
@@ -218,24 +211,13 @@ class MyServer {
     this.sendToRoom(newClient,msg);
   }
   
-  sendAvatar(Client){
-    // Send the state of the Avatar to to the rest of users of the same room
-    var msg = new Msg(
-                      this.server_id,
-                      "Server",
-                      Client.Agent,
-                      "AGENT_STATE"
-                      );
-    this.sendToRoom(Client,msg);
-  }
-
   sendUserLeft(Client) {
     // Send the info "USER_LEFT" to the rest of the users of the room
     var msg = new Msg(this.server_id,
                      "Server",
                      Client.user,
                      "USER_LEFT");
-    this.sendToRoom(Client);
+    this.sendToRoom(Client,msg);
   }
 
   sendUsersOfRoom(newClient){

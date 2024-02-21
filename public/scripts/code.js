@@ -41,7 +41,6 @@ class MyChat {
       this.myWorld.set_ID_and_Server(this.server);
       //send my agent to the server to create a instance of client there
       this.server.sendAgent(this.myWorld.myAgent);
-      console.log("myagent  id   "+this.myWorld.myAgent.id);
  
        
       //start onTick in myWorld
@@ -49,21 +48,23 @@ class MyChat {
 
     }
     this.server.on_state_update = (state)=>{
-      this.myWorld.receivedJSON(state);
+      this.myWorld.addOrUpdateAgent(state);
     }
     
     this.server.on_user_connected = (agent)=>{
+      
       // Update active users display
-      this.displayActiveUsers();
+      // this.displayActiveUsers();//TODO - to fix
+      
       this.myWorld.addOrUpdateAgent(agent);
 
     }
     
     this.server.on_user_disconnected = (agent)=>{
       // Update active users display
-      this.displayActiveUsers();
-      this.myWorld.removeAgent(agent);
+      // this.displayActiveUsers(); //TODO - 
 
+      this.myWorld.removeAgent(agent);
     }
     
     this.server.connect_socket();

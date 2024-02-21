@@ -97,7 +97,6 @@ class ServerClient{
   onUserJoin(message){
     //When a new user join the room
 
-    // var id = message.id;
     // // Add user to active users list if it is not already there
     
     var newUser = message.content;
@@ -123,30 +122,30 @@ class ServerClient{
 
     var user = message.content;
     var id = user.id;
-
     // Change user status from active users list
-    for (var user in this.activeUsers) {
-      if (this.activeUsers[user].id == id) {
-        this.activeUsers[user].status = "offline";
-        this.activeUsers[user].time = message.time;
+    for (var USER in this.activeUsers) {
+      if (this.activeUsers[USER].id == id) {
+        this.activeUsers[USER].status = "offline";
+        this.activeUsers[USER].time = message.time;
       }
     }
-
-    var agent = User.agent;
+    
+    var agent = user.agent;
     this.on_user_disconnected(agent);
   }
 
   setMyUser(message){
     // Storing the information of the user in the device object
     this.user_id = message.content;
-    this.on_ready()
+    this.on_ready();
     // Send status update to all users in the room
     // this.sendStatusUpdate(id, this.device.username, "I joined the room");
   }
 
   onAgentState(message){
-    this.on_state_update(message.content); //the state present in the content is processed by myWorld
+    //the state present in the content is processed by myWorld
     //see Mychat
+    this.on_state_update(message.content); 
   }
 
   sendAgentState(state){

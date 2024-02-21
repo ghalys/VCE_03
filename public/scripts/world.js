@@ -1,3 +1,5 @@
+import {Agent} from './classes.js';
+
 export class World{
   constructor(myAgent,canvas){
     this.myAgent = myAgent;
@@ -10,40 +12,44 @@ export class World{
   set_ID_and_Server(WSServer){
     this.myAgent.setId(WSServer.user_id);
     this.WSserver = WSServer;
-    console.log("myagentzef  id   "+WSServer.user_id);
 
   }
   initialisation(){
-    console.log(this.myAgent);
     console.log("tick should start correctly");
     //send the Agent state to the server every 50ms
     setInterval(this.onTick,1000/20);
   }
-
+  
   onTick= ()=>{
     //Create the Agent state to the server
     var myState = this.myAgent.sendJSON();
     this.WSserver.sendAgentState(myState);
     // Send it 
   }
-  receivedJSON(state){
-    this.peopleById[state.id].updateFromJSON(state);
-  }
+
 
   leaveTheRoom(){
     this.peopleById ={};
   }
 
-  addOrUpdateAgent(Agent){
-    var id = Agent.id;
-    this.peopleById[id] = Agent;
-    console.log("added agent " + id);
+  addOrUpdateAgent(agentState){
+    var id = agentState.id;
+    if (id in this.peopleById) {
+      this.peopleById[id].updateFromJSON(agentState);
+    }
+    else{
+      //TODO - Maybe we will need more info to get for the first time
+      var agent = new Agent(id,agentState.username);// we have to create a new agent
+      agent.updateFromJSON(agentState);
+      this.peopleById[id] = agent;
+    }
+
   }
 
-  removeAgent(Agent){
+  removeAgent(agent_state){
     //if the id is present, we remove the agent from myWorld
-    if (id in peopleById) {
-      delete peopleById[id];
+    if (agent_state.id in this.peopleById) {
+      delete this.peopleById[agent_state.id];
     }
   }
   
