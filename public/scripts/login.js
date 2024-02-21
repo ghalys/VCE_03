@@ -62,6 +62,7 @@ loginForm.addEventListener("submit", function (event) {
         : `https://ecv-etic.upf.edu/node/9022/room_selection?username=${encodeURIComponent(
             username
           )}`;
+      ws.close();
     } else {
       // User is not authenticated
       // Show an alert

@@ -1,13 +1,11 @@
-import { Msg, User } from './classes.js';
+import { Msg, User } from "./classes.js";
 
-
-
-class ServerClient{
-  constructor(url,roomname, username) {
+class ServerClient {
+  constructor(url, roomname, username) {
     this.url = url;
     this.socket = null;
     this.is_connected = false;
-    this.room = { name: "", clients:[], updated: false };
+    this.room = { name: "", clients: [], updated: false };
     this.clients = {};
     this.num_clients = 0;
     this.info_transmitted = 0;
@@ -28,81 +26,87 @@ class ServerClient{
     this.on_error = null; //when cannot connect
   }
 
-  connect_socket(){
-    this.socket = new WebSocket(`${this.url}?roomname=${encodeURIComponent(this.active_room)}`);
+  connect_socket() {
+    this.socket = new WebSocket(
+      `${this.url}?roomname=${encodeURIComponent(this.active_room)}`
+    );
 
     this.socket.onopen = (event) => this.onOpen(event);
     this.socket.onmessage = (event) => this.onData(event);
     this.socket.onclose = (event) => this.onClose(event);
-
   }
-  
-  send_message(message){
-      //Sends the message to the server
-      var msg_json = JSON.stringify(message);
-      this.socket.send(msg_json);
-      this.info_transmitted++;
-    }
-  
-  onData(ws_message){
+
+  send_message(message) {
+    //Sends the message to the server
+    var msg_json = JSON.stringify(message);
+    this.socket.send(msg_json);
+    this.info_transmitted++;
+  }
+
+  onData(ws_message) {
     //when the client receive a message from the server
     this.info_received++;
     var msg = JSON.parse(ws_message.data);
-    var message = new Msg(msg.id, msg.author, msg.content, msg.type,msg.destination, msg.time);
+    var message = new Msg(
+      msg.id,
+      msg.author,
+      msg.content,
+      msg.type,
+      msg.destination,
+      msg.time
+    );
 
-    switch(message.type)
-    {
+    switch (message.type) {
       case "YOUR_INFO":
-          this.setMyUser(message);
+        this.setMyUser(message);
         break;
       case "TEXT":
-          this.on_message(message);
-          break;
+        this.on_message(message);
+        break;
       case "ROOM_INFO":
-          this.setMyRoom(message); 
-          break;
+        this.setMyRoom(message);
+        break;
       case "USER_JOIN":
-          this.onUserJoin(message);
-          break;
+        this.onUserJoin(message);
+        break;
       case "USER_LEFT":
-          this.onUserLeft(message);
-          break;
+        this.onUserLeft(message);
+        break;
       case "AGENT_STATE":
-          this.onAgentState(message);
-    }   
-  };
-
-  onOpen(){
-    //When the user is connected
-    this.is_connected = true;
-    console.log("Connected!");
-  };
-
-  setMyRoom(message){
-    //TODO we should use "ROOM_INFO" somewhere when we fix it 
-    var rooms = message.content;
-    console.log("I received the info about the room",message.content);
-
+        this.onAgentState(message);
+    }
   }
 
-  onClose(){
+  onOpen() {
+    //When the user is connected
+    this.is_connected = true;
+    console.log("Client Connected!");
+  }
+
+  setMyRoom(message) {
+    //TODO we should use "ROOM_INFO" somewhere when we fix it
+    var rooms = message.content;
+    console.log("I received the info about the room", message.content);
+  }
+
+  onClose() {
     //When the connection is closed
     this.is_connected = false;
 
     //try to reconnect if we were disconnected
-    setTimeout(this.connect_socket(),3000);
+    setTimeout(this.connect_socket(), 3000);
     console.log("we were disconnected to the server");
-  };
+  }
 
-  onUserJoin(message){
+  onUserJoin(message) {
     //When a new user join the room
 
     // // Add user to active users list if it is not already there
-    
+
     var newUser = message.content;
-    
+
     var id = newUser.id;
-    
+
     var user_exists = false;
     for (var user in this.activeUsers) {
       if (this.activeUsers[user].id == id) {
@@ -112,12 +116,12 @@ class ServerClient{
     if (!user_exists) {
       this.activeUsers.push(newUser);
     }
-    
+
     var newAgent = newUser.agent;
     this.on_user_connected(newAgent);
   }
 
-  onUserLeft(message){
+  onUserLeft(message) {
     //When an user quit the room
 
     var user = message.content;
@@ -129,12 +133,12 @@ class ServerClient{
         this.activeUsers[USER].time = message.time;
       }
     }
-    
+
     var agent = user.agent;
     this.on_user_disconnected(agent);
   }
 
-  setMyUser(message){
+  setMyUser(message) {
     // Storing the information of the user in the device object
     this.user_id = message.content;
     this.on_ready();
@@ -142,30 +146,19 @@ class ServerClient{
     // this.sendStatusUpdate(id, this.device.username, "I joined the room");
   }
 
-  onAgentState(message){
+  onAgentState(message) {
     //the state present in the content is processed by myWorld
     //see Mychat
-    this.on_state_update(message.content); 
+    this.on_state_update(message.content);
   }
 
-  sendAgentState(state){
-    var msg = new Msg(
-                      this.user_id,
-                      this.username,
-                      state,
-                      "AGENT_STATE");
+  sendAgentState(state) {
+    var msg = new Msg(this.user_id, this.username, state, "AGENT_STATE");
     this.send_message(msg);
   }
-  sendAgent(agent){
-    var msg = new Msg(
-      this.user_id,
-      this.username,
-      agent,
-      "NEW_AGENT");
+  sendAgent(agent) {
+    var msg = new Msg(this.user_id, this.username, agent, "NEW_AGENT");
     this.send_message(msg);
-  } 
+  }
 }
 export default ServerClient;
-
-
-
