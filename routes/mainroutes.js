@@ -9,8 +9,16 @@ router.use(express.static(path.join(__dirname, "public")));
 
 console.log("THIS IS THE " + __dirname);
 
-router.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+router.all("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "login.html"));
+});
+
+router.all("/register", (req, res) => {
+  res.send(path.join(__dirname, "public", "register.html"));
+});
+
+router.all("/chat", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "main.html"));
 });
 
 export default router;
