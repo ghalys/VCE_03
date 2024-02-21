@@ -1,8 +1,10 @@
 import { Msg } from "./classes.js";
 
-const ws = new WebSocket("wss://ecv-etic.upf.edu/node/9022/ws/");
-// for local testing
-//const ws = new WebSocket("ws://localhost:9022");
+const testingLocally = false; // Change to true if testing locally
+
+const ws = testingLocally
+  ? new WebSocket("ws://localhost:9022")
+  : new WebSocket("wss://ecv-etic.upf.edu/node/9022/ws/");
 
 ws.onopen = function () {
   console.log("Register Client: Connected to the server");
@@ -78,7 +80,9 @@ loginForm.addEventListener("submit", function (event) {
         waitForResponse.then((response) => {
           if (response) {
             alert("User registered successfully");
-            window.location.href = "https://ecv-etic.upf.edu/node/9022/";
+            window.location.href = testingLocally
+              ? "http://localhost:9022/"
+              : "https://ecv-etic.upf.edu/node/9022/";
           } else {
             alert("Error registering the user");
           }

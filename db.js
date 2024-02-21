@@ -4,29 +4,24 @@ import { Msg, User } from "./public/scripts/classes.js";
 import util from "util";
 import md5 from "md5";
 
-// const client = mysql.createConnection({
-//   database: "ecv-2019",
-//   user: "ecv-user",
-//   password: "ecv-upf-2019",
-//   host: "127.0.0.1",
-// });
+const testingLocally = false; // Change to true if testing locally
 
 // Class to manage the database
 class DB {
   constructor() {
-    this.client = mysql.createConnection({
-      database: "ecv-2019",
-      user: "ecv-user",
-      password: "ecv-upf-2019",
-      host: "127.0.0.1",
-    });
-
-    // this.client = mysql.createConnection({
-    //   database: "VCE",
-    //   user: "root",
-    //   password: "root",
-    //   host: "localhost",
-    // });
+    this.client = testingLocally
+      ? mysql.createConnection({
+          database: "VCE",
+          user: "root",
+          password: "root",
+          host: "localhost",
+        })
+      : mysql.createConnection({
+          database: "ecv-2019",
+          user: "ecv-user",
+          password: "ecv-upf-2019",
+          host: "127.0.0.1",
+        });
     this.db = wrapper.wrap(this.client);
     this.users = [];
     this.rooms = [];

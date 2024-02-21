@@ -1,16 +1,20 @@
 import { Msg } from "./classes.js";
 import MyChat from "./code.js";
 
+const testingLocally = false; // Change to true if testing locally
+
 // Redirect to the Register page when the link is clicked
 document.getElementById("registerLink").addEventListener("click", function () {
-  window.location.href = "https://ecv-etic.upf.edu/node/9022/register";
+  window.location.href = testingLocally
+    ? "http://localhost:9022/register"
+    : "https://ecv-etic.upf.edu/node/9022/register";
 });
 
 const loginForm = document.getElementById("loginSection");
 
-const ws = new WebSocket("wss://ecv-etic.upf.edu/node/9022/ws/");
-// for local testing
-//const ws = new WebSocket("ws://localhost:9022");
+const ws = testingLocally
+  ? new WebSocket("ws://localhost:9022")
+  : new WebSocket("wss://ecv-etic.upf.edu/node/9022/ws/");
 
 ws.onopen = function () {
   console.log("Login Client is connected to the server");
@@ -51,10 +55,9 @@ loginForm.addEventListener("submit", function (event) {
     if (response) {
       // User is authenticated
       // Redirect to the chat page with new instance of Client
-      window.location.href =
-        "https://ecv-etic.upf.edu/node/9022/room_selection";
-      const chat = new MyChat();
-      chat.init("wss://ecv-etic.upf.edu/node/9022/ws/", "Hall", username);
+      window.location.href = testingLocally
+        ? "http://localhost:9022/room_selection"
+        : "https://ecv-etic.upf.edu/node/9022/room_selection";
     } else {
       // User is not authenticated
       // Show an alert
