@@ -4,7 +4,9 @@
   --primary-background-color: #8ee2d7;
   --secondary-background-color: #d9ede6;
 }
-
+body{
+  overflow: hidden;
+}
 * {
   margin: 0;
   padding: 0;

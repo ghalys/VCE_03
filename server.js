@@ -88,9 +88,16 @@ class MyServer {
         //inform everyone that the client has left
         this.sendUserLeft(client);
 
-        //TODO save the last position of the character
+        //save the last position of its agent
+        this.saveAgentPosition(client.user.Agent); 
+
+
       });
     });
+  }
+  
+  saveAgentPosition(agent){
+    //TODO - 
   }
 
   createNewClient(agent, ws) {

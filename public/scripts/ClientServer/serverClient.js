@@ -92,9 +92,10 @@ class ServerClient {
     //When the connection is closed
     this.is_connected = false;
 
+
+    console.log("we were disconnected to the server");
     //try to reconnect if we were disconnected
     setTimeout(this.connect_socket(), 3000);
-    console.log("we were disconnected to the server");
   }
 
   onUserJoin(message) {
@@ -155,6 +156,8 @@ class ServerClient {
     var msg = new Msg(this.user_id, this.username, state, "AGENT_STATE");
     this.send_message(msg);
   }
+
+
   sendAgent(agent) {
     var msg = new Msg(this.user_id, this.username, agent, "NEW_AGENT");
     this.send_message(msg);
