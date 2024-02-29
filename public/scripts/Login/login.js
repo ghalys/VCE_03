@@ -1,7 +1,6 @@
-import { Msg } from "./classes.js";
-import MyChat from "./code.js";
+import Msg from "../Chat/message_class.js";
 
-const testingLocally = false; // Change to true if testing locally
+const testingLocally = true; // Change to true if testing locally
 
 // Redirect to the Register page when the link is clicked
 document.getElementById("registerLink").addEventListener("click", function () {

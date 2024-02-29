@@ -1,9 +1,13 @@
 import express from "express";
 import http from "http";
-import { WebSocketServer } from "ws";
+import {WebSocketServer} from "ws";
 import path from "path";
 import DB from "./db.js";
-import {Msg,User,Client,RoomManager,Agent,} from "./public/scripts/classes.js";
+import Msg from "./public/scripts/Chat/message_class.js";
+import User from "./public/scripts/Chat/user_class.js";
+import Client from "./public/scripts/Chat/client_class.js";
+import Agent from "./public/scripts/World/agent_class.js";
+import RoomManager from "./public/scripts/ClientServer/roomManager.js";
 import router from "./routes/mainroutes.js";
 
 class MyServer {
@@ -24,18 +28,18 @@ class MyServer {
     const app = express();
     const server = http.createServer(app);
     this.server = server;
-
+    
     // Create the database then do the rest
     this.db = new DB();
-
+    
     await Promise.all([this.db.initializeTables()]);
-
+    
     this.listen(); // Listen on the default port
-
+    
     const wsServer = new WebSocketServer({ server });
     this.wsServer = wsServer;
     this.setupRoutes(app); // Setup the routes
-
+    
     //when a new client is connected
     this.wsServer.on("connection", (ws, req) => {
       //we retrieve the username and the current roomname from the client

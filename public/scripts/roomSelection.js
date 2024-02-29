@@ -1,8 +1,8 @@
-import MyChat from "./code.js";
-import { World } from "./world.js";
-import { Agent } from "./classes.js";
+import MyChat from "./ClientServer/myChat.js";
+import World  from "./World/world.js";
+import Agent  from "./World/agent_class.js";
 
-const testingLocally = false; // Change to true if testing locally
+const testingLocally = true; // Change to true if testing locally
 
 var ourPort = "9022";
 var ourUrl = testingLocally

@@ -1,6 +1,6 @@
-import { Agent } from "./classes.js";
+import Agent from "./agent_class.js";
 
-export class World {
+export default class World {
   constructor(myAgent, canvas) {
     this.myAgent = myAgent;
     this.peopleById = {};
@@ -13,6 +13,7 @@ export class World {
     this.myAgent.setId(WSServer.user_id);
     this.WSserver = WSServer;
   }
+  
   initialisation() {
     console.log("tick should start correctly");
     //send the Agent state to the server every 50ms
@@ -50,7 +51,8 @@ export class World {
   }
 
   //get image
-  getImage(url, callback) {
+  getImage(avatar, callback) {
+    var url = avatar; 
     if (this.images[url]) {
       callback(this.images[url]);
       return;
@@ -67,7 +69,7 @@ export class World {
   }
 
   drawAgent(ctx, Agent) {
-    this.getImage("media/Avatar.png", (img) => {
+    this.getImage("media/avatars/"+Agent.avatar+".png", (img) => {
       ctx.imageSmoothingEnabled = false;
 
       // Define a speed modifier

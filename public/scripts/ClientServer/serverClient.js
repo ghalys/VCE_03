@@ -1,4 +1,4 @@
-import { Msg, User } from "./classes.js";
+import Msg from "../Chat/message_class.js";
 
 class ServerClient {
   constructor(url, roomname, username) {

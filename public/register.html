@@ -19,6 +19,7 @@
           type="text"
           placeholder="Enter your username"
           name="username"
+          autocomplete="username"
           required
         /><br />
         <div id="usernameAvailability"></div>
@@ -30,14 +31,16 @@
             type="password"
             placeholder="Enter a password"
             name="password"
+            autocomplete="current-password"
             required
-          /><br <img src="media/eye_icon_opened.png" id="eyeIconOpened" />
+          /> 
+          <img src="media/login/eye_icon_opened.png" id="eyeIconOpened" />
           <!-- <button id="eyeIconClosed"><img src="eye_icon_closed.png" id="eye_Icon"></button> -->
         </div>
-
+        
         <button type="submit" class="joinButton">Register</button>
       </form>
     </div>
-    <script type="module" src="scripts/registration.js"></script>
+    <script type="module" src="scripts/Login/registration.js"></script>
   </body>
 </html>

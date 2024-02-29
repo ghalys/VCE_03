@@ -1,7 +1,7 @@
-import { Msg, User } from "./classes.js";
-import ServerClient from "./client.js";
+import Msg from "../Chat/message_class.js";
+import ServerClient from "./serverClient.js";
 
-class MyChat {
+export default class MyChat {
   constructor() {
     this.root = null;
     this.server = null;
@@ -184,7 +184,5 @@ class MyChat {
       this.sendMessage(new_message);
       input.value = "";
     }
-    console.log("input value: " + input.value);
   }
 }
-export default MyChat;

@@ -1,6 +1,6 @@
-import { Msg } from "./classes.js";
+import Msg from "../Chat/message_class.js";
 
-const testingLocally = false; // Change to true if testing locally
+const testingLocally = true; // Change to true if testing locally
 
 const ws = testingLocally
   ? new WebSocket("ws://localhost:9022")
