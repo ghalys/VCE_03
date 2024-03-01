@@ -8,6 +8,7 @@ var ourPort = "9022";
 var ourUrl = testingLocally
   ? "ws://localhost:9022"
   : "wss://ecv-etic.upf.edu/node/" + ourPort + "/ws/";
+  
 var FelixChat = new MyChat();
 FelixChat.create(document.getElementById("mychat"));
 
@@ -21,7 +22,6 @@ const urlParams = new URLSearchParams(window.location.search);
 const username = urlParams.get("username");
 
 var canvas = document.querySelector("canvas");
-var myWorld = null;
 
 function connectToChat() {
   if (document.getElementById("room-name").value == "") {

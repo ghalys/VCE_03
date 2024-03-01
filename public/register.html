@@ -10,7 +10,7 @@
 
   <body>
     <div class="center-container">
-      <form id="loginSection">
+      <form id="registrationSection">
         <h2 id="welcome">Registration</h2>
 
         <label>Username :</label>
@@ -34,13 +34,25 @@
             autocomplete="current-password"
             required
           /> 
-          <img src="media/login/eye_icon_opened.png" id="eyeIconOpened" />
-          <!-- <button id="eyeIconClosed"><img src="eye_icon_closed.png" id="eye_Icon"></button> -->
+          <img src="media/login/eye_icon_opened.png" id="eyeIcon" />
         </div>
         
         <button type="submit" class="joinButton">Register</button>
       </form>
     </div>
+
+    <script> 
+      var eyeIcon = document.getElementById("eyeIcon");
+      // Making the password visible/invisible by clicking the eye icon
+      eyeIcon.addEventListener("click", function () {
+        if (passwordInput.type == "password") {
+          passwordInput.type = "text";
+        } else {
+          passwordInput.type = "password";
+        }
+      });
+    </script>
+
     <script type="module" src="scripts/Login/registration.js"></script>
   </body>
 </html>

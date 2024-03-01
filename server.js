@@ -81,16 +81,19 @@ class MyServer {
 
       // Handling client disconnection
       ws.on("close", () => {
-        console.log("Client disconnected");
-        // we should remove the client from RoomManager
-        this.roomManager.removeClientFromRoom(roomname, client);
+        
+        //if it's not a login_client
+        if(client.user!=null){
+          console.log("Client disconnected");
+          // we should remove the client from RoomManager
+          this.roomManager.removeClientFromRoom(roomname, client);
+  
+          //inform everyone that the client has left
+          this.sendUserLeft(client);
 
-        //inform everyone that the client has left
-        this.sendUserLeft(client);
-
-        //save the last position of its agent
-        this.saveAgentPosition(client.user.Agent); 
-
+          //save the last position of its agent
+          this.saveAgentPosition(client.user.agent); 
+        }
 
       });
     });
@@ -181,8 +184,8 @@ class MyServer {
           var id = message.destination;
           this.sendToUser(id, message, client); //the client here is the sender
         }
-
         break;
+
       case "LOGIN":
         this.validateUserInfo(
           client,
@@ -190,6 +193,7 @@ class MyServer {
           message.content.password
         );
         break;
+        
       case "REGISTER":
         // Register the user in the database
         this.registerUser(
