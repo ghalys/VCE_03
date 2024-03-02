@@ -1,9 +1,7 @@
 import MyChat from "./ClientServer/myChat.js";
 import World  from "./World/world.js";
 import Agent  from "./World/agent_class.js";
-
-// Change to true if testing locally
-const testingLocally = true; 
+import {testingLocally} from "./testing.js";
 
 const username = document.cookie.split('; ').find(row => row.startsWith('username='))?.split('=')[1];
 const password = document.cookie.split('; ').find(row => row.startsWith('password='))?.split('=')[1];

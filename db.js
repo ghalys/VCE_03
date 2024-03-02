@@ -3,7 +3,9 @@ import wrapper from "node-mysql-wrapper";
 import util from "util";
 import md5 from "md5";
 
-const testingLocally = true; // Change to true if testing locally
+import {testingLocally} from "./public/scripts/testing.js";
+
+// const testingLocally = true; // Change to true if testing locally
 
 // Class to manage the database
 class DB {

@@ -21,7 +21,6 @@ export default class World {
   }
   
   onTick = () => {
-    console.log(this.peopleById);
     //Create the Agent state to the server
     var myState = this.myAgent.sendJSON();
     this.WSserver.sendAgentState(myState);

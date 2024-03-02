@@ -1,4 +1,5 @@
-import { loginServer,testingLocally } from "./login.js";
+import { loginServer} from "./login.js";
+import {testingLocally} from "../testing.js";
 
 const loginForm          = document.getElementById("registrationSection");
 var usernameInput        = document.getElementById("usernameInput");

@@ -1,6 +1,6 @@
 import LoginClient from "./login_client.js";
+import {testingLocally} from "../testing.js";
 
-export const testingLocally = true; // Change to true if testing locally
 
 let username; 
 let password;
