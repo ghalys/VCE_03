@@ -50,7 +50,9 @@ function goToRoom(){
 
 function change_room(room){
   myWorld.leaveTheRoom();
-  
+
+  //clean the chat
+  document.querySelector(".msgs").innerHTML = "";
   //send to the server a message informing it that the user changed the room
   FelixChat.changeRoom(room);
   document.getElementById("room-name-header").textContent = room;
