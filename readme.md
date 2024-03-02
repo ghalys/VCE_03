@@ -3,10 +3,10 @@ Name: Felix Marxen
 NIA: 273350
 E-Mail : felix.marxen01@estudiant.upf.edu
 
-name : Ahmed Ghaly
+Name : Ahmed Ghaly
 Surname : Sentissi El Idrissi
-Mail : ahmedghaly.sentissi01@estudiant.upf.edu
 NIA : 289371
+E-Mail : ahmedghaly.sentissi01@estudiant.upf.edu
 
 # About our code 
 ## How to run the server 
