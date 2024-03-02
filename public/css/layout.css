@@ -12,12 +12,8 @@ body{
   padding: 0;
 }
 
-#chat-page {
-  display: none;
-}
-
-#login-page {
-  display: block;
+#room-page{
+  display: block ;
 }
 
 .grid-container {

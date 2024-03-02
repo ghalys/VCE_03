@@ -10,18 +10,18 @@
   padding: 0;
 }
 
-.chat-window,
+#chat-window,
 .msg,
 .mycontent {
   font-family: Arial, sans-serif;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.chat-window {
+#chat-window {
   grid-column: 3 / 4;
   grid-row: 1 / 5;
   overflow: clip;
-  display: flex;
+  display: none;
   flex-direction: column;
   height: 100vh;
 }

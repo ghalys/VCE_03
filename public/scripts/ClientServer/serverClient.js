@@ -10,7 +10,7 @@ class ServerClient {
     this.info_transmitted = 0;
     this.info_received = 0;
     this.activeUsers = [];
-    this.active_room = roomname;
+    this.roomname = roomname;
 
     this.user_id = -2;
     this.username = username;
@@ -27,7 +27,7 @@ class ServerClient {
 
   connect_socket() {
     this.socket = new WebSocket(
-      `${this.url}?roomname=${encodeURIComponent(this.active_room)}`
+      `${this.url}?roomname=${encodeURIComponent(this.roomname)}`
     );
 
     this.socket.onopen = (event) => this.onOpen(event);
@@ -107,6 +107,7 @@ class ServerClient {
 
     var id = newUser.id;
 
+    //TODO - to remove ??
     var user_exists = false;
     for (var user in this.activeUsers) {
       if (this.activeUsers[user].id == id) {
@@ -127,12 +128,12 @@ class ServerClient {
     var user = message.content;
     var id = user.id;
     // Change user status from active users list
-    for (var USER in this.activeUsers) {
-      if (this.activeUsers[USER].id == id) {
-        this.activeUsers[USER].status = "offline";
-        this.activeUsers[USER].time = message.time;
-      }
-    }
+    // for (var USER in this.activeUsers) {
+    //   if (this.activeUsers[USER].id == id) {
+    //     this.activeUsers[USER].status = "offline";
+    //     this.activeUsers[USER].time = message.time;
+    //   }
+    // }
 
     var agent = user.agent;
     this.on_user_disconnected(agent);
