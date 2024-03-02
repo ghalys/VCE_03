@@ -64,9 +64,7 @@ class MyServer {
         if (message.type == "NEW_AGENT") {
           console.log("Websocket connection established");
           
-          //should be received after seting the id
-          console.log("Received agent from client");
-          
+          //should be received after seting the id          
           var newAgent = message.content;
           
           //we replace the temporary client with the new client created with its user and agent and ws
@@ -156,7 +154,6 @@ class MyServer {
   
   joinRoom(room,client) {
     this.roomManager.addClientToRoom(room, client);
-
     //We update the activeUsers lists for all clients presents in the room
     this.sendUserJoin(client);
 
@@ -164,24 +161,25 @@ class MyServer {
     this.sendUsersOfRoom(client);
 
     //send the history of messages to the new user
-    this.sendMsgHistory(client, room);
+    // this.sendMsgHistory(client, room);//TODO - to fix
 
-    //TODO -  send messages to the client
   }
 
   quitRoom(room,client){
+    // we should remove the client from RoomManager
+    this.roomManager.removeClientFromRoom(room, client);
+
     //inform everyone that the client has left
     this.sendUserLeft(client);
     
     //save the last position of its agent
     this.saveAgentPosition(client.user.agent);
     
-    // we should remove the client from RoomManager
-    this.roomManager.removeClientFromRoom(room, client);
   }
 
   saveAgentPosition(agent){
     //TODO - 
+
   }
 
   createNewClient(agent, ws) {

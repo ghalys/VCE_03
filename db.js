@@ -160,7 +160,6 @@ class DB {
           [name, encrypt_pw],
           (err, result) => {
             if (err) throw err;
-            console.log(result);
             if (result.length === 0) {
               console.log("No user found");
               resolve(null);
@@ -177,7 +176,6 @@ class DB {
         [name],
         (err, result) => {
           if (err) throw err;
-          console.log(result);
           if (result.length === 0) {
             console.log("No user found");
             resolve(null);
@@ -193,7 +191,6 @@ class DB {
     // Returns a promise with the result of the query
     return this.db.table("rooms_FG").findAll((err, result) => {
       if (err) throw err;
-      console.log(result);
       this.rooms = result;
     });
   }
@@ -220,7 +217,6 @@ class DB {
         [room],
         (err, result) => {
           if (err) throw err;
-          console.log(result);
           this.messages[room] = result;
           resolve(result);
         }

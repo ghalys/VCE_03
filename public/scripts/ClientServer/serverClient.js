@@ -126,7 +126,8 @@ class ServerClient {
     //When an user quit the room
 
     var user = message.content;
-    var id = user.id;
+
+    // var id = user.id;
     // Change user status from active users list
     // for (var USER in this.activeUsers) {
     //   if (this.activeUsers[USER].id == id) {

@@ -14,7 +14,7 @@ document.getElementById("room-name-header").textContent = "hall";
 
 
 var canvas = document.querySelector("canvas");
-var myAgent = new Agent(-2, username,"Man"); // 2 is a temporary Id
+var myAgent = new Agent(-2, username); // 2 is a temporary Id
 var myWorld = new World(myAgent, canvas);
 var FelixChat = new MyChat();
 FelixChat.create(document.getElementById("mychat"));

@@ -24,7 +24,6 @@ export default class World {
     //Create the Agent state to the server
     var myState = this.myAgent.sendJSON();
     this.WSserver.sendAgentState(myState);
-    // Send it
   };
 
   leaveTheRoom() {
