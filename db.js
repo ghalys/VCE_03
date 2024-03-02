@@ -1,10 +1,11 @@
 import mysql from "mysql2";
 import wrapper from "node-mysql-wrapper";
-import { Msg, User } from "./public/scripts/classes.js";
 import util from "util";
 import md5 from "md5";
 
-const testingLocally = false; // Change to true if testing locally
+import {testingLocally} from "./public/scripts/testing.js";
+
+// const testingLocally = true; // Change to true if testing locally
 
 // Class to manage the database
 class DB {
@@ -161,7 +162,6 @@ class DB {
           [name, encrypt_pw],
           (err, result) => {
             if (err) throw err;
-            console.log(result);
             if (result.length === 0) {
               console.log("No user found");
               resolve(null);
@@ -178,7 +178,6 @@ class DB {
         [name],
         (err, result) => {
           if (err) throw err;
-          console.log(result);
           if (result.length === 0) {
             console.log("No user found");
             resolve(null);
@@ -194,7 +193,6 @@ class DB {
     // Returns a promise with the result of the query
     return this.db.table("rooms_FG").findAll((err, result) => {
       if (err) throw err;
-      console.log(result);
       this.rooms = result;
     });
   }
@@ -221,7 +219,6 @@ class DB {
         [room],
         (err, result) => {
           if (err) throw err;
-          console.log(result);
           this.messages[room] = result;
           resolve(result);
         }

@@ -1,9 +1,13 @@
 import express from "express";
 import http from "http";
-import { WebSocketServer } from "ws";
+import {WebSocketServer} from "ws";
 import path from "path";
 import DB from "./db.js";
-import {Msg,User,Client,RoomManager,Agent,} from "./public/scripts/classes.js";
+import Msg from "./public/scripts/Chat/message_class.js";
+import User from "./public/scripts/Chat/user_class.js";
+import Client from "./public/scripts/Chat/client_class.js";
+import Agent from "./public/scripts/World/agent_class.js";
+import RoomManager from "./public/scripts/ClientServer/roomManager.js";
 import router from "./routes/mainroutes.js";
 
 class MyServer {
@@ -19,23 +23,23 @@ class MyServer {
 
   async start() {
     this.roomManager = new RoomManager();
-
+    
     // Create the server and the websocket
     const app = express();
     const server = http.createServer(app);
     this.server = server;
-
+    
     // Create the database then do the rest
     this.db = new DB();
-
+    
     await Promise.all([this.db.initializeTables()]);
-
+    
     this.listen(); // Listen on the default port
-
+    
     const wsServer = new WebSocketServer({ server });
     this.wsServer = wsServer;
     this.setupRoutes(app); // Setup the routes
-
+    
     //when a new client is connected
     this.wsServer.on("connection", (ws, req) => {
       //we retrieve the username and the current roomname from the client
@@ -45,30 +49,31 @@ class MyServer {
       // we send the id to the user
       this.sendId(ws, this.last_id);
       this.last_id++;
-
-      //We associate the ws to its room
-      ws.room = roomname;
-
+      
+      
       //create a temporary client
       var client = new Client(null, ws);
-
+      
       // Handling incoming messages from the client
       ws.on("message", (msg) => {
         var message = JSON.parse(msg);
-
+        
         //if the message received is about the newUser
         if (message.type == "NEW_AGENT") {
-          //should be received after seting the id
-          console.log("Received agent from client");
-
+          console.log("Websocket connection established");
+          
+          //should be received after seting the id          
           var newAgent = message.content;
+          
+          //We associate the ws to its room
+          ws.room = roomname;
 
           //we replace the temporary client with the new client created with its user and agent and ws
           client = this.createNewClient(newAgent, ws);
-
+          
           //We communicate info about this incomming client and add him to the roomManager
-          this.onConnection(roomname, client);
-
+          this.joinRoom(roomname, client);
+          
         } else {
           //a normal message should be treated
           this.onMessage(client, message);
@@ -77,76 +82,16 @@ class MyServer {
 
       // Handling client disconnection
       ws.on("close", () => {
-        console.log("Client disconnected");
-        // we should remove the client from RoomManager
-        this.roomManager.removeClientFromRoom(roomname, client);
-
-        //inform everyone that the client has left
-        this.sendUserLeft(client);
-
-        //TODO save the last position of the character
+        
+        //if it's not a login_client
+        if(client.user!=null){
+          console.log("Client disconnected");
+          this.quitRoom(client.WSserver.room,client);
+        }
       });
     });
   }
-
-  createNewClient(agent, ws) {
-    var id = agent.id;
-    var username = agent.username;
-    // We define the User and its Id
-    var newUser = new User(id, username, "online", agent);
-
-    // We create a new agent
-    var newAgent = new Agent(id, username);
-
-    //We define a client which associate the user to its client server
-    var newClient = new Client(newUser, ws, newAgent);
-
-    return newClient;
-  }
-
-  setupRoutes(app) {
-    const __dirname = path.resolve();
-    app.use(express.static(path.join(__dirname, "public")));
-    app.use(router);
-  }
-
-  sendId(ws, id) {
-    var msg = new Msg(this.server_id, "Server", id, "YOUR_INFO");
-    ws.send(JSON.stringify(msg));
-  }
-
-  listen(port) {
-    this.port = port || this.default_port;
-    console.log("Listening on port " + this.port);
-    this.server.listen(this.port);
-  }
-
-  onConnection(room, newClient) {
-    console.log("Websocket connection established");
-    this.roomManager.addClientToRoom(room, newClient);
-
-    //We update the activeUsers lists for all clients presents in the room
-    this.sendUserJoin(newClient);
-
-    //send the info about all people connected to the new user
-    this.sendUsersOfRoom(newClient);
-
-    //send the history of messages to the new user
-    this.sendMsgHistory(newClient, room);
-
-    //TODO -  send messages to the client
-    // var array = null;
-    // for (let msg in array){
-    //   this.newClient.wsServer.send(msg);
-    // }
-
-    // var path_info = url.parse(req.url);
-    // var parameters = qs.parse(path_info.query);
-    // // Room management
-    // var room_name = path_info.pathname;
-    // ws.room = room_name.substring(1, room_name.length); // Remove the first character '/'
-  }
-
+  
   // Handling the messages received from the clients
   onMessage(client, message) {
     // Switch case for all the types of messages
@@ -170,8 +115,8 @@ class MyServer {
           var id = message.destination;
           this.sendToUser(id, message, client); //the client here is the sender
         }
-
         break;
+
       case "LOGIN":
         this.validateUserInfo(
           client,
@@ -179,6 +124,7 @@ class MyServer {
           message.content.password
         );
         break;
+        
       case "REGISTER":
         // Register the user in the database
         this.registerUser(
@@ -187,7 +133,75 @@ class MyServer {
           message.content.password
         );
         break;
+
+      case "CHANGE_ROOM":
+        this.quitRoom(client.WSserver.room,client);
+        var newRoom = message.content;
+        client.WSserver.room = newRoom;
+        this.joinRoom(newRoom,client);
     }
+  }
+
+  listen(port) {
+      this.port = port || this.default_port;
+      console.log("Listening on port " + this.port);
+      this.server.listen(this.port);
+  }
+  
+  setupRoutes(app) {
+    const __dirname = path.resolve();
+    app.use(express.static(path.join(__dirname, "public")));
+    app.use(router);
+  }
+  
+  joinRoom(room,client) {
+    this.roomManager.addClientToRoom(room, client);
+    //We update the activeUsers lists for all clients presents in the room
+    this.sendUserJoin(client);
+
+    //send the info about all people connected to the new user
+    this.sendUsersOfRoom(client);
+
+    //send the history of messages to the new user
+    // this.sendMsgHistory(client, room);//TODO - to fix
+  }
+
+  quitRoom(room,client){
+    // we should remove the client from RoomManager
+    this.roomManager.removeClientFromRoom(room, client);
+
+    //inform everyone that the client has left
+    this.sendUserLeft(client);
+    
+    //save the last position of its agent
+    this.saveAgentPosition(client.user.agent);
+
+  }
+
+  saveAgentPosition(agent){
+    //TODO - 
+
+  }
+
+  createNewClient(agent, ws) {
+    var id = agent.id;
+    var username = agent.username;
+    // We define the User and its Id
+    var newUser = new User(id, username, "online", agent);
+
+    // We create a new agent
+    var newAgent = new Agent(id, username);
+
+    //We define a client which associate the user to its client server
+    var newClient = new Client(newUser, ws, newAgent);
+
+    return newClient;
+  }
+
+
+  sendId(ws, id) {
+    var msg = new Msg(this.server_id, "Server", id, "YOUR_INFO");
+    ws.send(JSON.stringify(msg));
   }
 
   sendToUser(id, message, clientSender) {

@@ -1,7 +1,7 @@
-import { Msg, User } from "./classes.js";
-import ServerClient from "./client.js";
+import Msg from "../Chat/message_class.js";
+import ServerClient from "./serverClient.js";
 
-class MyChat {
+export default class MyChat {
   constructor() {
     this.root = null;
     this.server = null;
@@ -12,17 +12,21 @@ class MyChat {
     this.myWorld = null;
   }
 
-  init(url, username, myWorld, roomname = "hall", icon = "face") {
-    this.server = new ServerClient(url, roomname, username);
+  init(testingLocally, username, myWorld, roomname = "hall", icon = "face") {
+    var ourPort = "9022";
+    var ourUrl = testingLocally
+                  ? "ws://localhost:9022"
+                  : "wss://ecv-etic.upf.edu/node/" + ourPort + "/ws/";
+  
+    this.server = new ServerClient(ourUrl, roomname, username);
 
     // Set the username and the world
     this.my_username = username;
     this.myWorld = myWorld;
-    myWorld.server = this.server;
+    this.myWorld.server = this.server;
 
     // Set the name of the room
     this.current_room_name = roomname;
-    document.getElementById("room-name-header").textContent = roomname;
 
     // Set the icon of the user
     // this.setUserIcon(icon); //TODO - we should fix the icon or remove it
@@ -71,6 +75,18 @@ class MyChat {
     document.getElementById("user-icon").innerHTML = icon;
     // Make icon size bigger
     document.getElementById("user-icon").style.fontSize = "40px";
+  }
+
+  changeRoom(room){
+    console.log("change of room send to the server");
+    var new_message = new Msg(
+      this.user_id,
+      this.my_username,
+      room,
+      "CHANGE_ROOM"
+    );
+    this.sendMessage(new_message);
+
   }
 
   // Displaying messages in the chat
@@ -172,7 +188,6 @@ class MyChat {
   //send the input
   send_input(input) {
     if (input.value != "") {
-      console.log("input value: " + input.value);
       var new_message = new Msg(
         this.user_id,
         this.my_username,
@@ -184,7 +199,5 @@ class MyChat {
       this.sendMessage(new_message);
       input.value = "";
     }
-    console.log("input value: " + input.value);
   }
 }
-export default MyChat;

@@ -13,53 +13,24 @@
     <link rel="stylesheet" href="css/world.css" />
   </head>
   <body>
-    <span id="room-page">
-      <div id="login-page">
-        <form id="chat-form">
-          <label for="icon_list">Select your icon</label>
-          <span class="material-symbols-outlined"> face </span>
-          <span class="material-symbols-outlined"> face_2</span>
-          <span class="material-symbols-outlined"> face_3</span>
-          <span class="material-symbols-outlined"> face_4</span>
-          <span class="material-symbols-outlined"> face_5</span>
-          <span class="material-symbols-outlined"> face_6</span>
 
-          <select name="icon-list" id="icon_list">
-            <option value="face">Face 1</option>
-            <option value="face_2">Face 2</option>
-            <option value="face_3">Face 3</option>
-            <option value="face_4">Face 4</option>
-            <option value="face_5">Face 5</option>
-            <option value="face_6">Face 6</option>
-          </select>
-
-          <label for="room-name">Type in your Room-Name</label>
-          <input type="text" id="room-name" name="room-name" required />
-          <label for="room-name">Or choose from existing ones</label>
-          <select id="room-list" name="room-list">
-            <option value="room1">Room 1</option>
-            <option value="room2">Room 2</option>
-            <option value="room3">Room 3</option>
-          </select>
-
-          <button type="button" id="login-button">Connect to Chat!</button>
-        </form>
-      </div>
-    </span>
-
+    
     <span id="chat-page">
       <div class="grid-container">
+        
         <div class="world-room" id="canvas">
           <div class="chat-name" id="room-name-header"><p>Chat Name</p></div>
           <div id="CanvasContainer"><canvas></canvas></div>
         </div>
 
-        <div class="chat-window">
+
+        <div id="chat-window">
           <div class="chat-info">
-            <img
-              id="chat-picture"
-              class="profile-picture"
-              src="media/upf_logo.png"
+            <!-- <button id="goBack">
+                <img src="media/chat/back.png" id="back_sign" />
+            </button> -->
+            <button id="returnToTheHall">return to the hall</button>
+            <img id="chat-picture" class="profile-picture" src="media/chat/upf_logo.png"
             />
             <div class="settings">
               <div class="icon">
@@ -89,10 +60,44 @@
             </button>
           </div>
         </div>
+
+        <div id="room-page">
+          <div id="login-page">
+            <form id="chat-form">
+              <label for="icon_list">Select your icon</label>
+              <span class="material-symbols-outlined"> face </span>
+              <span class="material-symbols-outlined"> face_2</span>
+              <span class="material-symbols-outlined"> face_3</span>
+              <span class="material-symbols-outlined"> face_4</span>
+              <span class="material-symbols-outlined"> face_5</span>
+              <span class="material-symbols-outlined"> face_6</span>
+    
+              <select name="icon-list" id="icon_list">
+                <option value="face">Face 1</option>
+                <option value="face_2">Face 2</option>
+                <option value="face_3">Face 3</option>
+                <option value="face_4">Face 4</option>
+                <option value="face_5">Face 5</option>
+                <option value="face_6">Face 6</option>
+              </select>
+    
+              <label for="room-name">Type in your Room-Name</label>
+              <input type="text" id="room-name" name="room-name" required />
+              <label for="room-name">Or choose from existing ones</label>
+              <select id="room-list" name="room-list">
+                <option value="room1">Room 1</option>
+                <option value="room2">Room 2</option>
+                <option value="room3">Room 3</option>
+              </select>
+    
+              <button type="button" id="login-button">Change room</button>
+            </form>
+          </div>
+        </div>
+        
       </div>
     </span>
-    <script type="module" src="scripts/roomSelection.js"></script>
-    <script type="module" src="scripts/world.js"></script>
-    <!-- <script type="module" src="scripts/code.js"></script> -->
+    <script type="module" src="scripts/main.js"></script>
+    <script type="module" src="scripts/World/world.js"></script>
   </body>
 </html>

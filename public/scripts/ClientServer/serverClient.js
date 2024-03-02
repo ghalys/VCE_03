@@ -1,4 +1,4 @@
-import { Msg, User } from "./classes.js";
+import Msg from "../Chat/message_class.js";
 
 class ServerClient {
   constructor(url, roomname, username) {
@@ -10,7 +10,7 @@ class ServerClient {
     this.info_transmitted = 0;
     this.info_received = 0;
     this.activeUsers = [];
-    this.active_room = roomname;
+    this.roomname = roomname;
 
     this.user_id = -2;
     this.username = username;
@@ -27,7 +27,7 @@ class ServerClient {
 
   connect_socket() {
     this.socket = new WebSocket(
-      `${this.url}?roomname=${encodeURIComponent(this.active_room)}`
+      `${this.url}?roomname=${encodeURIComponent(this.roomname)}`
     );
 
     this.socket.onopen = (event) => this.onOpen(event);
@@ -92,9 +92,10 @@ class ServerClient {
     //When the connection is closed
     this.is_connected = false;
 
+
+    console.log("we were disconnected to the server");
     //try to reconnect if we were disconnected
     setTimeout(this.connect_socket(), 3000);
-    console.log("we were disconnected to the server");
   }
 
   onUserJoin(message) {
@@ -106,6 +107,7 @@ class ServerClient {
 
     var id = newUser.id;
 
+    //TODO - to remove ??
     var user_exists = false;
     for (var user in this.activeUsers) {
       if (this.activeUsers[user].id == id) {
@@ -124,14 +126,15 @@ class ServerClient {
     //When an user quit the room
 
     var user = message.content;
-    var id = user.id;
+
+    // var id = user.id;
     // Change user status from active users list
-    for (var USER in this.activeUsers) {
-      if (this.activeUsers[USER].id == id) {
-        this.activeUsers[USER].status = "offline";
-        this.activeUsers[USER].time = message.time;
-      }
-    }
+    // for (var USER in this.activeUsers) {
+    //   if (this.activeUsers[USER].id == id) {
+    //     this.activeUsers[USER].status = "offline";
+    //     this.activeUsers[USER].time = message.time;
+    //   }
+    // }
 
     var agent = user.agent;
     this.on_user_disconnected(agent);
@@ -155,6 +158,8 @@ class ServerClient {
     var msg = new Msg(this.user_id, this.username, state, "AGENT_STATE");
     this.send_message(msg);
   }
+
+
   sendAgent(agent) {
     var msg = new Msg(this.user_id, this.username, agent, "NEW_AGENT");
     this.send_message(msg);

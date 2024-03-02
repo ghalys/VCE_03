@@ -4,18 +4,16 @@
   --primary-background-color: #8ee2d7;
   --secondary-background-color: #d9ede6;
 }
-
+body{
+  overflow: hidden;
+}
 * {
   margin: 0;
   padding: 0;
 }
 
-#chat-page {
-  display: none;
-}
-
-#login-page {
-  display: block;
+#room-page{
+  display: block ;
 }
 
 .grid-container {
