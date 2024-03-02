@@ -50,8 +50,6 @@ class MyServer {
       this.sendId(ws, this.last_id);
       this.last_id++;
       
-      //We associate the ws to its room
-      ws.room = roomname;
       
       //create a temporary client
       var client = new Client(null, ws);
@@ -67,6 +65,9 @@ class MyServer {
           //should be received after seting the id          
           var newAgent = message.content;
           
+          //We associate the ws to its room
+          ws.room = roomname;
+
           //we replace the temporary client with the new client created with its user and agent and ws
           client = this.createNewClient(newAgent, ws);
           
@@ -85,9 +86,8 @@ class MyServer {
         //if it's not a login_client
         if(client.user!=null){
           console.log("Client disconnected");
-          this.quitRoom(roomname,client);
+          this.quitRoom(client.WSserver.room,client);
         }
-        
       });
     });
   }
@@ -135,8 +135,10 @@ class MyServer {
         break;
 
       case "CHANGE_ROOM":
-        this.quitRoom(message.content.oldRoom,client);
-        this.joinRoom(message.content.newRoom,client);
+        this.quitRoom(client.WSserver.room,client);
+        var newRoom = message.content;
+        client.WSserver.room = newRoom;
+        this.joinRoom(newRoom,client);
     }
   }
 
@@ -162,7 +164,6 @@ class MyServer {
 
     //send the history of messages to the new user
     // this.sendMsgHistory(client, room);//TODO - to fix
-
   }
 
   quitRoom(room,client){
@@ -174,7 +175,7 @@ class MyServer {
     
     //save the last position of its agent
     this.saveAgentPosition(client.user.agent);
-    
+
   }
 
   saveAgentPosition(agent){

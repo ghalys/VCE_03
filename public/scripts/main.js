@@ -8,8 +8,7 @@ const testingLocally = true;
 const username = document.cookie.split('; ').find(row => row.startsWith('username='))?.split('=')[1];
 const password = document.cookie.split('; ').find(row => row.startsWith('password='))?.split('=')[1];
 
-var oldroom = "hall";
-var newroom = "hall";
+var room = "hall";
 document.getElementById("room-name-header").textContent = "hall";
 
 
@@ -21,40 +20,44 @@ FelixChat.create(document.getElementById("mychat"));
 FelixChat.init(testingLocally, username, myWorld);
 
 // Changing the Room
-document.getElementById("login-button")
-        .addEventListener("click", change_room);
+document.getElementById("login-button").addEventListener("click", goToRoom);
+document.getElementById("returnToTheHall").addEventListener("click",returnToTheHall);
 
-function change_room(){
-  oldroom=newroom;
+function returnToTheHall(){
+  room = "hall";
+  change_room(room);
   
+  //Display hall with room page
+  document.getElementById("room-page").style.display = "flex";
+  document.getElementById("chat-window").style.display = "none";
+}
+
+function goToRoom(){
   //select the name of the new room
   if (document.getElementById("room-name").value == "") {
     var element = document.getElementById("room-list");
     var selectedOption = element.options[element.selectedIndex];
-    newroom = selectedOption.value;
+    room = selectedOption.value;
   } 
   else {
-    newroom = document.getElementById("room-name").value;
+    room = document.getElementById("room-name").value;
   }
   document.getElementById("room-name").value = "";
+  change_room(room);
   
-  //send to the server a message informing it that the user changed the room
-  FelixChat.changeRoom(oldroom,newroom)
-  document.getElementById("room-name-header").textContent = newroom;
-  
-  if (newroom=="hall"){
-    //Display hall with room page
-    document.getElementById("room-page").style.display = "flex";
-    document.getElementById("chat-window").style.display = "none";
-  }
-  else{
-    //Display chat page
-    document.getElementById("room-page").style.display = "none";
-    document.getElementById("chat-window").style.display = "flex";
-  }
-  
+  //Display chat page
+  document.getElementById("room-page").style.display = "none";
+  document.getElementById("chat-window").style.display = "flex";
 }
 
+function change_room(room){
+  myWorld.leaveTheRoom();
+  
+  //send to the server a message informing it that the user changed the room
+  FelixChat.changeRoom(room);
+  document.getElementById("room-name-header").textContent = room;
+
+}
 
 
 

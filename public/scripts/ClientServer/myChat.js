@@ -77,13 +77,12 @@ export default class MyChat {
     document.getElementById("user-icon").style.fontSize = "40px";
   }
 
-  changeRoom(oldRoom,newRoom){
+  changeRoom(room){
     console.log("change of room send to the server");
     var new_message = new Msg(
       this.user_id,
       this.my_username,
-      {oldRoom:oldRoom,
-       newRoom:newRoom},
+      room,
       "CHANGE_ROOM"
     );
     this.sendMessage(new_message);

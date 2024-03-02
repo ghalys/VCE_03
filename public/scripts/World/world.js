@@ -19,8 +19,9 @@ export default class World {
     //send the Agent state to the server every 50ms
     setInterval(this.onTick, 1000 / 20);
   }
-
+  
   onTick = () => {
+    console.log(this.peopleById);
     //Create the Agent state to the server
     var myState = this.myAgent.sendJSON();
     this.WSserver.sendAgentState(myState);
