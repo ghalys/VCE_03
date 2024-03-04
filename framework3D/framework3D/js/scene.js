@@ -10,9 +10,19 @@ var target = null;
 var initial_position_camera = [0,40,100];
 var pitch =0;
 
-function change_camera(){
+//translation
+// const res = await fetch("https://libretranslate.com/translate", {
+//   method: "POST",
+//   body: JSON.stringify({
+//     q: "Hello!",
+//     source: "en",
+//     target: "es"
+//   }),
+//   headers: { "Content-Type": "application/json" }
+// });
 
-}
+// console.log(await res.json());
+
 function init()
 {
 	//create the rendering context
