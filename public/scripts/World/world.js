@@ -4,7 +4,7 @@ export default class World {
   constructor(myAgent, canvas) {
     this.myAgent = myAgent;
     this.peopleById = {};
-    this.images = {};
+    // this.images = {};
     this.canvas = canvas;
     this.WSserver = null;
   }
