@@ -21,6 +21,32 @@ export default class Agent {
 
     }
   
+  // getUsername(fontSize = 32, textColor = 'black', bgColor = 'white'){
+  //   var canvas = document.createElement('canvas');
+  //   var ctx = canvas.getContext('2d');
+
+  //   // define the size and the style of the text
+  //   ctx.font = `${fontSize}px Arial`;
+  //   var metrics = ctx.measureText(this.username);
+  //   canvas.width = metrics.width;
+  //   canvas.height = fontSize;
+
+  //   // define a background color
+  //   ctx.fillStyle = bgColor;
+  //   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  //   // draw the text
+  //   ctx.fillStyle = textColor;
+  //   ctx.fillText(text, 0, fontSize - (fontSize / 4)); // Ajustement based on the height of the text
+
+  //   // create a texture in LiteGL with the canvas
+  //   var texture = GL.Texture.fromImage(canvas, {
+  //     minFilter: gl.LINEAR,
+  //     magFilter: gl.LINEAR
+  //   });
+
+  //   return texture;
+  // }
   //load some animations
 	loadAnimation( name, url )
 	{
@@ -92,6 +118,7 @@ export default class Agent {
   changeAvatar(avatar){
     this.avatar = avatar;
   }
+
 
   rotateLeft(dt){
     this.avatar_pivot.rotate(90*DEG2RAD*dt,[0,1,0]);
