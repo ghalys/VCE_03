@@ -85,7 +85,10 @@ class MyServer {
         if (client.user != null) {
           console.log("Client disconnected");
           this.quitRoom(client.WSserver.room, client);
+
           // Save the last position and avatar of the agent
+          // TODO last position is always saved [0,0] and avatar is always saved "Avatar"
+          // not sure if the problem is here or in the client
           this.saveAgentPosition(client.user);
         }
       });
@@ -120,7 +123,7 @@ class MyServer {
         break;
 
       case "LOGIN":
-        this.validateUserInfo(
+        this.checkLoginInfo(
           client,
           message.content.username,
           message.content.password
@@ -197,8 +200,8 @@ class MyServer {
     this.db.validateUserInfo(user.username).then((response) => {
       if (response) {
         if (
-          response.last_position === user.agent.position &&
-          response.avatar === user.agent.avatar
+          response.last_position === JSON.stringify(user.agent.position) &&
+          response.avatar === JSON.stringify(user.agent.avatar)
         ) {
           console.log(
             "User info of " + user.username + " updated successfully"
@@ -242,39 +245,7 @@ class MyServer {
     }
   }
 
-  async validateUserInfo(client, user, password) {
-    // Check if the user is in the database
-    // Check if the password is correct
-    // Return true if the user is valid, false otherwise
-    try {
-      var validUser = false;
-      var user = await this.db.validateUserInfo(user, password);
-      if (user) {
-        validUser = true; // UserInfo is valid
-      }
-      var login_msg = new Msg(this.server_id, "Server", validUser, "LOGIN");
-
-      client.WSserver.send(JSON.stringify(login_msg));
-    } catch (err) {
-      console.log("Error getting user: " + err);
-    }
-  }
-
-  registerUser(client, username, password) {
-    this.db.addUser(username, password);
-    // Check if User is sucessfully added and send Client
-    this.db.validateUserInfo(username).then((response) => {
-      var register_msg = new Msg(
-        this.server_id,
-        "Server",
-        response,
-        "REGISTER"
-      );
-      client.WSserver.send(JSON.stringify(register_msg));
-    });
-  }
-
-  async validateUserInfo(client, user, password) {
+  async checkLoginInfo(client, user, password) {
     // Check if the user is in the database
     // Check if the password is correct
     // Return true if the user is valid, false otherwise

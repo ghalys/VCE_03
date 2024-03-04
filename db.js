@@ -24,13 +24,9 @@ class DB {
           password: "ecv-upf-2019",
           host: "127.0.0.1",
         });
-    this.db = wrapper.wrap(this.client);
     this.users = [];
     this.rooms = [];
     this.messages = {};
-    this.db.ready(() => {
-      console.log("Database is ready");
-    });
   }
 
   // Bind the query method of the client to use promises
@@ -48,7 +44,7 @@ class DB {
   initializeTables() {
     return Promise.all([
       // Table users_FG saves the users of the chat with
-      // their a new id, name, password and the id of the rooms they have access to
+      // their a new id, name, password, last_position, avatar and (the name of the rooms they have access to)
       this.queryAsync(
         `CREATE TABLE IF NOT EXISTS users_FG (user_id INT AUTO_INCREMENT PRIMARY KEY, user_name VARCHAR(100), password VARCHAR(100), last_position VARCHAR(200), avatar VARCHAR(100),  rooms TEXT)`
       ),
@@ -113,14 +109,16 @@ class DB {
     const query = `UPDATE users_FG SET ${updateFields} WHERE user_name = ?`;
     values.push(username);
 
-    return this.queryAsync(query, values);
+    return this.queryAsync(query, values).catch((err) => {
+      throw err;
+    });
   }
 
   addRoom(name, description = "") {
     return this.queryAsync("SELECT * FROM rooms_FG WHERE room_name = ?", [name])
       .then((result) => {
         if (result.length > 0) {
-          console.log(`Room ${name} already exists in the database`);
+          //console.log(`Room ${name} already exists in the database`);
           return;
         }
         return this.queryAsync(
