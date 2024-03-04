@@ -8,6 +8,8 @@ var animation = null;
 
 var walkarea = null;
 
+// test comment
+
 function init()
 {
 	//create the rendering context
