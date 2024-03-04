@@ -1,6 +1,6 @@
 import express from "express";
 import http from "http";
-import {WebSocketServer} from "ws";
+import { WebSocketServer } from "ws";
 import path from "path";
 import DB from "./db.js";
 import Msg from "./public/scripts/Chat/message_class.js";
@@ -15,31 +15,32 @@ class MyServer {
     this.roomManager = null; //The manager of the room, see the class in classes.js
     this.db = {}; // Our database
     this.server = null; //httpServer
-    this.default_port = 9022; //our port on ecv-etic.upf.edu 
+    this.default_port = 9022; //our port on ecv-etic.upf.edu
     this.wsServer = null; //webSocketServer
-    this.last_id = 0;  // every user will get a unique id
+    this.last_id = 0; // every user will get a unique id
     this.server_id = -1; // the id of the server
   }
 
   async start() {
     this.roomManager = new RoomManager();
-    
+
     // Create the server and the websocket
     const app = express();
     const server = http.createServer(app);
     this.server = server;
-    
+
     // Create the database then do the rest
     this.db = new DB();
-    
-    await Promise.all([this.db.initializeTables()]);
-    
+
+    //await Promise.all([this.db.initializeTables()]);
+    await this.db.initializeTables();
+
     this.listen(); // Listen on the default port
-    
+
     const wsServer = new WebSocketServer({ server });
     this.wsServer = wsServer;
     this.setupRoutes(app); // Setup the routes
-    
+
     //when a new client is connected
     this.wsServer.on("connection", (ws, req) => {
       //we retrieve the username and the current roomname from the client
@@ -49,31 +50,29 @@ class MyServer {
       // we send the id to the user
       this.sendId(ws, this.last_id);
       this.last_id++;
-      
-      
+
       //create a temporary client
       var client = new Client(null, ws);
-      
+
       // Handling incoming messages from the client
       ws.on("message", (msg) => {
         var message = JSON.parse(msg);
-        
+
         //if the message received is about the newUser
         if (message.type == "NEW_AGENT") {
           console.log("Websocket connection established");
-          
-          //should be received after seting the id          
+
+          //should be received after seting the id
           var newAgent = message.content;
-          
+
           //We associate the ws to its room
           ws.room = roomname;
 
           //we replace the temporary client with the new client created with its user and agent and ws
           client = this.createNewClient(newAgent, ws);
-          
+
           //We communicate info about this incomming client and add him to the roomManager
           this.joinRoom(roomname, client);
-          
         } else {
           //a normal message should be treated
           this.onMessage(client, message);
@@ -82,16 +81,20 @@ class MyServer {
 
       // Handling client disconnection
       ws.on("close", () => {
-        
         //if it's not a login_client
-        if(client.user!=null){
+        if (client.user != null) {
           console.log("Client disconnected");
-          this.quitRoom(client.WSserver.room,client);
+          this.quitRoom(client.WSserver.room, client);
+
+          // Save the last position and avatar of the agent
+          // TODO last position is always saved [0,0] and avatar is always saved "Avatar"
+          // not sure if the problem is here or in the client
+          this.saveAgentPosition(client.user);
         }
       });
     });
   }
-  
+
   // Handling the messages received from the clients
   onMessage(client, message) {
     // Switch case for all the types of messages
@@ -107,9 +110,11 @@ class MyServer {
           this.sendToRoom(client, message);
 
           // Save message in the database
-          var db_msg = new Msg(message.id, "Server", message, "messages");
-          this.setData(db_msg);
-
+          this.db.addMessages(
+            client.user.username,
+            client.WSserver.room,
+            message
+          );
         } else {
           //Send the message to the specific user mentionned in message.destination
           var id = message.destination;
@@ -118,13 +123,13 @@ class MyServer {
         break;
 
       case "LOGIN":
-        this.validateUserInfo(
+        this.checkLoginInfo(
           client,
           message.content.username,
           message.content.password
         );
         break;
-        
+
       case "REGISTER":
         // Register the user in the database
         this.registerUser(
@@ -135,27 +140,29 @@ class MyServer {
         break;
 
       case "CHANGE_ROOM":
-        this.quitRoom(client.WSserver.room,client);
+        this.quitRoom(client.WSserver.room, client);
         var newRoom = message.content;
         client.WSserver.room = newRoom;
-        this.joinRoom(newRoom,client);
+        this.joinRoom(newRoom, client);
     }
   }
 
   listen(port) {
-      this.port = port || this.default_port;
-      console.log("Listening on port " + this.port);
-      this.server.listen(this.port);
+    this.port = port || this.default_port;
+    console.log("Listening on port " + this.port);
+    this.server.listen(this.port);
   }
-  
+
   setupRoutes(app) {
     const __dirname = path.resolve();
     app.use(express.static(path.join(__dirname, "public")));
     app.use(router);
   }
-  
-  joinRoom(room,client) {
+
+  joinRoom(room, client) {
     this.roomManager.addClientToRoom(room, client);
+    // Add room to the database if it doesn't exist
+    this.db.addRoom(room);
     //We update the activeUsers lists for all clients presents in the room
     this.sendUserJoin(client);
 
@@ -163,24 +170,49 @@ class MyServer {
     this.sendUsersOfRoom(client);
 
     //send the history of messages to the new user
-    // this.sendMsgHistory(client, room);//TODO - to fix
+    this.sendMsgHistory(client, room);
   }
 
-  quitRoom(room,client){
+  quitRoom(room, client) {
     // we should remove the client from RoomManager
     this.roomManager.removeClientFromRoom(room, client);
 
     //inform everyone that the client has left
     this.sendUserLeft(client);
-    
+
     //save the last position of its agent
     this.saveAgentPosition(client.user.agent);
-
   }
 
-  saveAgentPosition(agent){
-    //TODO - 
+  saveAgentPosition(user) {
+    // Save the last position of the agent and the avatar
+    if (user.agent == null) {
+      return;
+    }
 
+    const updateInfo = {
+      last_position: JSON.stringify(user.agent.position),
+      avatar: JSON.stringify(user.agent.avatar),
+    };
+
+    this.db.updateUser(user.username, updateInfo);
+    // check if the update was succesful and print a message
+    this.db.validateUserInfo(user.username).then((response) => {
+      if (response) {
+        if (
+          response.last_position === JSON.stringify(user.agent.position) &&
+          response.avatar === JSON.stringify(user.agent.avatar)
+        ) {
+          console.log(
+            "User info of " + user.username + " updated successfully"
+          );
+        } else {
+          console.log("Error updating user info of " + user.username);
+          console.log("Last position: " + response.last_position);
+          console.log("Avatar: " + response.avatar);
+        }
+      }
+    });
   }
 
   createNewClient(agent, ws) {
@@ -198,7 +230,6 @@ class MyServer {
     return newClient;
   }
 
-
   sendId(ws, id) {
     var msg = new Msg(this.server_id, "Server", id, "YOUR_INFO");
     ws.send(JSON.stringify(msg));
@@ -214,39 +245,7 @@ class MyServer {
     }
   }
 
-  async validateUserInfo(client, user, password) {
-    // Check if the user is in the database
-    // Check if the password is correct
-    // Return true if the user is valid, false otherwise
-    try {
-      var validUser = false;
-      var user = await this.db.validateUserInfo(user, password);
-      if (user) {
-        validUser = true; // UserInfo is valid
-      }
-      var login_msg = new Msg(this.server_id, "Server", validUser, "LOGIN");
-
-      client.WSserver.send(JSON.stringify(login_msg));
-    } catch (err) {
-      console.log("Error getting user: " + err);
-    }
-  }
-
-  registerUser(client, username, password) {
-    this.db.addUser(username, password);
-    // Check if User is sucessfully added and send Client
-    this.db.validateUserInfo(username).then((response) => {
-      var register_msg = new Msg(
-        this.server_id,
-        "Server",
-        response,
-        "REGISTER"
-      );
-      client.WSserver.send(JSON.stringify(register_msg));
-    });
-  }
-
-  async validateUserInfo(client, user, password) {
+  async checkLoginInfo(client, user, password) {
     // Check if the user is in the database
     // Check if the password is correct
     // Return true if the user is valid, false otherwise
@@ -349,30 +348,10 @@ class MyServer {
       // Array of messages with message_id, user_id, room_id, message, type and timestamp
       var msg_history = await this.getData("messages", room);
 
-      // Get the users so we can send the user name with the message
-      // Array of users with user_id, user_name, encrypted_password and rooms
-
-      // Add the user name to the message
-      var users = await this.getData("users");
-      for (let row of msg_history) {
-        for (let user of users) {
-          if (row.user_id == user.user_id) {
-            row.user_name = user.user_name;
-          }
-        }
-      }
-
       // Send the message history to the client in the Msg object
       for (let row of msg_history) {
-        var msg = new Msg();
-        msg.create(
-          row.user_id,
-          row.user_name,
-          row.message,
-          row.type,
-          room,
-          row.timestamp
-        );
+        console.log("Sending message history to client: " + row.user_name);
+        var msg = new Msg(row.user_id, row.user_name, row.message, row.type);
         client.WSserver.send(JSON.stringify(msg));
       }
     } catch (err) {
@@ -390,16 +369,6 @@ class MyServer {
   }
 
   //TODO we should integrate functions below
-  setData(msg) {
-    // Store data with two msg objects encoupled in each other
-    // Msg1 ( type= savedata, content= Msg2)
-    // Msg2 ( type= whatToSave, content= data)
-
-    // extract the data (also a msg object) to be stored
-    var data = msg.content;
-    // Let the db handle where to store the data
-    this.db.handleData(data, msg.type);
-  }
 
   //TODO we should integrate functions below
   async getData(info, room = null) {

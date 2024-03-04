@@ -1,13 +1,13 @@
-import { loginServer} from "./login.js";
-import {testingLocally} from "../testing.js";
+import { loginServer } from "./login.js";
+import { testingLocally } from "../testing.js";
 
-const loginForm          = document.getElementById("registrationSection");
-var usernameInput        = document.getElementById("usernameInput");
-var passwordInput        = document.getElementById("passwordInput");
+const loginForm = document.getElementById("registrationSection");
+var usernameInput = document.getElementById("usernameInput");
+var passwordInput = document.getElementById("passwordInput");
 var usernameAvailability = document.getElementById("usernameAvailability");
-let isAvailable          = false;
+let isAvailable = false;
 
-loginServer.onVerification = (response)=>{
+loginServer.onVerification = (response) => {
   if (!response) {
     isAvailable = true;
     usernameAvailability.textContent = "Username is available";
@@ -17,21 +17,20 @@ loginServer.onVerification = (response)=>{
     usernameAvailability.textContent = "Username is not available";
     usernameAvailability.style.color = "red";
   }
-}
+};
 
-loginServer.onRegistration = (response)=>{
-    if (response) {
-      alert("User registered successfully");
-      window.location.href = testingLocally
-        ? "http://localhost:9022/"
-        : "https://ecv-etic.upf.edu/node/9022/";
+loginServer.onRegistration = (response) => {
+  if (response) {
+    alert("User registered successfully");
+    window.location.href = testingLocally
+      ? "http://localhost:9022/"
+      : "https://ecv-etic.upf.edu/node/9022/";
 
-      loginServer.socket.close();
-    } 
-    else {
-      alert("Error registering the user");
-    }
-}
+    loginServer.socket.close();
+  } else {
+    alert("Error registering the user");
+  }
+};
 
 usernameInput.addEventListener("input", function () {
   const username = this.value;
@@ -47,11 +46,10 @@ loginForm.addEventListener("submit", function (event) {
   const password = passwordInput.value;
 
   if (username !== "" && password !== "") {
-    if (!isAvailable){
+    if (!isAvailable) {
       alert("Username is not available");
-    }
-    else{
-      loginServer.sendResgistration(username,password);
+    } else {
+      loginServer.sendRegistration(username, password);
     }
   }
 });
