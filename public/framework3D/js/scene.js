@@ -125,16 +125,17 @@ window.myWorld = myWorld;
 		//gizmo.setTargets([monkey]);
 		//renderer.render( scene, camera, [gizmo] ); //render gizmo on top
 	}
-
 	//main update
 	context.onupdate = function(dt)
 	{
 		//not necessary but just in case...
 		scene.update(dt);
-
 		var t = getTime();
 
-		if(!myAgent.isdancing){
+		if(myAgent.onMyWay){
+			myAgent.moveTo(myAgent.destination);
+		}
+		else if (!myAgent.isdancing){
 			myAgent.animatIdle();
 		}
 		myAgent.time_factor = 1;
@@ -143,10 +144,12 @@ window.myWorld = myWorld;
 		if(gl.keys["UP"])
 		{
 			myAgent.moveUp();
+			myAgent.onMyWay = false; // we fix it to false in case we were walking towards a destination and we don't want to go to it anymore
 		}
 		else if(gl.keys["DOWN"])
 		{
 			myAgent.moveDown();
+			myAgent.onMyWay = false;
 			myAgent.time_factor = -1;
 		}
 		if(gl.keys["LEFT"])
@@ -192,12 +195,14 @@ window.myWorld = myWorld;
 			//compute collision with scene
 			var ray = camera.getRay(e.canvasx, e.canvasy);
 			var node = scene.testRay( ray, null, 10000, 0b1000 );
-			console.log(node);
+			// console.log(node);
 			
 			if( ray.testPlane( RD.ZERO, RD.UP ) ) //collision with infinite plane
 			{
+				var destination = walkarea.adjustPosition(ray.collision_point);
 				console.log( "floor position clicked", ray.collision_point );
-				myAgent.avatar_pivot.orientTo( ray.collision_point, true, [0,1,0], false, true  );
+				myAgent.avatar_pivot.orientTo(destination, true, [0,1,0], false, true  );
+				myAgent.goTo(destination);
 			}
 			
 		}

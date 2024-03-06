@@ -4,15 +4,16 @@ export default class Agent {
 
   constructor(id,username,avatar ="girl", position = new Position(), animation="idle") {
       this.id = id,
-      this.username =username,
+      this.username = username,
       this.avatar = avatar,
       this.position = position,
       this.rotation = null;
-      this.animation= animation,
+      this.animation = animation,
       this.animations = {};
       this.isdancing = false;
-      this.isOnRightOrientation = false;
+      // this.isOnRightOrientation = false;
       this.onMyWay = false // is True when there is a mouse click and the user should go to somewhere till he arrives
+      this.destination = null;
       this.avatar_pivot = null;
       this.bg_color = [0.1,0.1,0.1,1];
       this.avatar = avatar;
@@ -138,10 +139,6 @@ export default class Agent {
     this.isdancing =false;
   }
   animatDance(){
-    // if(this.id=2){
-    //   console.log(this.animation);
-  
-    // }
     if (this.isdancing){
       this.animation = "dance";
     }
@@ -155,32 +152,36 @@ export default class Agent {
 
   moveUp(){
     this.avatar_pivot.moveLocal([0,0,1]);
+    this.position.setPosition(this.avatar_pivot.position);
     this.animatWalk();
   }
   moveDown(){
     this.avatar_pivot.moveLocal([0,0,-1]);
+    this.position.setPosition(this.avatar_pivot.position);
     this.animatWalk();
   }
+
+  goTo(destination){
+    this.destination = destination;
+    this.onMyWay = true;
+    var distance = this.position.getDistanceTo(destination);
+  }
   // // function which allows us to move to a new point
-  moveTo(destination,dt){
-    if(this.isOnRightOrientation){
-      if((this.position-destination)<1){
-        this.position =destination;
-      }
-      else
-      {
-        if (destination.z > this.position.z){
-          this.moveUp();
-        }
-        else{
-          this.moveDown();
-        }
-      }
+  moveTo(destination){
+    var distance = this.position.getDistanceTo(destination);
+
+    if (distance<1){
+      this.avatar_pivot.position = destination;
+      this.position.setPosition(destination);
+      this.onMyWay= false;
     }
-    else{
-      this.rotateLeft(dt);
-      
+    else
+    {
+      this.avatar_pivot.moveLocal([0,0,1]);
+      this.position.setPosition(this.avatar_pivot.position);
+      this.animatWalk();
     }
+
   }
 
   // moveTo(newX, newY = this.position.y) {
