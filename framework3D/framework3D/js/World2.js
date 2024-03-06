@@ -14,7 +14,10 @@ export default class World2{
   onTick = () => {
     //Create the Agent state to the server
     var myState = this.myAgent.sendJSON();
-    this.WSserver.sendAgentState(myState);
+    // this.WSserver.sendAgentState(myState);
+    console.log( this.myAgent.animation);
+    // for (var agent of Object.values(myWorld.getPeople())){
+    // }
   };
 
   leaveTheRoom() {

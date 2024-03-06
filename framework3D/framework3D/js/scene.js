@@ -18,21 +18,21 @@ window.myWorld = myWorld;
 
 //translation
 // const res = await fetch("https://libretranslate.com/translate", {
-//   method: "POST",
-//   body: JSON.stringify({
-//     q: "Hello!",
-//     source: "en",
-//     target: "es"
-//   }),
-//   headers: { "Content-Type": "application/json" }
-// });
-
-// console.log(await res.json());
-
-function init()
+	//   method: "POST",
+	//   body: JSON.stringify({
+		//     q: "Hello!",
+		//     source: "en",
+		//     target: "es"
+		//   }),
+		//   headers: { "Content-Type": "application/json" }
+		// });
+		
+		// console.log(await res.json());
+		
+		function init()
 {
-	// myWorld.onTick();
-
+	// setInterval(myWorld.onTick, 1000 / 20);
+	
 	//create the rendering context
 	var context = GL.create({width: window.innerWidth, height:window.innerHeight});
 
@@ -40,20 +40,22 @@ function init()
 	renderer = new RD.Renderer(context);
 	renderer.setDataFolder("data");
 	renderer.autoload_assets = true;
-
+	
 	//attach canvas to DOM
 	document.body.appendChild(renderer.canvas);
-
+	
 	//create a scene
 	scene = new RD.Scene();
-
+	window.scene = scene;
+	
 	//create camera
 	camera = new RD.Camera();
 	camera.perspective( 60, gl.canvas.width / gl.canvas.height, 0.1, 1000 );
 	camera.lookAt( initial_position_camera,[0,20,0],[0,1,0] );
-
+	
 	myAgent.createAvatar();
 	scene.root.addChild( myAgent.avatar_pivot );
+
 	// otherAgent.createAvatar();
 	// scene.root.addChild( otherAgent.avatar_pivot );
 	for (var agent of Object.values(myWorld.getPeople())){
@@ -169,6 +171,10 @@ function init()
 		myAgent.avatar_pivot.position = nearest_pos;
 
 		myAgent.animUpdate(t);
+
+		for (var agent of Object.values(myWorld.getPeople())){
+			agent.animUpdate(t);
+		}
 	}
 
 	//user input ***********************

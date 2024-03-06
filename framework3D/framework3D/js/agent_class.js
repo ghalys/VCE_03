@@ -46,9 +46,10 @@ export default class Agent {
   //     minFilter: gl.LINEAR,
   //     magFilter: gl.LINEAR
   //   });
-
+  
   //   return texture;
   // }
+  
 
   //load some animations
 	loadAnimation( name, url )
@@ -95,11 +96,6 @@ export default class Agent {
 	this.loadAnimation("dance","data/"+this.avatar+"/dance.skanim");
   }
 
-  loadAnimation( name, url )
-	{
-		this.animations[name] = new RD.SkeletalAnimation();
-		this.animations[name].load(url);
-	}
   
   sendJSON(){
     return {
@@ -134,23 +130,27 @@ export default class Agent {
 
   //function for changing the animation
   animatIdle(){
-    this.animation = this.animations.idle;
+    this.animation = "idle";
   }
   animatWalk(){
-    this.animation = this.animations.walking;
+    this.animation = "walking";
     //in case we were dancing before walking
     this.isdancing =false;
   }
   animatDance(){
+    // if(this.id=2){
+    //   console.log(this.animation);
+  
+    // }
     if (this.isdancing){
-      this.animation = this.animations.dance;
+      this.animation = "dance";
     }
   }
   animUpdate(t){
 		//move bones in the skeleton based on animation
-		this.animation.assignTime( t * 0.001 * this.time_factor );
+		this.animations[this.animation].assignTime( t * 0.001 * this.time_factor );
 		//copy the skeleton in the animation to the character
-		this.character.skeleton.copyFrom( this.animation.skeleton );
+		this.character.skeleton.copyFrom( this.animations[this.animation].skeleton );
   }
 
   moveUp(){
