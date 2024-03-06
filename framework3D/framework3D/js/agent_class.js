@@ -7,17 +7,19 @@ export default class Agent {
       this.username =username,
       this.avatar = avatar,
       this.position = position,
+      this.rotation = null;
       this.animation= animation,
+      this.animations = {};
+      this.isdancing = false;
+      this.isOnRightOrientation = false;
       this.onMyWay = false // is True when there is a mouse click and the user should go to somewhere till he arrives
       this.avatar_pivot = null;
       this.bg_color = [0.1,0.1,0.1,1];
       this.avatar = avatar;
       this.character = null;
       this.avatar_scale = 0.3;
-      this.animations = {};
       this.avatar_selector =null;
       this.time_factor = 1;
-      this.isDansing = false;
 
     }
   
@@ -47,12 +49,12 @@ export default class Agent {
 
   //   return texture;
   // }
+
   //load some animations
 	loadAnimation( name, url )
 	{
-		var anim = animations[name] = new RD.SkeletalAnimation();
-		anim.load(url);
-		return anim;
+		this.animations[name] = new RD.SkeletalAnimation();
+		this.animations[name].load(url);
 	}
 
   createAvatar(){
@@ -66,6 +68,7 @@ export default class Agent {
 	this.avatar_pivot = new RD.SceneNode({
 		position: this.position.toArray()
 	});
+  this.rotation = this.avatar_pivot.rotation;
 
 	//create a mesh for the girl
 	this.character = new RD.SceneNode({
@@ -101,15 +104,15 @@ export default class Agent {
   sendJSON(){
     return {
             id : this.id,
-            facing: this.facing,
+            rotation: this.rotation,
             position : this.position,
             animation :this.animation,
             }
   }
   updateFromJSON(msgJSON){
-    this.facing = msgJSON.facing;
     this.position = msgJSON.position;
     this.animation= msgJSON.animation;
+    this.rotation = msgJSON.rotation;
   }
 
   setId(id){
@@ -122,9 +125,11 @@ export default class Agent {
 
   rotateLeft(dt){
     this.avatar_pivot.rotate(90*DEG2RAD*dt,[0,1,0]);
+    this.rotation = this.avatar_pivot.rotation;
   }
   rotateRight(dt){
     this.avatar_pivot.rotate(-90*DEG2RAD*dt,[0,1,0]);
+    this.rotation = this.avatar_pivot.rotation;
   }
 
   //function for changing the animation
@@ -133,12 +138,11 @@ export default class Agent {
   }
   animatWalk(){
     this.animation = this.animations.walking;
-    
-    //in case we were dansing before walking
-    this.isDansing =false;
+    //in case we were dancing before walking
+    this.isdancing =false;
   }
   animatDance(){
-    if (this.isDansing){
+    if (this.isdancing){
       this.animation = this.animations.dance;
     }
   }
@@ -157,51 +161,28 @@ export default class Agent {
     this.avatar_pivot.moveLocal([0,0,-1]);
     this.animatWalk();
   }
-
-
-  // //function for changing face direction
-  // facingRight(){
-  //   this.facing = Agent.FACING.RIGHT;
-  // }
-  // facingLeft(){
-  //   this.facing = Agent.FACING.LEFT;
-  // }
-  // facingFront(){
-  //   this.facing = Agent.FACING.FRONT;
-  // }
-  // facingBack(){
-  //   this.facing = Agent.FACING.BACK;
-  // }
-
-  // animatSit(){
-  //   this.animation = Agent.ANIMATION.SIT;
-  // }
-  // animatTalk(){
-  //   this.animation = Agent.ANIMATION.TALK;
-  // }
-
-  // //walk to the right
-  // moveToRight(dt){
-  //   this.facingRight();
-  //   this.animatWalk();
-  //   this.position.x += dt*32;
-  // }
-  // //walk to the left
-  // moveToLeft(dt){
-  //   this.facingLeft();
-  //   this.animatWalk();
-  //   this.position.x -= dt*32;
-  // }
-  // //sit down
-  // sitDown(){
-  //   this.animatSit();
-  // }
-  // //stand up
-  // standUp(){
-  //   this.animatIdle();
-  // }
-
   // // function which allows us to move to a new point
+  moveTo(destination,dt){
+    if(this.isOnRightOrientation){
+      if((this.position-destination)<1){
+        this.position =destination;
+      }
+      else
+      {
+        if (destination.z > this.position.z){
+          this.moveUp();
+        }
+        else{
+          this.moveDown();
+        }
+      }
+    }
+    else{
+      this.rotateLeft(dt);
+      
+    }
+  }
+
   // moveTo(newX, newY = this.position.y) {
   //   this.position.setPosition(newX, newY);
   // }

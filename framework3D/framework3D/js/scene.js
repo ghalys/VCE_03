@@ -1,4 +1,5 @@
 import Agent  from "./agent_class.js";
+import World2  from "./World2.js";
 
 var scene = null;
 var renderer = null;
@@ -8,7 +9,12 @@ var view = 0;
 var eye = null;
 var target = null;
 var initial_position_camera = [0,40,100];
-var pitch =0;
+var pitch = 0;
+var myAgent = new Agent(1,"julia");
+var otherAgent = new Agent(2,"jua");
+var myWorld = new World2(myAgent); 
+myWorld.addOrUpdateAgent(otherAgent.sendJSON());
+window.myWorld = myWorld;
 
 //translation
 // const res = await fetch("https://libretranslate.com/translate", {
@@ -25,6 +31,8 @@ var pitch =0;
 
 function init()
 {
+	// myWorld.onTick();
+
 	//create the rendering context
 	var context = GL.create({width: window.innerWidth, height:window.innerHeight});
 
@@ -44,9 +52,16 @@ function init()
 	camera.perspective( 60, gl.canvas.width / gl.canvas.height, 0.1, 1000 );
 	camera.lookAt( initial_position_camera,[0,20,0],[0,1,0] );
 
-	var agent = new Agent(1,"julia");
-	agent.createAvatar();
-	scene.root.addChild( agent.avatar_pivot );
+	myAgent.createAvatar();
+	scene.root.addChild( myAgent.avatar_pivot );
+	// otherAgent.createAvatar();
+	// scene.root.addChild( otherAgent.avatar_pivot );
+	for (var agent of Object.values(myWorld.getPeople())){
+		agent.createAvatar();
+		scene.root.addChild(agent.avatar_pivot);
+	}
+	
+	
 
 	walkarea = new WalkArea();
 	walkarea.addRect([-50,0,-30],80,50);
@@ -71,10 +86,7 @@ function init()
 		gl.canvas.height = document.body.offsetHeight;
 		gl.viewport(0,0,gl.canvas.width,gl.canvas.height);
 
-		var girlpos = agent.avatar_pivot.localToGlobal([0,1,0]);
-		//var campos = girl_pivot.localToGlobal([0,50,0]);
-		var camtarget = agent.avatar_pivot.localToGlobal([0,50,70]);
-		var smoothtarget = vec3.lerp( vec3.create(), camera.target, camtarget, 0.02 );
+		var girlpos = myAgent.avatar_pivot.localToGlobal([0,1,0]);
 
 		// camera.perspective( 60, gl.canvas.width / gl.canvas.height, 0.1, 1000 );
 		if (view==0){
@@ -82,23 +94,26 @@ function init()
 			target = girlpos;
 		}
 		else if(view==1){
-			eye    = vec3.lerp(vec3.create(),camera.position,agent.avatar_pivot.localToGlobal([0,50,-80]),0.5); 
-			target = agent.avatar_pivot.localToGlobal([0,40,0]);
+			eye    = vec3.lerp(vec3.create(),camera.position,myAgent.avatar_pivot.localToGlobal([0,50,-80]),0.5); 
+			target = myAgent.avatar_pivot.localToGlobal([0,40,0]);
 		}
 		else if (view==2){
-			eye    = vec3.lerp(vec3.create(),camera.position,agent.avatar_pivot.localToGlobal([0,50,-50]),0.5); 
-			target = agent.avatar_pivot.localToGlobal([0,50,0]);
+			eye    = vec3.lerp(vec3.create(),camera.position,myAgent.avatar_pivot.localToGlobal([0,50,-50]),0.5); 
+			target = myAgent.avatar_pivot.localToGlobal([0,50,0]);
 			
 		}
 		else if (view==3){
-			eye    = agent.avatar_pivot.localToGlobal([0,50,0]);
-			target = agent.avatar_pivot.localToGlobal([0,40+pitch,100]);			
+			eye    = myAgent.avatar_pivot.localToGlobal([0,50,0]);
+			target = myAgent.avatar_pivot.localToGlobal([0,40+pitch,100]);			
 		}
 
 		camera.lookAt( eye, target, [0,1,0] );
 
 		//clear
-		renderer.clear(agent.bg_color);
+		renderer.clear(myAgent.bg_color);
+		//TODO - verify if I have to change this ??
+		// renderer.clear(otherAgent.bg_color);
+		
 		//render scene
 		renderer.render(scene, camera, null, 0b11 );
 
@@ -117,29 +132,29 @@ function init()
 
 		var t = getTime();
 
-		if(!agent.isDansing){
-			agent.animatIdle();
+		if(!myAgent.isdancing){
+			myAgent.animatIdle();
 		}
-		agent.time_factor = 1;
+		myAgent.time_factor = 1;
 
 		//control with keys
 		if(gl.keys["UP"])
 		{
-			agent.moveUp();
+			myAgent.moveUp();
 		}
 		else if(gl.keys["DOWN"])
 		{
-			agent.moveDown();
-			agent.time_factor = -1;
+			myAgent.moveDown();
+			myAgent.time_factor = -1;
 		}
 		if(gl.keys["LEFT"])
-			agent.rotateLeft(dt);
+			myAgent.rotateLeft(dt);
 		else if(gl.keys["RIGHT"])
-			agent.rotateRight(dt);
+			myAgent.rotateRight(dt);
 
 		if(gl.keys["d"]){
-			agent.isDansing = ! agent.isDansing;
-			agent.animatDance();
+			myAgent.isdancing = ! myAgent.isdancing;
+			myAgent.animatDance();
 			gl.keys["d"] = false;
 		}
 
@@ -149,11 +164,11 @@ function init()
 		}
 
 
-		var pos = agent.avatar_pivot.position;
+		var pos = myAgent.avatar_pivot.position;
 		var nearest_pos = walkarea.adjustPosition( pos );
-		agent.avatar_pivot.position = nearest_pos;
+		myAgent.avatar_pivot.position = nearest_pos;
 
-		agent.animUpdate(t);
+		myAgent.animUpdate(t);
 	}
 
 	//user input ***********************
@@ -176,7 +191,7 @@ function init()
 			if( ray.testPlane( RD.ZERO, RD.UP ) ) //collision with infinite plane
 			{
 				console.log( "floor position clicked", ray.collision_point );
-				agent.avatar_pivot.orientTo( ray.collision_point, true, [0,1,0], false, true  );
+				myAgent.avatar_pivot.orientTo( ray.collision_point, true, [0,1,0], false, true  );
 			}
 			
 		}
@@ -192,7 +207,7 @@ function init()
 			// camera.move([-e.deltax*0.1, e.deltay*0.1,0]);
 			//girl_pivot.rotate(e.deltax*-0.003,[0,1,0]);
 			pitch -= e.deltay*0.1;
-			agent.rotateRight(e.deltax * 0.001);
+			myAgent.rotateRight(e.deltax * 0.001);
 
 		}
 	}
@@ -209,7 +224,7 @@ function init()
 
 	//launch loop
 	context.animate();
-
+	
 }
 
 
