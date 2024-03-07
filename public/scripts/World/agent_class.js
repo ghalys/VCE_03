@@ -4,20 +4,22 @@ export default class Agent {
 
   constructor(id,username,avatar ="girl", position = new Position(), animation="idle") {
       this.id = id,
-      this.username =username,
+      this.username = username,
       this.avatar = avatar,
       this.position = position,
-      this.animation= animation,
+      this.rotation = null;
+      this.animation = animation,
+      this.animations = {};
+      this.isdancing = false;
       this.onMyWay = false // is True when there is a mouse click and the user should go to somewhere till he arrives
+      this.destination = null;
       this.avatar_pivot = null;
       this.bg_color = [0.1,0.1,0.1,1];
       this.avatar = avatar;
       this.character = null;
       this.avatar_scale = 0.3;
-      this.animations = {};
       this.avatar_selector =null;
       this.time_factor = 1;
-      this.isDansing = false;
 
     }
   
@@ -44,15 +46,16 @@ export default class Agent {
   //     minFilter: gl.LINEAR,
   //     magFilter: gl.LINEAR
   //   });
-
+  
   //   return texture;
   // }
+  
+
   //load some animations
 	loadAnimation( name, url )
 	{
-		var anim = animations[name] = new RD.SkeletalAnimation();
-		anim.load(url);
-		return anim;
+		this.animations[name] = new RD.SkeletalAnimation();
+		this.animations[name].load(url);
 	}
 
   createAvatar(){
@@ -66,6 +69,7 @@ export default class Agent {
 	this.avatar_pivot = new RD.SceneNode({
 		position: this.position.toArray()
 	});
+  this.rotation = this.avatar_pivot.rotation;
 
 	//create a mesh for the girl
 	this.character = new RD.SceneNode({
@@ -87,29 +91,31 @@ export default class Agent {
 	});
 	this.avatar_pivot.addChild( this.avatar_selector );
 
-  this.loadAnimation("idle","data/"+this.avatar+"/idle.skanim");
-	this.loadAnimation("walking","data/"+this.avatar+"/walking.skanim");
-	this.loadAnimation("dance","data/"+this.avatar+"/dance.skanim");
+  this.loadAnimation("idle"   ,"scripts/World/data/"+this.avatar+"/idle.skanim");
+	this.loadAnimation("walking","scripts/World/data/"+this.avatar+"/walking.skanim");
+	this.loadAnimation("dance"  ,"scripts/World/data/"+this.avatar+"/dance.skanim");
   }
 
-  loadAnimation( name, url )
-	{
-		this.animations[name] = new RD.SkeletalAnimation();
-		this.animations[name].load(url);
-	}
   
   sendJSON(){
     return {
-            id : this.id,
-            facing: this.facing,
-            position : this.position,
-            animation :this.animation,
+            id        : this.id,
+            username  : this.username,
+            position  : this.position,
+            rotation  : this.rotation,
+            animation : this.animation,
+            isdancing : this.isdancing,
+            onMyWay   : this.onMyWay,
             }
   }
   updateFromJSON(msgJSON){
-    this.facing = msgJSON.facing;
-    this.position = msgJSON.position;
-    this.animation= msgJSON.animation;
+    this.username  = msgJSON.username;
+    this.rotation  = msgJSON.rotation;
+    this.animation = msgJSON.animation;
+    this.isdancing = msgJSON.isdancing;
+    this.onMyWay   = msgJSON.onMyWay;
+    this.position.updatePosition(msgJSON.position);
+
   }
 
   setId(id){
@@ -122,86 +128,72 @@ export default class Agent {
 
   rotateLeft(dt){
     this.avatar_pivot.rotate(90*DEG2RAD*dt,[0,1,0]);
+    this.rotation = this.avatar_pivot.rotation;
   }
   rotateRight(dt){
     this.avatar_pivot.rotate(-90*DEG2RAD*dt,[0,1,0]);
+    this.rotation = this.avatar_pivot.rotation;
   }
 
   //function for changing the animation
   animatIdle(){
-    this.animation = this.animations.idle;
+    this.animation = "idle";
   }
   animatWalk(){
-    this.animation = this.animations.walking;
-    
-    //in case we were dansing before walking
-    this.isDansing =false;
+    this.animation = "walking";
+    //in case we were dancing before walking
+    this.isdancing =false;
   }
   animatDance(){
-    if (this.isDansing){
-      this.animation = this.animations.dance;
+    if (this.isdancing){
+      this.animation = "dance";
     }
   }
   animUpdate(t){
+    //update position and rotation
+    this.avatar_pivot.position = this.position.toArray();
+    this.avatar_pivot.rotation = this.rotation;
+
 		//move bones in the skeleton based on animation
-		this.animation.assignTime( t * 0.001 * this.time_factor );
+		this.animations[this.animation].assignTime( t * 0.001 * this.time_factor );
 		//copy the skeleton in the animation to the character
-		this.character.skeleton.copyFrom( this.animation.skeleton );
+		this.character.skeleton.copyFrom( this.animations[this.animation].skeleton );
   }
 
   moveUp(){
     this.avatar_pivot.moveLocal([0,0,1]);
+    this.position.setPosition(this.avatar_pivot.position);
     this.animatWalk();
   }
   moveDown(){
     this.avatar_pivot.moveLocal([0,0,-1]);
+    this.position.setPosition(this.avatar_pivot.position);
     this.animatWalk();
   }
 
-
-  // //function for changing face direction
-  // facingRight(){
-  //   this.facing = Agent.FACING.RIGHT;
-  // }
-  // facingLeft(){
-  //   this.facing = Agent.FACING.LEFT;
-  // }
-  // facingFront(){
-  //   this.facing = Agent.FACING.FRONT;
-  // }
-  // facingBack(){
-  //   this.facing = Agent.FACING.BACK;
-  // }
-
-  // animatSit(){
-  //   this.animation = Agent.ANIMATION.SIT;
-  // }
-  // animatTalk(){
-  //   this.animation = Agent.ANIMATION.TALK;
-  // }
-
-  // //walk to the right
-  // moveToRight(dt){
-  //   this.facingRight();
-  //   this.animatWalk();
-  //   this.position.x += dt*32;
-  // }
-  // //walk to the left
-  // moveToLeft(dt){
-  //   this.facingLeft();
-  //   this.animatWalk();
-  //   this.position.x -= dt*32;
-  // }
-  // //sit down
-  // sitDown(){
-  //   this.animatSit();
-  // }
-  // //stand up
-  // standUp(){
-  //   this.animatIdle();
-  // }
-
+  goTo(destination){
+    this.destination = destination;
+    this.onMyWay = true;
+    var distance = this.position.getDistanceTo(destination);
+  }
   // // function which allows us to move to a new point
+  moveTo(destination){
+    var distance = this.position.getDistanceTo(destination);
+
+    if (distance<1){
+      this.avatar_pivot.position = destination;
+      this.position.setPosition(destination);
+      this.onMyWay= false;
+    }
+    else
+    {
+      this.avatar_pivot.moveLocal([0,0,1]);
+      this.position.setPosition(this.avatar_pivot.position);
+      this.animatWalk();
+    }
+
+  }
+
   // moveTo(newX, newY = this.position.y) {
   //   this.position.setPosition(newX, newY);
   // }

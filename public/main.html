@@ -1,103 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Felix Chatroom</title>
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
-    />
-    <link rel="stylesheet" href="css/layout.css" />
-    <link rel="stylesheet" href="css/chat-window.css" />
-    <link rel="stylesheet" href="css/sidebar.css" />
-    <link rel="stylesheet" href="css/world.css" />
-  </head>
-  <body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 
-    
-    <span id="chat-page">
-      <div class="grid-container">
-        
-        <div class="world-room" id="canvas">
-          <div class="chat-name" id="room-name-header"><p>Chat Name</p></div>
-          <div id="CanvasContainer"><canvas></canvas></div>
-        </div>
-
-
-        <div id="chat-window">
-          <div class="chat-info">
-            <!-- <button id="goBack">
-                <img src="media/chat/back.png" id="back_sign" />
-            </button> -->
-            <button id="returnToTheHall">return to the hall</button>
-            <img id="chat-picture" class="profile-picture" src="media/chat/upf_logo.png"
-            />
-            <div class="settings">
-              <div class="icon">
-                <span class="material-symbols-outlined"> settings </span>
-              </div>
-            </div>
-          </div>
-          <div id="mychat" class="chat-messages"></div>
-          <div class="chat-input">
-            <div class="emoji-input">
-              <div class="icon">
-                <span class="material-symbols-outlined"> mood </span>
-              </div>
-            </div>
-            <div class="text-input">
-              <input
-                class="chat"
-                id="chat_input"
-                type="text"
-                placeholder="Type a message"
-              />
-            </div>
-            <button id="sendButton">
-              <div class="icon">
-                <span class="material-symbols-outlined"> send </span>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        <div id="room-page">
-          <div id="login-page">
-            <form id="chat-form">
-              <label for="icon_list">Select your icon</label>
-              <span class="material-symbols-outlined"> face </span>
-              <span class="material-symbols-outlined"> face_2</span>
-              <span class="material-symbols-outlined"> face_3</span>
-              <span class="material-symbols-outlined"> face_4</span>
-              <span class="material-symbols-outlined"> face_5</span>
-              <span class="material-symbols-outlined"> face_6</span>
-    
-              <select name="icon-list" id="icon_list">
-                <option value="face">Face 1</option>
-                <option value="face_2">Face 2</option>
-                <option value="face_3">Face 3</option>
-                <option value="face_4">Face 4</option>
-                <option value="face_5">Face 5</option>
-                <option value="face_6">Face 6</option>
-              </select>
-    
-              <label for="room-name">Type in your Room-Name</label>
-              <input type="text" id="room-name" name="room-name" required />
-              <label for="room-name">Or choose from existing ones</label>
-              <select id="room-list" name="room-list">
-                <option value="room1">Room 1</option>
-                <option value="room2">Room 2</option>
-                <option value="room3">Room 3</option>
-              </select>
-    
-              <button type="button" id="login-button">Change room</button>
-            </form>
-          </div>
-        </div>
-        
-      </div>
-    </span>
-    <script type="module" src="scripts/main.js"></script>
-    <script type="module" src="scripts/World/world.js"></script>
-  </body>
+<title>ECV</title>
+	<style type='text/css'>
+		html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }
+	</style>
+	<script type="text/javascript" src="scripts/World/extra/gl-matrix-min.js"></script>
+	<script type="text/javascript" src="scripts/World/extra/litegl.js"></script>
+	<script type="text/javascript" src="scripts/World/extra/rendeer.js"></script>
+	<script type="text/javascript" src="scripts/World/extra/wbin.js"></script>
+	<script type="text/javascript" src="scripts/World/extra/walkarea.js"></script>
+	<script type="text/javascript" src="scripts/World/listeners.js"></script>
+	<script type="module" src="scripts/main_scene.js"></script>
+</head>
+<body>
+</body>
 </html>
