@@ -5,6 +5,7 @@ export default class World2{
     this.myAgent = myAgent;
     this.peopleById = {};
     this.WSserver = null;
+    this.addAvatarToScene = null;
   }
   set_ID_and_Server(WSServer) {
     this.myAgent.setId(WSServer.user_id);
@@ -38,6 +39,7 @@ export default class World2{
       //TODO - Maybe we will need more info to get for the first time like which avatar is chosen
       var agent = new Agent(id, agentState.username); // we have to create a new agent
       agent.createAvatar();
+      this.addAvatarToScene(agent);
       agent.updateFromJSON(agentState);
       this.peopleById[id] = agent;
     }

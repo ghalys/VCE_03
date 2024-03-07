@@ -110,11 +110,12 @@ export default class Agent {
   }
   updateFromJSON(msgJSON){
     this.username  = msgJSON.username;
-    this.position  = msgJSON.position;
     this.rotation  = msgJSON.rotation;
     this.animation = msgJSON.animation;
     this.isdancing = msgJSON.isdancing;
     this.onMyWay   = msgJSON.onMyWay;
+    this.position.updatePosition(msgJSON.position);
+
   }
 
   setId(id){
@@ -149,8 +150,10 @@ export default class Agent {
     }
   }
   animUpdate(t){
-    //TODO - moving
-    
+    //update position and rotation
+    this.avatar_pivot.position = this.position.toArray();
+    this.avatar_pivot.rotation = this.rotation;
+
 		//move bones in the skeleton based on animation
 		this.animations[this.animation].assignTime( t * 0.001 * this.time_factor );
 		//copy the skeleton in the animation to the character

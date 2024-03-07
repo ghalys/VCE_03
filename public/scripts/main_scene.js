@@ -53,13 +53,12 @@ function init()
 	
 	myAgent.createAvatar();
 	scene.root.addChild( myAgent.avatar_pivot );
+	
 
-	// otherAgent.createAvatar();
-	// scene.root.addChild( otherAgent.avatar_pivot );
-	for (var agent of Object.values(myWorld.getPeople())){
+
+	myWorld.addAvatarToScene = (agent)=>{
 		scene.root.addChild(agent.avatar_pivot);
 	}
-	
 	
 
 	walkarea = new WalkArea();

@@ -21,6 +21,11 @@ export default class Position {
     this.y = position[1];
     this.z = position[2];
   }
+  updatePosition(position) {
+    this.x = position.x;
+    this.y = position.y;
+    this.z = position.z;
+  }
   getDirection(destination){
     return [destination[0] - this.x, destination[1] - this.y, destination[2] - this.z];
   }
