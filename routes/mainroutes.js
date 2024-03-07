@@ -7,6 +7,12 @@ const router = express.Router();
 
 console.log("THIS IS THE " + __dirname);
 
+function requireAuth(req, res, next) {
+  const accessToken = req.headers.authorization;
+  if (!accessToken || !isValidAccessToken(accessToken)) {
+  }
+}
+
 router.all("/", (req, res) => {
   console.log("Serving index.html");
   res.sendFile(path.join(__dirname, "public", "index.html"));

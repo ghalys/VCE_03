@@ -9,6 +9,7 @@ import Client from "./public/scripts/Chat/client_class.js";
 import Agent from "./public/scripts/World/agent_class.js";
 import RoomManager from "./public/scripts/ClientServer/roomManager.js";
 import router from "./routes/mainroutes.js";
+import jsonwebtoken from "jsonwebtoken";
 
 class MyServer {
   constructor() {
@@ -50,6 +51,8 @@ class MyServer {
       // we send the id to the user
       this.sendId(ws, this.last_id);
       this.last_id++;
+
+      this.createAcessToken(ws);
 
       //create a temporary client
       var client = new Client(null, ws);
@@ -145,6 +148,17 @@ class MyServer {
         client.WSserver.room = newRoom;
         this.joinRoom(newRoom, client);
     }
+  }
+
+  createAcessToken(ws, app) {
+    // Attach token to response cookie
+    app.post("/login", (req, res) => {
+      const accessToken = jsonwebtoken.sign(
+        { id: ws.id, username: ws.username },
+        process.env.ACCESS_TOKEN_SECRET, // TODO: change to a more secure secret
+        { expiresIn: "1h" }
+      );
+    });
   }
 
   listen(port) {
@@ -250,12 +264,24 @@ class MyServer {
     // Check if the password is correct
     // Return true if the user is valid, false otherwise
     try {
+      var response = {};
       var validUser = false;
+      var accessToken = null;
       var user = await this.db.validateUserInfo(user, password);
       if (user) {
         validUser = true; // UserInfo is valid
+        // Create Access Token and include it in the response
+        const accessToken = jsonwebtoken.sign(
+          { id: user.id, username: user.username },
+          process.env.ACCESS_TOKEN_SECRET, // TODO: change to a more secure secret
+          { expiresIn: "1h" }
+        );
       }
-      var login_msg = new Msg(this.server_id, "Server", validUser, "LOGIN");
+
+      response.verified = validUser;
+      response.accessToken = accessToken;
+
+      var login_msg = new Msg(this.server_id, "Server", response, "LOGIN");
       client.WSserver.send(JSON.stringify(login_msg));
     } catch (err) {
       console.log("Error getting user: " + err);
