@@ -11,7 +11,6 @@ export default class Agent {
       this.animation = animation,
       this.animations = {};
       this.isdancing = false;
-      // this.isOnRightOrientation = false;
       this.onMyWay = false // is True when there is a mouse click and the user should go to somewhere till he arrives
       this.destination = null;
       this.avatar_pivot = null;
@@ -92,24 +91,30 @@ export default class Agent {
 	});
 	this.avatar_pivot.addChild( this.avatar_selector );
 
-  this.loadAnimation("idle","data/"+this.avatar+"/idle.skanim");
-	this.loadAnimation("walking","data/"+this.avatar+"/walking.skanim");
-	this.loadAnimation("dance","data/"+this.avatar+"/dance.skanim");
+  this.loadAnimation("idle"   ,"scripts/World/data/"+this.avatar+"/idle.skanim");
+	this.loadAnimation("walking","scripts/World/data/"+this.avatar+"/walking.skanim");
+	this.loadAnimation("dance"  ,"scripts/World/data/"+this.avatar+"/dance.skanim");
   }
 
   
   sendJSON(){
     return {
-            id : this.id,
-            rotation: this.rotation,
-            position : this.position,
-            animation :this.animation,
+            id        : this.id,
+            username  : this.username,
+            position  : this.position,
+            rotation  : this.rotation,
+            animation : this.animation,
+            isdancing : this.isdancing,
+            onMyWay   : this.onMyWay,
             }
   }
   updateFromJSON(msgJSON){
-    this.position = msgJSON.position;
-    this.animation= msgJSON.animation;
-    this.rotation = msgJSON.rotation;
+    this.username  = msgJSON.username;
+    this.position  = msgJSON.position;
+    this.rotation  = msgJSON.rotation;
+    this.animation = msgJSON.animation;
+    this.isdancing = msgJSON.isdancing;
+    this.onMyWay   = msgJSON.onMyWay;
   }
 
   setId(id){
@@ -144,6 +149,8 @@ export default class Agent {
     }
   }
   animUpdate(t){
+    //TODO - moving
+    
 		//move bones in the skeleton based on animation
 		this.animations[this.animation].assignTime( t * 0.001 * this.time_factor );
 		//copy the skeleton in the animation to the character

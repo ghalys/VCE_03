@@ -1,5 +1,5 @@
-import Agent  from "./agent_class.js";
-import World2  from "./World2.js";
+import Agent  from "./World/agent_class.js";
+import World2  from "./World/World.js";
 
 var scene = null;
 var renderer = null;
@@ -11,9 +11,7 @@ var target = null;
 var initial_position_camera = [0,40,100];
 var pitch = 0;
 var myAgent = new Agent(1,"julia");
-var otherAgent = new Agent(2,"jua");
 var myWorld = new World2(myAgent); 
-myWorld.addOrUpdateAgent(otherAgent.sendJSON());
 window.myWorld = myWorld;
 
 //translation
@@ -29,7 +27,7 @@ window.myWorld = myWorld;
 		
 		// console.log(await res.json());
 		
-		function init()
+function init()
 {
 	// setInterval(myWorld.onTick, 1000 / 20);
 	
@@ -38,7 +36,7 @@ window.myWorld = myWorld;
 
 	//setup renderer
 	renderer = new RD.Renderer(context);
-	renderer.setDataFolder("data");
+	renderer.setDataFolder("scripts/World/data");
 	renderer.autoload_assets = true;
 	
 	//attach canvas to DOM
@@ -59,7 +57,6 @@ window.myWorld = myWorld;
 	// otherAgent.createAvatar();
 	// scene.root.addChild( otherAgent.avatar_pivot );
 	for (var agent of Object.values(myWorld.getPeople())){
-		agent.createAvatar();
 		scene.root.addChild(agent.avatar_pivot);
 	}
 	
@@ -74,7 +71,7 @@ window.myWorld = myWorld;
 
 	//load a GLTF for the room
 	var room = new RD.SceneNode({scaling:40,position:[0,-.01,0]});
-	room.loadGLTF("data/room.gltf");
+	room.loadGLTF("scripts/World/data/room.gltf");
 	scene.root.addChild( room );
 
 	var gizmo = new RD.Gizmo();
@@ -240,3 +237,12 @@ window.myWorld = myWorld;
 
 
 init();
+import MyChat from "./ClientServer/myChat.js";
+import {testingLocally} from "./testing.js";
+
+const username = document.cookie.split('; ').find(row => row.startsWith('username='))?.split('=')[1];
+const password = document.cookie.split('; ').find(row => row.startsWith('password='))?.split('=')[1];
+
+var FelixChat = new MyChat();
+FelixChat.init(testingLocally, username, myWorld);
+

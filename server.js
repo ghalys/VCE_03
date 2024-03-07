@@ -64,7 +64,6 @@ class MyServer {
           
           //should be received after seting the id          
           var newAgent = message.content;
-          
           //We associate the ws to its room
           ws.room = roomname;
 
