@@ -20,8 +20,11 @@ export default class Agent {
       this.avatar_scale = 0.3;
       this.avatar_selector =null;
       this.time_factor = 1;
-
+      this.walkArea = null;
     }
+  setWalkArea(walkArea){
+    this.walkArea = walkArea;
+  }
   
   // getUsername(fontSize = 32, textColor = 'black', bgColor = 'white'){
   //   var canvas = document.createElement('canvas');
@@ -162,19 +165,28 @@ export default class Agent {
 
   moveUp(){
     this.avatar_pivot.moveLocal([0,0,1]);
-    this.position.setPosition(this.avatar_pivot.position);
-    this.animatWalk();
+    if(!this.walkArea.isInsideArea(this.avatar_pivot.position)){
+      this.avatar_pivot.moveLocal([0,0,-1]);
+    }
+    else{
+      this.position.setPosition(this.avatar_pivot.position);
+      this.animatWalk();
+    }
   }
   moveDown(){
     this.avatar_pivot.moveLocal([0,0,-1]);
-    this.position.setPosition(this.avatar_pivot.position);
-    this.animatWalk();
+    if(!this.walkArea.isInsideArea(this.avatar_pivot.position)){
+      this.avatar_pivot.moveLocal([0,0,+1]);
+    }
+    else{
+      this.position.setPosition(this.avatar_pivot.position);
+      this.animatWalk();
+    }
   }
 
   goTo(destination){
     this.destination = destination;
     this.onMyWay = true;
-    var distance = this.position.getDistanceTo(destination);
   }
   // // function which allows us to move to a new point
   moveTo(destination){
