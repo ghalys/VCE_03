@@ -12,7 +12,7 @@ export default class Agent {
       this.animations = {};
       this.isdancing = false;
       this.onMyWay = false // is True when there is a mouse click and the user should go to somewhere till he arrives
-      this.destination = null;
+      this.destination = this.position;
       this.avatar_pivot = null;
       this.bg_color = [0.1,0.1,0.1,1];
       this.avatar = avatar;
@@ -99,23 +99,26 @@ export default class Agent {
   
   sendJSON(){
     return {
-            id        : this.id,
-            username  : this.username,
-            position  : this.position,
-            rotation  : this.rotation,
-            animation : this.animation,
-            isdancing : this.isdancing,
-            onMyWay   : this.onMyWay,
+            id          : this.id,
+            username    : this.username,
+            position    : this.position,
+            rotation    : this.rotation,
+            animation   : this.animation,
+            isdancing   : this.isdancing,
+            onMyWay     : this.onMyWay,
+            time_factor : this.time_factor,
+            destination : this.destination,
             }
   }
   updateFromJSON(msgJSON){
-    this.username  = msgJSON.username;
-    this.rotation  = msgJSON.rotation;
-    this.animation = msgJSON.animation;
-    this.isdancing = msgJSON.isdancing;
-    this.onMyWay   = msgJSON.onMyWay;
-    this.position.updatePosition(msgJSON.position);
-
+    this.username    = msgJSON.username;
+    this.rotation    = msgJSON.rotation;
+    this.animation   = msgJSON.animation;
+    this.isdancing   = msgJSON.isdancing;
+    this.onMyWay     = msgJSON.onMyWay;
+    this.time_factor = msgJSON.time_factor;
+    // this.position.updatePosition(msgJSON.position);
+    this.destination.setPosition(msgJSON.destination);
   }
 
   setId(id){
@@ -124,7 +127,6 @@ export default class Agent {
   changeAvatar(avatar){
     this.avatar = avatar;
   }
-
 
   rotateLeft(dt){
     this.avatar_pivot.rotate(90*DEG2RAD*dt,[0,1,0]);
@@ -149,6 +151,7 @@ export default class Agent {
       this.animation = "dance";
     }
   }
+
   animUpdate(t){
     //update position and rotation
     this.avatar_pivot.position = this.position.toArray();
@@ -160,72 +163,64 @@ export default class Agent {
 		this.character.skeleton.copyFrom( this.animations[this.animation].skeleton );
   }
 
+  //Update the state of the agent accordingly to info he got.
+  Update(t){
+    if(!this.position.samePositionAs(this.destination)){
+      this.goTo(this.destination);
+    }
+    if (this.onMyWay){
+      this.moveTo(this.destination);
+    }
+    //update position and rotation
+    this.avatar_pivot.position = this.position.toArray();
+    this.avatar_pivot.rotation = this.rotation;
+
+    if(this.onMyWay){
+      this.animations["walk"].assignTime( t * 0.001 * this.time_factor );
+    }
+    else{
+      //move bones in the skeleton based on animation
+      this.animations[this.animation].assignTime( t * 0.001 * this.time_factor );
+    }
+
+		//copy the skeleton in the animation to the character
+		this.character.skeleton.copyFrom( this.animations[this.animation].skeleton );
+  }
+
+  //this function is used by myAgent to move Up 
   moveUp(){
     this.avatar_pivot.moveLocal([0,0,1]);
-    this.position.setPosition(this.avatar_pivot.position);
+    this.position.updatePosition(this.avatar_pivot.position);
+    this.destination.updatePosition(this.avatar_pivot.position);
     this.animatWalk();
   }
+  //this function is used by myAgent to move Down 
   moveDown(){
     this.avatar_pivot.moveLocal([0,0,-1]);
-    this.position.setPosition(this.avatar_pivot.position);
+    this.position.updatePosition(this.avatar_pivot.position);
+    this.destination.updatePosition(this.avatar_pivot.position);
     this.animatWalk();
   }
 
   goTo(destination){
     this.destination = destination;
     this.onMyWay = true;
-    var distance = this.position.getDistanceTo(destination);
   }
-  // // function which allows us to move to a new point
+
+  // function which allows us to move to a new point
   moveTo(destination){
     var distance = this.position.getDistanceTo(destination);
 
     if (distance<1){
-      this.avatar_pivot.position = destination;
+      this.avatar_pivot.position = destination.toArray();
       this.position.setPosition(destination);
       this.onMyWay= false;
     }
     else
     {
       this.avatar_pivot.moveLocal([0,0,1]);
-      this.position.setPosition(this.avatar_pivot.position);
+      this.position.updatePosition(this.avatar_pivot.position);
       this.animatWalk();
     }
-
   }
-
-  // moveTo(newX, newY = this.position.y) {
-  //   this.position.setPosition(newX, newY);
-  // }
-
-  // // walk to the mouse 
-  // walkTo(newX,dt){
-
-  //   if(newX>this.position.x){ //we move to the right
-  //     //if we are close to the destination
-  //     if(Math.abs(newX-this.position.x)<=32*dt){ 
-  //       var dx = newX-this.position.x;
-  //       this.moveToRight(dx/32);
-  //       this.onMyWay = false
-  //     }
-  //     else{// if we are far from the destination
-  //       this.moveToRight(dt)
-  //     }
-  //   }
-  //   else if(newX<this.position.x){ // We move to the left
-  //     if(Math.abs(newX-this.position.x)<=32*dt){ //if we are close
-  //       var dx = this.position.x-newX;
-  //       this.moveToLeft(dx/32);
-  //       this.onMyWay = false
-  //     }
-  //     else{// if we are far from the destination
-  //       this.moveToLeft(dt)
-  //     }
-  //   }
-  //   else{ //we already arrived
-  //     this.animatIdle();
-  //     this.onMyWay = false;
-  //   }
-  // }
-
 }

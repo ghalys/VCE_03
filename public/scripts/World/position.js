@@ -16,18 +16,21 @@ export default class Position {
   setX(z){
     this.z = z;
   }
-  setPosition(position) {
+  updatePosition(position) {
     this.x = position[0];
     this.y = position[1];
     this.z = position[2];
   }
-  updatePosition(position) {
+  setPosition(position) {
     this.x = position.x;
     this.y = position.y;
     this.z = position.z;
   }
+  samePositionAs(position){
+    return this.x==position.x &&this.y ==position.y && this.z ==position.z
+  }
   getDirection(destination){
-    return [destination[0] - this.x, destination[1] - this.y, destination[2] - this.z];
+    return [destination.x - this.x, destination.y - this.y, destination.z - this.z];
   }
   getDistanceTo(destination){
     let direction = this.getDirection(destination);

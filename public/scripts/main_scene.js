@@ -1,5 +1,5 @@
 import Agent  from "./World/agent_class.js";
-import World2  from "./World/World.js";
+import World2  from "./World/world.js";
 
 var scene = null;
 var renderer = null;
@@ -150,6 +150,7 @@ function init()
 		}
 		if(gl.keys["LEFT"])
 			myAgent.rotateLeft(dt);
+		
 		else if(gl.keys["RIGHT"])
 			myAgent.rotateRight(dt);
 
@@ -172,7 +173,7 @@ function init()
 		myAgent.animUpdate(t);
 
 		for (var agent of Object.values(myWorld.getPeople())){
-			agent.animUpdate(t);
+			agent.Update(t);
 		}
 	}
 
@@ -195,9 +196,11 @@ function init()
 			
 			if( ray.testPlane( RD.ZERO, RD.UP ) ) //collision with infinite plane
 			{
-				var destination = walkarea.adjustPosition(ray.collision_point);
+				var collisionPoint = walkarea.adjustPosition(ray.collision_point);
+				var destination = new Position(); // We define the point of destination
+				destination.updatePosition(collisionPoint);
 				console.log( "floor position clicked", ray.collision_point );
-				myAgent.avatar_pivot.orientTo(destination, true, [0,1,0], false, true  );
+				myAgent.avatar_pivot.orientTo(collisionPoint, true, [0,1,0], false, true  );
 				myAgent.goTo(destination);
 			}
 			
@@ -238,6 +241,7 @@ function init()
 init();
 import MyChat from "./ClientServer/myChat.js";
 import {testingLocally} from "./testing.js";
+import Position from "./World/position.js";
 
 const username = document.cookie.split('; ').find(row => row.startsWith('username='))?.split('=')[1];
 const password = document.cookie.split('; ').find(row => row.startsWith('password='))?.split('=')[1];
