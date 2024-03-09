@@ -58,6 +58,9 @@ class DB {
       this.queryAsync(
         `CREATE TABLE IF NOT EXISTS messages_FG (message_id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, room_id INT, message TEXT, type VARCHAR(50), timestamp DATETIME)`
       ),
+      this.queryAsync(
+        `CREATE TABLE IF NOT EXISTS access_FG (user_name VARCHAR(100) PRIMARY KEY, access_token TEXT)`
+      ),
     ]);
   }
 
@@ -114,6 +117,29 @@ class DB {
     });
   }
 
+  saveAccessToken(username, accessToken) {
+    var query = `INSERT INTO access_FG (user_name, access_token) VALUES (?, ?) ON DUPLICATE KEY UPDATE access_token = ?`;
+    var values = [username, accessToken, accessToken];
+    return this.queryAsync(query, values).catch((err) => {
+      throw err;
+    });
+  }
+
+  validateAccessToken(accessToken, username) {
+    var query = `SELECT * FROM access_FG WHERE user_name = ? AND access_token = ?`;
+    var values = [username, accessToken];
+    return this.queryAsync(query, values)
+      .then((result) => {
+        if (result.length === 0) {
+          return null;
+        }
+        return result[0];
+      })
+      .catch((err) => {
+        throw err;
+      });
+  }
+
   addRoom(name, description = "") {
     return this.queryAsync("SELECT * FROM rooms_FG WHERE room_name = ?", [name])
       .then((result) => {
@@ -138,6 +164,8 @@ class DB {
 
   addMessages(user_name, room_name, msg) {
     console.log("Message is being saved" + JSON.stringify(msg));
+    console.log("User name is " + user_name);
+    console.log("Room name is " + room_name);
 
     const currentDate = new Date();
     const formattedDateTime = currentDate
@@ -153,6 +181,9 @@ class DB {
       [user_name]
     )
       .then((result) => {
+        console.log(
+          "This is the result of the adding message" + JSON.stringify(result)
+        );
         user_id = result[0].user_id;
         return this.queryAsync(
           // Get the room_id from the room name out of the rooms_FG table where it is saved

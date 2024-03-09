@@ -10,6 +10,8 @@ import Agent from "./public/scripts/World/agent_class.js";
 import RoomManager from "./public/scripts/ClientServer/roomManager.js";
 import router from "./routes/mainroutes.js";
 import jsonwebtoken from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config(); // Load the .env file
 
 class MyServer {
   constructor() {
@@ -151,14 +153,7 @@ class MyServer {
   }
 
   createAcessToken(ws, app) {
-    // Attach token to response cookie
-    app.post("/login", (req, res) => {
-      const accessToken = jsonwebtoken.sign(
-        { id: ws.id, username: ws.username },
-        process.env.ACCESS_TOKEN_SECRET, // TODO: change to a more secure secret
-        { expiresIn: "1h" }
-      );
-    });
+    // Attach token to and save it in the
   }
 
   listen(port) {
@@ -259,7 +254,7 @@ class MyServer {
     }
   }
 
-  async checkLoginInfo(client, user, password) {
+  async checkLoginInfo(client, username, password) {
     // Check if the user is in the database
     // Check if the password is correct
     // Return true if the user is valid, false otherwise
@@ -267,15 +262,16 @@ class MyServer {
       var response = {};
       var validUser = false;
       var accessToken = null;
-      var user = await this.db.validateUserInfo(user, password);
+      var user = await this.db.validateUserInfo(username, password);
       if (user) {
         validUser = true; // UserInfo is valid
         // Create Access Token and include it in the response
-        const accessToken = jsonwebtoken.sign(
-          { id: user.id, username: user.username },
-          process.env.ACCESS_TOKEN_SECRET, // TODO: change to a more secure secret
+        accessToken = jsonwebtoken.sign(
+          { username: username },
+          process.env.ACCESS_TOKEN_SECRET,
           { expiresIn: "1h" }
         );
+        this.saveAccessToken(username, accessToken);
       }
 
       response.verified = validUser;
@@ -286,6 +282,10 @@ class MyServer {
     } catch (err) {
       console.log("Error getting user: " + err);
     }
+  }
+
+  saveAccessToken(accessToken, username) {
+    this.db.saveAccessToken(accessToken, username);
   }
 
   registerUser(client, username, password) {
