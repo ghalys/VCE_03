@@ -58,6 +58,8 @@ class DB {
       this.queryAsync(
         `CREATE TABLE IF NOT EXISTS messages_FG (message_id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, room_id INT, message TEXT, type VARCHAR(50), timestamp DATETIME)`
       ),
+      // Table access_FG saves the access token of the users
+      // with the user name and the access token
       this.queryAsync(
         `CREATE TABLE IF NOT EXISTS access_FG (user_name VARCHAR(100) PRIMARY KEY, access_token TEXT)`
       ),

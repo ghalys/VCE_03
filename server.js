@@ -152,10 +152,6 @@ class MyServer {
     }
   }
 
-  createAcessToken(ws, app) {
-    // Attach token to and save it in the
-  }
-
   listen(port) {
     this.port = port || this.default_port;
     console.log("Listening on port " + this.port);
@@ -284,6 +280,7 @@ class MyServer {
     }
   }
 
+  // Save the access token in the database
   saveAccessToken(accessToken, username) {
     this.db.saveAccessToken(accessToken, username);
   }
