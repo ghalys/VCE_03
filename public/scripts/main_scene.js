@@ -94,19 +94,23 @@ function init()
 		if (view==0){
 			eye    = initial_position_camera;
 			target = girlpos;
+			myAgent.panel.visible = true;
 		}
 		else if(view==1){
 			eye    = vec3.lerp(vec3.create(),camera.position,myAgent.avatar_pivot.localToGlobal([0,50,-80]),0.5); 
 			target = myAgent.avatar_pivot.localToGlobal([0,40,0]);
+			myAgent.panel.visible = false;
 		}
 		else if (view==2){
 			eye    = vec3.lerp(vec3.create(),camera.position,myAgent.avatar_pivot.localToGlobal([0,50,-50]),0.5); 
 			target = myAgent.avatar_pivot.localToGlobal([0,50,0]);
+			myAgent.panel.visible = false;
 			
 		}
 		else if (view==3){
 			eye    = myAgent.avatar_pivot.localToGlobal([0,50,0]);
 			target = myAgent.avatar_pivot.localToGlobal([0,40+pitch,100]);			
+			myAgent.panel.visible = false;
 		}
 
 		camera.lookAt( eye, target, [0,1,0] );

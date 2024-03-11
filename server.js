@@ -89,7 +89,7 @@ class MyServer {
           // Save the last position and avatar of the agent
           // TODO last position is always saved [0,0] and avatar is always saved "Avatar"
           // not sure if the problem is here or in the client
-          this.saveAgentPosition(client.user);
+          // this.saveAgentPosition(client.user);
         }
       });
     });
