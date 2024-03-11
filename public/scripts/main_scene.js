@@ -66,6 +66,7 @@ function init()
 	walkarea.addRect([-90,0,-10],80,20);
 	walkarea.addRect([-110,0,-30],40,50);
 
+	myAgent.setWalkArea(walkarea);
 
 
 	//load a GLTF for the room
