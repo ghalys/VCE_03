@@ -1,5 +1,7 @@
 import Agent  from "./World/agent_class.js";
 import World2  from "./World/World.js";
+import MyChat from "./ClientServer/myChat.js";
+import {testingLocally} from "./testing.js";
 
 var scene = null;
 var renderer = null;
@@ -10,26 +12,23 @@ var eye = null;
 var target = null;
 var initial_position_camera = [0,40,100];
 var pitch = 0;
-var myAgent = new Agent(1,"julia");
+
+
+
+const username = document.cookie.split('; ').find(row => row.startsWith('username='))?.split('=')[1];
+const password = document.cookie.split('; ').find(row => row.startsWith('password='))?.split('=')[1];
+
+var myAgent = new Agent(1,username);
 var myWorld = new World2(myAgent); 
 window.myWorld = myWorld;
+init();
 
-//translation
-// const res = await fetch("https://libretranslate.com/translate", {
-	//   method: "POST",
-	//   body: JSON.stringify({
-		//     q: "Hello!",
-		//     source: "en",
-		//     target: "es"
-		//   }),
-		//   headers: { "Content-Type": "application/json" }
-		// });
-		
-		// console.log(await res.json());
-		
+var FelixChat = new MyChat();
+FelixChat.init(testingLocally, username, myWorld);
+
+
 function init()
 {
-	// setInterval(myWorld.onTick, 1000 / 20);
 	
 	//create the rendering context
 	var context = GL.create({width: window.innerWidth, height:window.innerHeight});
@@ -54,10 +53,14 @@ function init()
 	myAgent.createAvatar();
 	scene.root.addChild( myAgent.avatar_pivot );
 	
+	// var panel = CreatePanel(myAgent.username,[0, 45, 0]);
+	scene.root.addChild(myAgent.panel);
+	// myAgent.avatar_pivot.addChild(panel);
 
 
 	myWorld.addAvatarToScene = (agent)=>{
 		scene.root.addChild(agent.avatar_pivot);
+		scene.root.addChild(agent.panel);
 	}
 	
 
@@ -119,8 +122,8 @@ function init()
 		var vertices = walkarea.getVertices();
 		renderer.renderPoints( vertices, null, camera, null,null,null,gl.LINES );
 
-		//gizmo.setTargets([monkey]);
-		//renderer.render( scene, camera, [gizmo] ); //render gizmo on top
+		// gizmo.setTargets([monkey]);
+		// renderer.render( scene, camera, [gizmo] ); //render gizmo on top
 	}
 	//main update
 	context.onupdate = function(dt)
@@ -170,10 +173,10 @@ function init()
 		var nearest_pos = walkarea.adjustPosition( pos );
 		myAgent.avatar_pivot.position = nearest_pos;
 
-		myAgent.animUpdate(t);
+		myAgent.animUpdate(t,camera);
 
 		for (var agent of Object.values(myWorld.getPeople())){
-			agent.animUpdate(t);
+			agent.animUpdate(t,camera);
 		}
 	}
 
@@ -216,7 +219,7 @@ function init()
 			//girl_pivot.rotate(e.deltax*-0.003,[0,1,0]);
 			pitch -= e.deltay*0.1;
 			myAgent.rotateRight(e.deltax * 0.001);
-
+			
 		}
 	}
 
@@ -225,24 +228,12 @@ function init()
 		//move camera forward
 		camera.moveLocal([0,0,e.wheel < 0 ? 10 : -10] );
 	}
-
+	
 	//capture mouse events
 	context.captureMouse(true);
 	context.captureKeys();
-
+	
 	//launch loop
 	context.animate();
 	
 }
-
-
-init();
-import MyChat from "./ClientServer/myChat.js";
-import {testingLocally} from "./testing.js";
-
-const username = document.cookie.split('; ').find(row => row.startsWith('username='))?.split('=')[1];
-const password = document.cookie.split('; ').find(row => row.startsWith('password='))?.split('=')[1];
-
-var FelixChat = new MyChat();
-FelixChat.init(testingLocally, username, myWorld);
-

@@ -21,6 +21,7 @@ export default class Agent {
       this.avatar_selector =null;
       this.time_factor = 1;
       this.walkArea = null;
+      this.panel = null;
     }
   setWalkArea(walkArea){
     this.walkArea = walkArea;
@@ -97,6 +98,7 @@ export default class Agent {
   this.loadAnimation("idle"   ,"scripts/World/data/"+this.avatar+"/idle.skanim");
 	this.loadAnimation("walking","scripts/World/data/"+this.avatar+"/walking.skanim");
 	this.loadAnimation("dance"  ,"scripts/World/data/"+this.avatar+"/dance.skanim");
+  this.panel = this.CreatePanel(this.username,[this.position.x,this.position.y+45,this.position.z]);
   }
 
   
@@ -152,7 +154,7 @@ export default class Agent {
       this.animation = "dance";
     }
   }
-  animUpdate(t){
+  animUpdate(t,camera){
     //update position and rotation
     this.avatar_pivot.position = this.position.toArray();
     this.avatar_pivot.rotation = this.rotation;
@@ -161,6 +163,10 @@ export default class Agent {
 		this.animations[this.animation].assignTime( t * 0.001 * this.time_factor );
 		//copy the skeleton in the animation to the character
 		this.character.skeleton.copyFrom( this.animations[this.animation].skeleton );
+    
+    this.panel.position = this.position.getPositionOfUsername();
+    this.panel.lookAt(this.panel.position,camera.position,[0,1,0]);
+    this.panel.rotate(180*DEG2RAD,[0,1,0]);
   }
 
   moveUp(){
@@ -204,6 +210,30 @@ export default class Agent {
       this.animatWalk();
     }
 
+  }
+  CreatePanel(text,position){
+		//writting a text in 3D
+		var texture;
+		var subcanvas = document.createElement("canvas");
+		subcanvas.width = 512;
+		subcanvas.height = 256;
+		var subctx = subcanvas.getContext("2d");
+		subctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+		subctx.fillRect(0, 0, subcanvas.width, subcanvas.height);
+	
+		subctx.font = "Bold 80px Arial";
+		subctx.fillStyle = "black";
+		subctx.textAlign = "center";
+		subctx.fillText(text, subcanvas.width / 2, subcanvas.height / 2);
+
+		//create a texture to upload the offscreen canvas 
+		texture = GL.Texture.fromImage(subcanvas, { wrap: gl.CLAMP_TO_EDGE });
+		gl.textures[text] = texture; //give it a name
+	
+		//create a node
+		var panel = new RD.SceneNode({ mesh: "plane", scale: [15, 5, 0], position: position, flags: { two_sided: true } });
+		panel.texture = text; //assign canvas texture to node
+		return panel
   }
 
   // moveTo(newX, newY = this.position.y) {
