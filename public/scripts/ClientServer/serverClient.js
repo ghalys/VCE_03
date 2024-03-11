@@ -73,6 +73,8 @@ class ServerClient {
         break;
       case "AGENT_STATE":
         this.onAgentState(message);
+      case "NEW_AGENT":
+        this.onAgentState(message); //TODO - 
     }
   }
 

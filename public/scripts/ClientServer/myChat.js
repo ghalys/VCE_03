@@ -41,7 +41,7 @@ export default class MyChat {
       //set the Id of my agent and the client server in myWorld
       this.myWorld.set_ID_and_Server(this.server);
       //send my agent to the server to create a instance of client there
-      this.server.sendAgent(this.myWorld.myAgent);
+      this.server.sendAgent(this.myWorld.myAgent.sendJSON()); //We cannot send all the agent because there is a circular structure and it's not efficient
 
       //start onTick in myWorld
       this.myWorld.initialisation();
