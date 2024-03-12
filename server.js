@@ -54,8 +54,6 @@ class MyServer {
       this.sendId(ws, this.last_id);
       this.last_id++;
 
-      this.createAcessToken(ws);
-
       //create a temporary client
       var client = new Client(null, ws);
 
