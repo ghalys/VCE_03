@@ -17,22 +17,23 @@
 	<script type="text/javascript" src="scripts/World/extra/rendeer.js"></script>
 	<script type="text/javascript" src="scripts/World/extra/wbin.js"></script>
 	<script type="text/javascript" src="scripts/World/extra/walkarea.js"></script>
-	<script type="text/javascript" src="scripts/World/listeners.js"></script>
 	<script type="module" src="scripts/main_scene.js"></script>
+	<script type="module" src="scripts/World/listeners.js"></script>
+
 </head>
 <body>
 
-	<span id="chat-page">
+	<!-- <div id="chat-page"> -->
 
-		<div class="grid-container">
-			<div class="world-room" id="canvas">
-				<div class="chat-name" id="room-name-header"><p>Chat Name</p></div>
-				<div id="CanvasContainer">
-					<canvas id="scene" ></canvas>
-				</div>
+	<div class="grid-container">
+
+		<div class="world-room" id="canvas">
+			<div class="chat-name" id="room-name-header"><p>Chat Name</p></div>
+			<div id="CanvasContainer">
+				<canvas id="scene" ></canvas>
 			</div>
+		</div>
 
-		
 		<div id="chat-window">
 
 			<div class="chat-info">
@@ -48,30 +49,63 @@
 			<div id="mychat" class="chat-messages"></div>
 
 			<div class="chat-input">
-				<div class="emoji-input">
-					<div class="icon">
-						<span class="material-symbols-outlined"> mood </span>
-					</div>
+			<div class="emoji-input">
+				<div class="icon">
+					<span class="material-symbols-outlined"> mood </span>
 				</div>
-				<div class="text-input">
-					<input
-						class="chat"
-						id="chat_input"
-						type="text"
-						placeholder="Type a message"/>
-				</div>
-				<button id="sendButton">
-					<div class="icon">
-						<span class="material-symbols-outlined"> send </span>
-					</div>
-				</button>
 			</div>
-			
+			<div class="text-input">
+				<input
+					class="chat"
+					id="chat_input"
+					type="text"
+					placeholder="Type a message"/>
+			</div>
+			<button id="sendButton">
+				<div class="icon">
+					<span class="material-symbols-outlined"> send </span>
+				</div>
+			</button>
 		</div>
+
+		</div>
+
+		<div id="room-page">
+			<div id="login-page">
+				<form id="chat-form">
+					<label for="icon_list">Select your icon</label>
+					<span class="material-symbols-outlined"> face </span>
+					<span class="material-symbols-outlined"> face_2</span>
+					<span class="material-symbols-outlined"> face_3</span>
+					<span class="material-symbols-outlined"> face_4</span>
+					<span class="material-symbols-outlined"> face_5</span>
+					<span class="material-symbols-outlined"> face_6</span>
+
+					<select name="icon-list" id="icon_list">
+						<option value="face">Face 1</option>
+						<option value="face_2">Face 2</option>
+						<option value="face_3">Face 3</option>
+						<option value="face_4">Face 4</option>
+						<option value="face_5">Face 5</option>
+						<option value="face_6">Face 6</option>
+					</select>
+
+					<label for="room-name">Type in your Room-Name</label>
+					<input type="text" id="room-name" name="room-name" required />
+					<label for="room-name">Or choose from existing ones</label>
+					<select id="room-list" name="room-list">
+						<option value="room1">Room 1</option>
+						<option value="room2">Room 2</option>
+						<option value="room3">Room 3</option>
+					</select>
+
+					<button type="button" id="changeRoomButton">Change room</button>
+				</form>
+			</div>
+		</div>
+
 	</div>
-
-
-	</span>
+<!-- </div> -->
 </body>
 
 	<!-- <audio src="scripts/World/data/Audio/The_Nights.mp3" loop="true" autoplay></audio> -->

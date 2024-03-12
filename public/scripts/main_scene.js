@@ -21,12 +21,11 @@ const password = document.cookie.split('; ').find(row => row.startsWith('passwor
 var myAgent = new Agent(1,username);
 var myWorld = new World2(myAgent); 
 window.myWorld = myWorld;
-init();
 
-var FelixChat = new MyChat();
+init();
+export var FelixChat = new MyChat();
 FelixChat.create(document.getElementById("mychat"));
 FelixChat.init(testingLocally, username, myWorld);
-
 
 function init()
 {
