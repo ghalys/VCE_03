@@ -11,17 +11,19 @@ canvas.addEventListener('click', function() {
   input.blur();
 });
 
-//activate dancing
 document.addEventListener('keydown', function(event) {
-  if (event.key === 'd' && !document.activeElement === input) {
-      gl.keys["d"] = true;
-  }
-});
+  if (document.activeElement.tagName !== 'INPUT') {
 
-//activate change of view of the camera
-document.addEventListener('keydown', function(event) {
-  if (event.key === 'c' && !document.activeElement === input) {
+  //activate dancing
+  if (event.key === 'd' ) {
+      console.log("d");
+      gl.keys["d"] = true;
+      }
+  
+  //activate change of view of the camera
+  if (event.key === 'c' ) {
       gl.keys["c"] = true;
+      }
   }
 });
 
