@@ -347,10 +347,9 @@ class MyServer {
       // Get the message history from the database
       // Array of messages with message_id, user_id, room_id, message, type and timestamp
       var msg_history = await this.getData("messages", room);
-
+      console.log("Sending message history to client: " + client.user.username);
       // Send the message history to the client in the Msg object
       for (let row of msg_history) {
-        console.log("Sending message history to client: " + row.user_name);
         var msg = new Msg(row.user_id, row.user_name, row.message, row.type);
         client.WSserver.send(JSON.stringify(msg));
       }

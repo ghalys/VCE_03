@@ -50,18 +50,27 @@ function init()
 	camera.lookAt( initial_position_camera,[0,20,0],[0,1,0] );
 	
 	myAgent.createAvatar();
-	scene.root.addChild( myAgent.avatar_pivot );
-	
-	// var panel = CreatePanel(myAgent.username,[0, 45, 0]);
+	scene.root.addChild(myAgent.avatar_pivot );
 	scene.root.addChild(myAgent.panel);
-	// myAgent.avatar_pivot.addChild(panel);
 
 
 	myWorld.addAvatarToScene = (agent)=>{
 		scene.root.addChild(agent.avatar_pivot);
 		scene.root.addChild(agent.panel);
 	}
-	
+
+	myWorld.removeAvatarFromScene = (agent)=>{
+		scene.root.removeChild(agent.avatar_pivot);
+		scene.root.removeChild(agent.panel);
+	}
+	myWorld.cleanTheScene = ()=>{
+		for (let id in myWorld.peopleById)	{
+			var agent = myWorld.peopleById[id];
+			scene.root.removeChild(agent.avatar_pivot)
+			scene.root.removeChild(agent.panel);
+		}
+	}	
+
 
 	walkarea = new WalkArea();
 	walkarea.addRect([-50,0,-30],80,50);
@@ -199,12 +208,10 @@ function init()
 			//compute collision with scene
 			var ray = camera.getRay(e.canvasx, e.canvasy);
 			var node = scene.testRay( ray, null, 10000, 0b1000 );
-			// console.log(node);
 			
 			if( ray.testPlane( RD.ZERO, RD.UP ) ) //collision with infinite plane
 			{
 				var destination = walkarea.adjustPosition(ray.collision_point);
-				console.log( "floor position clicked", ray.collision_point );
 				myAgent.avatar_pivot.orientTo(destination, true, [0,1,0], false, true  );
 				myAgent.goTo(destination);
 			}
@@ -216,11 +223,6 @@ function init()
 	{
 		if(e.dragging)
 		{
-			//orbit camera around
-			//camera.orbit( e.deltax * -0.01, RD.UP );
-			//camera.position = vec3.scaleAndAdd( camera.position, camera.position, RD.UP, e.deltay );
-			// camera.move([-e.deltax*0.1, e.deltay*0.1,0]);
-			//girl_pivot.rotate(e.deltax*-0.003,[0,1,0]);
 			pitch -= e.deltay*0.1;
 			myAgent.rotateRight(e.deltax * 0.001);
 			

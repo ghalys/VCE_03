@@ -1,13 +1,23 @@
 import { FelixChat } from "../main_scene.js";
 
+var input = document.querySelector("input.chat");
+var canvas = document.getElementById("scene");
+
+//remove focus on the input when we click on the canvas
+canvas.addEventListener('click', function() {
+  input.blur();
+});
+
+//activate dancing
 document.addEventListener('keydown', function(event) {
-  if (event.key === 'd') {
+  if (event.key === 'd' && !document.activeElement === input) {
       gl.keys["d"] = true;
   }
 });
 
+//activate change of view of the camera
 document.addEventListener('keydown', function(event) {
-  if (event.key === 'c') {
+  if (event.key === 'c' && !document.activeElement === input) {
       gl.keys["c"] = true;
   }
 });
