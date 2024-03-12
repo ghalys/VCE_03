@@ -30,7 +30,6 @@ FelixChat.init(testingLocally, username, myWorld);
 function init()
 {
 	var canvas = document.getElementById("scene");
-	// var canvasContainer = document.getElementById("canvas");
 	//create the rendering context
 	var context = GL.create({canvas:canvas});
 

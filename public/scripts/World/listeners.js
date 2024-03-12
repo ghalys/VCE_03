@@ -3,6 +3,9 @@ import { FelixChat } from "../main_scene.js";
 var input = document.querySelector("input.chat");
 var canvas = document.getElementById("scene");
 
+var selectedValue = document.getElementById('flagSelection').value;
+
+
 //remove focus on the input when we click on the canvas
 canvas.addEventListener('click', function() {
   input.blur();
@@ -22,13 +25,13 @@ document.addEventListener('keydown', function(event) {
   }
 });
 
-var room = "hall"
+var room = "Hall"
 // Changing the Room
 document.getElementById("changeRoomButton").addEventListener("click", goToRoom);
 document.getElementById("returnToTheHall").addEventListener("click",returnToTheHall);
 
 function returnToTheHall(){
-  room = "hall";
+  room = "Hall";
   change_room(room);
   
   //Display hall with room page
