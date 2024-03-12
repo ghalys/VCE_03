@@ -8,7 +8,7 @@ var usernameAvailability = document.getElementById("usernameAvailability");
 let isAvailable = false;
 
 loginServer.onVerification = (response) => {
-  if (!response) {
+  if (!response.verified) {
     isAvailable = true;
     usernameAvailability.textContent = "Username is available";
     usernameAvailability.style.color = "green";
