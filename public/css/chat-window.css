@@ -9,7 +9,7 @@
   grid-column: 3 / 4;
   grid-row: 1 / 5;
   overflow: clip;
-  display: none;
+  display: flex;
   flex-direction: column;
   height: 100vh;
 }
