@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/register.css" />
+    <title>ChatApp</title>
+  </head>
+
+  <body>
+    <div class="center-container">
+      <form id="loginSection">
+        <h2 id="welcome">Welcome to the ChatApp</h2>
+        <label>Username :</label>
+        <input
+          id="username"
+          type="text"
+          placeholder="Enter your username"
+          name="username"
+          autocomplete="username"
+
+          required
+        /><br />
+
+        <label>Password :</label>
+        <div id="input_password">
+
+          <input
+          id="password"
+          type="password"
+          placeholder="Enter your password"
+          name="password"
+          autocomplete="current-password"
+          required
+          />
+          <img src="media/login/eye_icon_opened.png" id="eyeIcon" />
+        </div>
+
+        <div id="register">
+          <p id="registerLink">Don't have an account? <a>Register here</a>.</p>
+        </div>
+        <button type="submit" class="joinbutton">Join Chat</button>
+      </form>
+    </div>
+  </body>
+  <script> 
+    var eyeIcon = document.getElementById("eyeIcon");
+    // Making the password visible/invisible by clicking the eye icon
+    eyeIcon.addEventListener("click", function () {
+      if (passwordInput.type == "password") {
+        passwordInput.type = "text";
+      } else {
+        passwordInput.type = "password";
+      }
+    });
+  </script>
+  
+  <script type="module" src="scripts/Login/login.js"></script>
+</html>

@@ -24,23 +24,23 @@ window.myWorld = myWorld;
 init();
 
 var FelixChat = new MyChat();
+FelixChat.create(document.getElementById("mychat"));
 FelixChat.init(testingLocally, username, myWorld);
 
 
 function init()
 {
-	
+	var canvas = document.getElementById("scene");
+	// var canvasContainer = document.getElementById("canvas");
 	//create the rendering context
-	var context = GL.create({width: window.innerWidth, height:window.innerHeight});
+	var context = GL.create({canvas:canvas});
 
 	//setup renderer
 	renderer = new RD.Renderer(context);
 	renderer.setDataFolder("scripts/World/data");
 	renderer.autoload_assets = true;
 	
-	//attach canvas to DOM
-	document.body.appendChild(renderer.canvas);
-	
+
 	//create a scene
 	scene = new RD.Scene();
 	window.scene = scene;
@@ -84,8 +84,9 @@ function init()
 
 	//main draw function
 	context.ondraw = function(){
-		gl.canvas.width = document.body.offsetWidth;
-		gl.canvas.height = document.body.offsetHeight;
+		var Canvastyle = window.getComputedStyle(canvas);
+		gl.canvas.width = parseFloat(Canvastyle.width);
+		gl.canvas.height = parseFloat(Canvastyle.height);
 		gl.viewport(0,0,gl.canvas.width,gl.canvas.height);
 
 		var girlpos = myAgent.avatar_pivot.localToGlobal([0,1,0]);

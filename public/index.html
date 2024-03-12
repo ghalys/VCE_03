@@ -1,59 +1,74 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="css/register.css" />
-    <title>ChatApp</title>
-  </head>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 
-  <body>
-    <div class="center-container">
-      <form id="loginSection">
-        <h2 id="welcome">Welcome to the ChatApp</h2>
-        <label>Username :</label>
-        <input
-          id="username"
-          type="text"
-          placeholder="Enter your username"
-          name="username"
-          autocomplete="username"
+<title>3Rasmus</title>
+	<style type='text/css'>
+		html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }
+	</style>
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="css/chat-window.css" />
 
-          required
-        /><br />
+	<script type="text/javascript" src="scripts/World/extra/gl-matrix-min.js"></script>
+	<script type="text/javascript" src="scripts/World/extra/litegl.js"></script>
+	<script type="text/javascript" src="scripts/World/extra/rendeer.js"></script>
+	<script type="text/javascript" src="scripts/World/extra/wbin.js"></script>
+	<script type="text/javascript" src="scripts/World/extra/walkarea.js"></script>
+	<script type="text/javascript" src="scripts/World/listeners.js"></script>
+	<script type="module" src="scripts/main_scene.js"></script>
+</head>
+<body>
 
-        <label>Password :</label>
-        <div id="input_password">
+	<span id="chat-page">
 
-          <input
-          id="password"
-          type="password"
-          placeholder="Enter your password"
-          name="password"
-          autocomplete="current-password"
-          required
-          />
-          <img src="media/login/eye_icon_opened.png" id="eyeIcon" />
-        </div>
+		<div class="grid-container">
+			<div class="world-room" id="canvas">
+				<div class="chat-name" id="room-name-header"><p>Chat Name</p></div>
+				<div id="CanvasContainer">
+					<canvas id="scene" ></canvas>
+				</div>
+			</div>
+		</div>
 
-        <div id="register">
-          <p id="registerLink">Don't have an account? <a>Register here</a>.</p>
-        </div>
-        <button type="submit" class="joinbutton">Join Chat</button>
-      </form>
-    </div>
-  </body>
-  <script> 
-    var eyeIcon = document.getElementById("eyeIcon");
-    // Making the password visible/invisible by clicking the eye icon
-    eyeIcon.addEventListener("click", function () {
-      if (passwordInput.type == "password") {
-        passwordInput.type = "text";
-      } else {
-        passwordInput.type = "password";
-      }
-    });
-  </script>
-  
-  <script type="module" src="scripts/Login/login.js"></script>
+		
+		<div id="chat-window">
+
+			<div class="chat-info">
+				<button id="returnToTheHall">return to the hall</button>
+				<img id="chat-picture" class="profile-picture" src="media/chat/upf_logo.png"/>
+				<div class="settings">
+					<div class="icon">
+						<span class="material-symbols-outlined"> settings </span>
+					</div>
+				</div>
+			</div>
+
+			<div id="mychat" class="chat-messages"></div>
+
+			<div class="chat-input">
+				<div class="emoji-input">
+					<div class="icon">
+						<span class="material-symbols-outlined"> mood </span>
+					</div>
+				</div>
+				<div class="text-input">
+					<input
+						class="chat"
+						id="chat_input"
+						type="text"
+						placeholder="Type a message"/>
+				</div>
+				<button id="sendButton">
+					<div class="icon">
+						<span class="material-symbols-outlined"> send </span>
+					</div>
+				</button>
+			</div>
+		</div>
+
+	</span>
+</body>
+
+	<!-- <audio src="scripts/World/data/Audio/The_Nights.mp3" loop="true" autoplay></audio> -->
 </html>
