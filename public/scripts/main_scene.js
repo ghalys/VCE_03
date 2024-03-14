@@ -19,7 +19,8 @@ var images ={};
 const username = document.cookie.split('; ').find(row => row.startsWith('username='))?.split('=')[1];
 const password = document.cookie.split('; ').find(row => row.startsWith('password='))?.split('=')[1];
 
-var myAgent = new Agent(1,username);
+
+export var myAgent = new Agent(1,username);
 var myWorld = new World2(myAgent); 
 window.myWorld = myWorld;
 
@@ -105,26 +106,32 @@ function init()
 		if (view==0){
 			eye    = initial_position_camera;
 			target = girlpos;
-			myAgent.panel.visible = true;
 		}
 		else if(view==1){
 			eye    = vec3.lerp(vec3.create(),camera.position,myAgent.avatar_pivot.localToGlobal([0,50,-80]),0.5); 
 			target = myAgent.avatar_pivot.localToGlobal([0,40,0]);
-			myAgent.panel.visible = false;
 		}
 		else if (view==2){
 			eye    = vec3.lerp(vec3.create(),camera.position,myAgent.avatar_pivot.localToGlobal([0,50,-50]),0.5); 
 			target = myAgent.avatar_pivot.localToGlobal([0,50,0]);
-			myAgent.panel.visible = false;
 			
 		}
 		else if (view==3){
 			eye    = myAgent.avatar_pivot.localToGlobal([0,50,0]);
 			target = myAgent.avatar_pivot.localToGlobal([0,40+pitch,100]);			
-			myAgent.panel.visible = false;
 		}
-
+		
 		camera.lookAt( eye, target, [0,1,0] );
+		
+		//hide the panel according to the view
+		if(myAgent.panel){
+			if(view ==0){
+				myAgent.panel.visible = true;
+			}
+			else{
+				myAgent.panel.visible = false;
+			}
+		}
 
 		//clear
 		renderer.clear(myAgent.bg_color);
@@ -248,18 +255,16 @@ function init()
 
 //get image
 function getImage(flag, callback) {
-	console.log(flag);
 	var url = "../media/flags/"+flag+".png";
 	if (images[flag]) {
 		callback(images[flag]);
-		console.log("deja loaded")
 		return;
 	}
 	var img = new Image();
 	img.src = url;
 	img.onload = () => {
 		images[flag] = img;
-		console.log("image loaded");
+		console.log("image loaded of "+flag);
 		callback(img);
 	};
 	img.onerror = function () {
@@ -272,4 +277,11 @@ function addPanel(agent){
 		agent.createPanel(img)
 		scene.root.addChild(agent.panel);
 	});
+
+	agent.updatePanel = ()=>{
+		getImage(agent.flag,(img)=>{
+			agent.createTexture(img);
+			agent.panel.texture = agent.username;
+		});
+	}
 }

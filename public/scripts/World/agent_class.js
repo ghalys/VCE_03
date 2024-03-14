@@ -23,9 +23,14 @@ export default class Agent {
       this.walkArea = null;
       this.panel = null;
       this.flag = "es";
+      this.updatePanel = null;
     }
   setWalkArea(walkArea){
     this.walkArea = walkArea;
+  }
+  changeFlag(flag){
+    this.flag = flag;
+    this.updatePanel(flag);
   }
 
   //load some animations
@@ -83,6 +88,7 @@ export default class Agent {
             animation : this.animation,
             isdancing : this.isdancing,
             onMyWay   : this.onMyWay,
+            flag : this.flag,
             }
   }
   updateFromJSON(msgJSON){
@@ -91,6 +97,7 @@ export default class Agent {
     this.animation = msgJSON.animation;
     this.isdancing = msgJSON.isdancing;
     this.onMyWay   = msgJSON.onMyWay;
+    this.flag      = msgJSON.flag;
     this.position.updatePosition(msgJSON.position);
 
   }
@@ -136,9 +143,12 @@ export default class Agent {
 		//copy the skeleton in the animation to the character
 		this.character.skeleton.copyFrom( this.animations[this.animation].skeleton );
     
-    this.panel.position = this.position.getPositionOfUsername();
-    this.panel.lookAt(this.panel.position,camera.position,[0,1,0]);
-    this.panel.rotate(180*DEG2RAD,[0,1,0]);
+    //if the panel has been created
+    if(this.panel){
+      this.panel.position = this.position.getPositionOfUsername();
+      this.panel.lookAt(this.panel.position,camera.position,[0,1,0]);
+      this.panel.rotate(180*DEG2RAD,[0,1,0]);
+    }
   }
 
   moveUp(){
@@ -184,8 +194,14 @@ export default class Agent {
 
   }
   createPanel(image){
-    var text = this.username;
+    this.createTexture(image);
     var position  = [this.position.x,this.position.y+45,this.position.z]
+    //create a node
+    this.panel = new RD.SceneNode({ mesh: "plane", scale: [15, 5, 0], position: position, flags: { two_sided: true } });
+    this.panel.texture = this.username; //assign canvas texture to node
+  }
+  createTexture(image){
+    var text = this.username;
 		//writting a text in 3D
 		var texture;
 		var canvas = document.createElement("canvas");
@@ -211,10 +227,5 @@ export default class Agent {
     //create a texture to upload the offscreen canvas 
     texture = GL.Texture.fromImage(canvas, { wrap: gl.CLAMP_TO_EDGE });
     gl.textures[text] = texture; //give it a name
-  
-    //create a node
-    this.panel = new RD.SceneNode({ mesh: "plane", scale: [15, 5, 0], position: position, flags: { two_sided: true } });
-    this.panel.texture = text; //assign canvas texture to node
   }
-
 }
