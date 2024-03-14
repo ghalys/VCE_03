@@ -12,6 +12,7 @@ var eye = null;
 var target = null;
 var initial_position_camera = [0,40,100];
 var pitch = 0;
+var images ={};
 
 
 
@@ -48,14 +49,16 @@ function init()
 	camera.perspective( 60, gl.canvas.width / gl.canvas.height, 0.1, 1000 );
 	camera.lookAt( initial_position_camera,[0,20,0],[0,1,0] );
 	
+
+	
 	myAgent.createAvatar();
 	scene.root.addChild(myAgent.avatar_pivot );
-	scene.root.addChild(myAgent.panel);
-
+	addPanel(myAgent);
 
 	myWorld.addAvatarToScene = (agent)=>{
-		scene.root.addChild(agent.avatar_pivot);
-		scene.root.addChild(agent.panel);
+		agent.createAvatar();
+		scene.root.addChild(agent.avatar_pivot );
+		addPanel(agent);
 	}
 
 	myWorld.removeAvatarFromScene = (agent)=>{
@@ -184,7 +187,7 @@ function init()
 		var pos = myAgent.avatar_pivot.position;
 		var nearest_pos = walkarea.adjustPosition( pos );
 		myAgent.avatar_pivot.position = nearest_pos;
-
+		
 		myAgent.animUpdate(t,camera);
 
 		for (var agent of Object.values(myWorld.getPeople())){
@@ -241,4 +244,32 @@ function init()
 	//launch loop
 	context.animate();
 	
+};
+
+//get image
+function getImage(flag, callback) {
+	console.log(flag);
+	var url = "../media/flags/"+flag+".png";
+	if (images[flag]) {
+		callback(images[flag]);
+		console.log("deja loaded")
+		return;
+	}
+	var img = new Image();
+	img.src = url;
+	img.onload = () => {
+		images[flag] = img;
+		console.log("image loaded");
+		callback(img);
+	};
+	img.onerror = function () {
+		console.error("Failed to load image at " + url);
+	};
+}
+
+function addPanel(agent){
+	getImage(agent.flag,(img)=> {
+		agent.createPanel(img)
+		scene.root.addChild(agent.panel);
+	});
 }

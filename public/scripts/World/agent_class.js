@@ -22,38 +22,11 @@ export default class Agent {
       this.time_factor = 1;
       this.walkArea = null;
       this.panel = null;
+      this.flag = "es";
     }
   setWalkArea(walkArea){
     this.walkArea = walkArea;
   }
-  
-  // getUsername(fontSize = 32, textColor = 'black', bgColor = 'white'){
-  //   var canvas = document.createElement('canvas');
-  //   var ctx = canvas.getContext('2d');
-
-  //   // define the size and the style of the text
-  //   ctx.font = `${fontSize}px Arial`;
-  //   var metrics = ctx.measureText(this.username);
-  //   canvas.width = metrics.width;
-  //   canvas.height = fontSize;
-
-  //   // define a background color
-  //   ctx.fillStyle = bgColor;
-  //   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  //   // draw the text
-  //   ctx.fillStyle = textColor;
-  //   ctx.fillText(text, 0, fontSize - (fontSize / 4)); // Ajustement based on the height of the text
-
-  //   // create a texture in LiteGL with the canvas
-  //   var texture = GL.Texture.fromImage(canvas, {
-  //     minFilter: gl.LINEAR,
-  //     magFilter: gl.LINEAR
-  //   });
-  
-  //   return texture;
-  // }
-  
 
   //load some animations
 	loadAnimation( name, url )
@@ -98,10 +71,9 @@ export default class Agent {
   this.loadAnimation("idle"   ,"scripts/World/data/"+this.avatar+"/idle.skanim");
 	this.loadAnimation("walking","scripts/World/data/"+this.avatar+"/walking.skanim");
 	this.loadAnimation("dance"  ,"scripts/World/data/"+this.avatar+"/dance.skanim");
-  this.panel = this.CreatePanel(this.username,[this.position.x,this.position.y+45,this.position.z]);
   }
 
-  
+
   sendJSON(){
     return {
             id        : this.id,
@@ -211,63 +183,38 @@ export default class Agent {
     }
 
   }
-  CreatePanel(text,position){
+  createPanel(image){
+    var text = this.username;
+    var position  = [this.position.x,this.position.y+45,this.position.z]
 		//writting a text in 3D
 		var texture;
-		var subcanvas = document.createElement("canvas");
-		subcanvas.width = 512;
-		subcanvas.height = 256;
-		var subctx = subcanvas.getContext("2d");
-		subctx.fillStyle = "rgba(255, 255, 255, 0.1)";
-		subctx.fillRect(0, 0, subcanvas.width, subcanvas.height);
-	
-		subctx.font = "Bold 80px Arial";
-		subctx.fillStyle = "black";
-		subctx.textAlign = "center";
-		subctx.fillText(text, subcanvas.width / 2, subcanvas.height / 2);
+		var canvas = document.createElement("canvas");
+		canvas.width = 512;
+		canvas.height = 256;
+		var ctx = canvas.getContext("2d");
+		
+    // display the flag as an image
+    var imageWidth = 128; // Largeur désirée de l'image
+    var imageHeight = canvas.height; // Hauteur égale à celle du canvas
+    ctx.drawImage(image, 0, 0, imageWidth, imageHeight);
+    
+    // display the username
+    ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = "Bold 100px Arial";
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    var textX = imageWidth + 160;
+    var textY = canvas.height/2 + 30
+    ctx.fillText(text, textX, textY);
 
-		//create a texture to upload the offscreen canvas 
-		texture = GL.Texture.fromImage(subcanvas, { wrap: gl.CLAMP_TO_EDGE });
-		gl.textures[text] = texture; //give it a name
-	
-		//create a node
-		var panel = new RD.SceneNode({ mesh: "plane", scale: [15, 5, 0], position: position, flags: { two_sided: true } });
-		panel.texture = text; //assign canvas texture to node
-		return panel
+    //create a texture to upload the offscreen canvas 
+    texture = GL.Texture.fromImage(canvas, { wrap: gl.CLAMP_TO_EDGE });
+    gl.textures[text] = texture; //give it a name
+  
+    //create a node
+    this.panel = new RD.SceneNode({ mesh: "plane", scale: [15, 5, 0], position: position, flags: { two_sided: true } });
+    this.panel.texture = text; //assign canvas texture to node
   }
-
-  // moveTo(newX, newY = this.position.y) {
-  //   this.position.setPosition(newX, newY);
-  // }
-
-  // // walk to the mouse 
-  // walkTo(newX,dt){
-
-  //   if(newX>this.position.x){ //we move to the right
-  //     //if we are close to the destination
-  //     if(Math.abs(newX-this.position.x)<=32*dt){ 
-  //       var dx = newX-this.position.x;
-  //       this.moveToRight(dx/32);
-  //       this.onMyWay = false
-  //     }
-  //     else{// if we are far from the destination
-  //       this.moveToRight(dt)
-  //     }
-  //   }
-  //   else if(newX<this.position.x){ // We move to the left
-  //     if(Math.abs(newX-this.position.x)<=32*dt){ //if we are close
-  //       var dx = this.position.x-newX;
-  //       this.moveToLeft(dx/32);
-  //       this.onMyWay = false
-  //     }
-  //     else{// if we are far from the destination
-  //       this.moveToLeft(dt)
-  //     }
-  //   }
-  //   else{ //we already arrived
-  //     this.animatIdle();
-  //     this.onMyWay = false;
-  //   }
-  // }
 
 }
