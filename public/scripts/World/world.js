@@ -6,6 +6,8 @@ export default class World2{
     this.peopleById = {};
     this.WSserver = null;
     this.addAvatarToScene = null;
+    this.removeAvatarFromScene = null;
+    this.cleanTheScene = null;
   }
   set_ID_and_Server(WSServer) {
     this.myAgent.setId(WSServer.user_id);
@@ -25,6 +27,7 @@ export default class World2{
   };
 
   leaveTheRoom() {
+    this.cleanTheScene();
     this.peopleById = {};
   }
   getPeople(){
@@ -48,6 +51,7 @@ export default class World2{
   removeAgent(agent_state) {
     //if the id is present, we remove the agent from myWorld
     if (agent_state.id in this.peopleById) {
+      this.removeAvatarFromScene(this.peopleById[agent_state.id]);
       delete this.peopleById[agent_state.id];
     }
   }

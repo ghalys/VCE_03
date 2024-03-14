@@ -92,7 +92,7 @@ class MyServer {
           // Save the last position and avatar of the agent
           // TODO last position is always saved [0,0] and avatar is always saved "Avatar"
           // not sure if the problem is here or in the client
-          this.saveAgentPosition(client.user);
+          // this.saveAgentPosition(client.user);
         }
       });
     });
@@ -368,10 +368,9 @@ class MyServer {
       // Get the message history from the database
       // Array of messages with message_id, user_id, room_id, message, type and timestamp
       var msg_history = await this.getData("messages", room);
-
+      console.log("Sending message history to client: " + client.user.username);
       // Send the message history to the client in the Msg object
       for (let row of msg_history) {
-        console.log("Sending message history to client: " + row.user_name);
         var msg = new Msg(row.user_id, row.user_name, row.message, row.type);
         client.WSserver.send(JSON.stringify(msg));
       }

@@ -34,5 +34,9 @@ export default class Position {
     return Math.sqrt(direction[0]**2 + direction[1]**2 + direction[2]**2);
   }
 
+  getPositionOfUsername(){
+    return [this.x,this.y+45,this.z]
+  }
+
 }
 //Units are in meters

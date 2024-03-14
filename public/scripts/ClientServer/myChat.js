@@ -12,7 +12,7 @@ export default class MyChat {
     this.myWorld = null;
   }
 
-  init(testingLocally, username, myWorld, roomname = "hall", icon = "face") {
+  init(testingLocally, username, myWorld, roomname = "Hall", icon = "face") {
     var ourPort = "9022";
     var ourUrl = testingLocally
                   ? "ws://localhost:9022"
