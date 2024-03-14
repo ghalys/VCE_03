@@ -7,7 +7,6 @@ export default class World2{
     this.WSserver = null;
     this.addAvatarToScene = null;
   }
-  
   set_ID_and_Server(WSServer) {
     this.myAgent.setId(WSServer.user_id);
     this.WSserver = WSServer;
