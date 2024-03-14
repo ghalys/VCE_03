@@ -88,7 +88,7 @@ export default class Agent {
             animation : this.animation,
             isdancing : this.isdancing,
             onMyWay   : this.onMyWay,
-            flag : this.flag,
+            flag      : this.flag,
             }
   }
   updateFromJSON(msgJSON){
@@ -97,9 +97,10 @@ export default class Agent {
     this.animation = msgJSON.animation;
     this.isdancing = msgJSON.isdancing;
     this.onMyWay   = msgJSON.onMyWay;
-    this.flag      = msgJSON.flag;
     this.position.updatePosition(msgJSON.position);
-
+    if(this.flag != msgJSON.flag){
+      this.changeFlag(msgJSON.flag);
+    }
   }
 
   setId(id){
