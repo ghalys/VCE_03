@@ -12,13 +12,15 @@ var eye = null;
 var target = null;
 var initial_position_camera = [0,40,100];
 var pitch = 0;
+var images ={};
 
 
 
 const username = document.cookie.split('; ').find(row => row.startsWith('username='))?.split('=')[1];
 const password = document.cookie.split('; ').find(row => row.startsWith('password='))?.split('=')[1];
 
-var myAgent = new Agent(1,username);
+
+export var myAgent = new Agent(1,username);
 var myWorld = new World2(myAgent); 
 window.myWorld = myWorld;
 
@@ -48,14 +50,16 @@ function init()
 	camera.perspective( 60, gl.canvas.width / gl.canvas.height, 0.1, 1000 );
 	camera.lookAt( initial_position_camera,[0,20,0],[0,1,0] );
 	
+
+	
 	myAgent.createAvatar();
 	scene.root.addChild(myAgent.avatar_pivot );
-	scene.root.addChild(myAgent.panel);
-
+	addPanel(myAgent);
 
 	myWorld.addAvatarToScene = (agent)=>{
-		scene.root.addChild(agent.avatar_pivot);
-		scene.root.addChild(agent.panel);
+		agent.createAvatar();
+		scene.root.addChild(agent.avatar_pivot );
+		addPanel(agent);
 	}
 
 	myWorld.removeAvatarFromScene = (agent)=>{
@@ -102,26 +106,32 @@ function init()
 		if (view==0){
 			eye    = initial_position_camera;
 			target = girlpos;
-			myAgent.panel.visible = true;
 		}
 		else if(view==1){
 			eye    = vec3.lerp(vec3.create(),camera.position,myAgent.avatar_pivot.localToGlobal([0,50,-80]),0.5); 
 			target = myAgent.avatar_pivot.localToGlobal([0,40,0]);
-			myAgent.panel.visible = false;
 		}
 		else if (view==2){
 			eye    = vec3.lerp(vec3.create(),camera.position,myAgent.avatar_pivot.localToGlobal([0,50,-50]),0.5); 
 			target = myAgent.avatar_pivot.localToGlobal([0,50,0]);
-			myAgent.panel.visible = false;
 			
 		}
 		else if (view==3){
 			eye    = myAgent.avatar_pivot.localToGlobal([0,50,0]);
 			target = myAgent.avatar_pivot.localToGlobal([0,40+pitch,100]);			
-			myAgent.panel.visible = false;
 		}
-
+		
 		camera.lookAt( eye, target, [0,1,0] );
+		
+		//hide the panel according to the view
+		if(myAgent.panel){
+			if(view ==0){
+				myAgent.panel.visible = true;
+			}
+			else{
+				myAgent.panel.visible = false;
+			}
+		}
 
 		//clear
 		renderer.clear(myAgent.bg_color);
@@ -184,7 +194,7 @@ function init()
 		var pos = myAgent.avatar_pivot.position;
 		var nearest_pos = walkarea.adjustPosition( pos );
 		myAgent.avatar_pivot.position = nearest_pos;
-
+		
 		myAgent.animUpdate(t,camera);
 
 		for (var agent of Object.values(myWorld.getPeople())){
@@ -241,4 +251,37 @@ function init()
 	//launch loop
 	context.animate();
 	
+};
+
+//get image
+function getImage(flag, callback) {
+	var url = "../media/flags/"+flag+".png";
+	if (images[flag]) {
+		callback(images[flag]);
+		return;
+	}
+	var img = new Image();
+	img.src = url;
+	img.onload = () => {
+		images[flag] = img;
+		console.log("image loaded of "+flag);
+		callback(img);
+	};
+	img.onerror = function () {
+		console.error("Failed to load image at " + url);
+	};
+}
+
+function addPanel(agent){
+	getImage(agent.flag,(img)=> {
+		agent.createPanel(img)
+		scene.root.addChild(agent.panel);
+	});
+
+	agent.updatePanel = ()=>{
+		getImage(agent.flag,(img)=>{
+			agent.createTexture(img);
+			agent.panel.texture = agent.username;
+		});
+	}
 }

@@ -1,10 +1,13 @@
-import { FelixChat } from "../main_scene.js";
+import { FelixChat,myAgent } from "../main_scene.js";
 
 var input = document.querySelector("input.chat");
 var canvas = document.getElementById("scene");
 
-var selectedValue = document.getElementById('flagSelection').value;
+var flagSelection = document.getElementById('flagSelection');
 
+flagSelection.addEventListener('change',function(){
+  myAgent.changeFlag(this.value.toLowerCase());
+});
 
 //remove focus on the input when we click on the canvas
 canvas.addEventListener('click', function() {

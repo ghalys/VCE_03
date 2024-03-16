@@ -38,7 +38,6 @@ export default class World2{
     } else {
       //TODO - Maybe we will need more info to get for the first time like which avatar is chosen
       var agent = new Agent(id, agentState.username); // we have to create a new agent
-      agent.createAvatar();
       this.addAvatarToScene(agent);
       agent.updateFromJSON(agentState);
       this.peopleById[id] = agent;
