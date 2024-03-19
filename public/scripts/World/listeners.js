@@ -2,9 +2,10 @@ import { FelixChat,myAgent } from "../main_scene.js";
 
 var input = document.querySelector("input.chat");
 var canvas = document.getElementById("scene");
-
+var audio = document.getElementById('myAudio');
 var flagSelection = document.getElementById('flagSelection');
 
+setVolume(0.5);
 flagSelection.addEventListener('change',function(){
   myAgent.changeFlag(this.value.toLowerCase());
 });
@@ -29,6 +30,11 @@ document.addEventListener('keydown', function(event) {
       }
   }
 });
+
+document.getElementById('playButton').addEventListener('click', playMusic);
+document.getElementById('pauseButton').addEventListener('click', pauseMusic);
+document.getElementById('volumeSlider').addEventListener('input', (event) => setVolume(event.target.value));
+
 
 var room = "Hall"
 // Changing the Room
@@ -71,4 +77,14 @@ function change_room(room){
   FelixChat.changeRoom(room);
   document.getElementById("room-name-header").textContent = room;
 
+}
+
+function playMusic() {
+  audio.play();
+}
+function pauseMusic() {
+  audio.pause();
+}
+function setVolume(volume) {
+  audio.volume = volume;
 }
