@@ -8,7 +8,16 @@ export default class World2{
     this.addAvatarToScene = null;
     this.removeAvatarFromScene = null;
     this.cleanTheScene = null;
+    this.music = null;
   }
+  sendMusic (music){
+    if(music != this.music){
+      this.music = music;
+      this.WSserver.sendMusicFile(music);
+      console.log("msic sent");
+    }
+  }
+
   set_ID_and_Server(WSServer) {
     this.myAgent.setId(WSServer.user_id);
     this.WSserver = WSServer;

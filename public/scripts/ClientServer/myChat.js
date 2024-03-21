@@ -63,10 +63,20 @@ export default class MyChat {
 
       this.myWorld.removeAgent(agent);
     };
+    
+    this.server.onMusic = (url) => {
+      var audioElement = document.createElement('audio');
+      audioElement.src = url;
+      audioElement.loop = true;
+      audioElement.autoplay = true;
+
+      audioElement.controls = true;
+      document.body.appendChild(audioElement);
+
+    }
 
     this.server.connect_socket();
 
-    this.on_chat_historic = (messages) => {};
   }
 
   //Setting user icon

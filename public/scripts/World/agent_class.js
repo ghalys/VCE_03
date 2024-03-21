@@ -78,7 +78,6 @@ export default class Agent {
 	this.loadAnimation("dance"  ,"scripts/World/data/"+this.avatar+"/dance.skanim");
   }
 
-
   sendJSON(){
     return {
             id        : this.id,

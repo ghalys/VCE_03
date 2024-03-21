@@ -56,8 +56,10 @@ class MyServer {
 
       // Handling incoming messages from the client
       ws.on("message", (msg) => {
-        var message = JSON.parse(msg);
 
+          
+        try{
+        var message = JSON.parse(msg);
         //if the message received is about the newUser
         if (message.type == "NEW_AGENT") {
           console.log("Websocket connection established");
@@ -76,6 +78,12 @@ class MyServer {
         } else {
           //a normal message should be treated
           this.onMessage(client, message);
+          }
+        } catch (error) {
+          console.log("file_loaded");
+          console.log(msg);
+          this.sendToRoom(client,msg);
+          // this.onFile(client,msg);
         }
       });
 
@@ -97,17 +105,18 @@ class MyServer {
 
   // Handling the messages received from the clients
   onMessage(client, message) {
+
     // Switch case for all the types of messages
     switch (message.type) {
       case "AGENT_STATE":
-        this.sendToRoom(client, message);
+        this.sendToRoom(client, JSON.stringify(message));
         break;
 
       case "TEXT":
         console.log("Received message from client ");
         if (message.destination == "room") {
           // Send the message to the room
-          this.sendToRoom(client, message);
+          this.sendToRoom(client, JSON.stringify(message));
 
           // Save message in the database
           this.db.addMessages(
@@ -144,6 +153,25 @@ class MyServer {
         var newRoom = message.content;
         client.WSserver.room = newRoom;
         this.joinRoom(newRoom, client);
+      
+      // case "MUSIC":
+      //   var music = message.content;
+      //   console.log("receivedMusic");
+      //   console.log(message);
+
+      //   if (music instanceof Buffer) {
+      //     // Here, `data` is a Buffer containing the binary data sent from the client
+      //     console.log('Received binary data');
+    
+      //     // For demonstration, write the received audio file to the server's file system
+      //     fs.writeFile('received_audio.mp3', music, (err) => {
+      //       if (err) {
+      //         console.error('Error saving the file:', err);
+      //       } else {
+      //         console.log('File saved successfully');
+      //       }
+      //     });    
+      //   }
     }
   }
 
@@ -281,7 +309,7 @@ class MyServer {
     var clients = this.roomManager.getClientsInRoom(Client);
     for (let otherClient of clients) {
       if (otherClient.user.id != Client.user.id) {
-        otherClient.WSserver.send(JSON.stringify(message));
+        otherClient.WSserver.send(message);
       }
     }
   }
@@ -289,13 +317,13 @@ class MyServer {
   sendUserJoin(newClient) {
     // Send the info "USER_JOIN" to the rest of the users of the same room
     var msg = new Msg(this.server_id, "Server", newClient.user, "USER_JOIN");
-    this.sendToRoom(newClient, msg);
+    this.sendToRoom(newClient, JSON.stringify(msg));
   }
 
   sendUserLeft(Client) {
     // Send the info "USER_LEFT" to the rest of the users of the room
     var msg = new Msg(this.server_id, "Server", Client.user, "USER_LEFT");
-    this.sendToRoom(Client, msg);
+    this.sendToRoom(Client, JSON.stringify(msg));
   }
 
   sendUsersOfRoom(newClient) {

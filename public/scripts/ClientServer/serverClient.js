@@ -11,7 +11,6 @@ class ServerClient {
     this.info_received = 0;
     this.activeUsers = [];
     this.roomname = roomname;
-
     this.user_id = -2;
     this.username = username;
     this.on_connect = null; //when connected
@@ -23,6 +22,7 @@ class ServerClient {
     this.on_user_disconnected = null; //user leaves
     this.on_chat_historic = null; //when the historic of the chat is sent by the server
     this.on_error = null; //when cannot connect
+    this.onMusic = null;
   }
 
   connect_socket() {
@@ -45,6 +45,8 @@ class ServerClient {
   onData(ws_message) {
     //when the client receive a message from the server
     this.info_received++;
+    try {
+      
     var msg = JSON.parse(ws_message.data);
     var message = new Msg(
       msg.id,
@@ -76,6 +78,14 @@ class ServerClient {
       case "NEW_AGENT":
         this.onAgentState(message); //TODO - 
     }
+  } catch (error) {
+    var audio_file = ws_message;
+    console.log("audio_received");
+    var blob = new Blob([audio_file], { type: 'audio/mpeg' });
+    var url = URL.createObjectURL(blob);
+    this.onMusic(url);
+  }
+  
   }
 
   onOpen() {
@@ -159,6 +169,11 @@ class ServerClient {
   sendAgentState(state) {
     var msg = new Msg(this.user_id, this.username, state, "AGENT_STATE");
     this.send_message(msg);
+  }
+
+  sendMusicFile(music){
+    console.log(music);
+    this.socket.send(music);
   }
 
 

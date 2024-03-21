@@ -16,6 +16,7 @@
     "http": "^0.0.1-security",
     "http-server": "^14.1.1",
     "md5": "^2.3.0",
+    "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1",
     "mysql2": "^3.9.1",
     "node-mysql-wrapper": "^2.4.0",
