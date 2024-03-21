@@ -37,7 +37,7 @@ function init()
 
 	//setup renderer
 	renderer = new RD.Renderer(context);
-	renderer.setDataFolder("scripts/World/data");
+	renderer.setDataFolder("../media/assets3D/");
 	renderer.autoload_assets = true;
 	
 

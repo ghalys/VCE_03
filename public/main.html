@@ -77,23 +77,26 @@
 		<div id="room-page">
 			<div id="login-page">
 				<form id="chat-form">
-					<label for="icon_list">Select your icon </label>
-					<span class="material-symbols-outlined"> face </span>
-					<span class="material-symbols-outlined"> face_2</span>
-					<span class="material-symbols-outlined"> face_3</span>
-					<span class="material-symbols-outlined"> face_4</span>
-					<span class="material-symbols-outlined"> face_5</span>
-					<span class="material-symbols-outlined"> face_6</span>
+					<label for="room-name">Choose your avatar</label>
 
-					<select name="icon-list" id="icon_list">
-						<option value="face">Face 1</option>
-						<option value="face_2">Face 2</option>
-						<option value="face_3">Face 3</option>
-						<option value="face_4">Face 4</option>
-						<option value="face_5">Face 5</option>
-						<option value="face_6">Face 6</option>
-					</select>
+					<div id="avatar-changer">
+						<button id="prev-avatar">←</button>
+						<span id="avatar-name">avatar_name</span>
+						<button id="next-avatar">→</button>
+					</div>
 
+					<div id="skin-changer">
+						<button id="prev-skin">←</button>
+						<span id="skin-name">skin_name</span>
+						<button id="next-skin">→</button>
+					</div>
+
+					<div id="skin-Version">
+						<button id="prev-skinVersion">←</button>
+						<span id="skin-version">skin_version</span>
+						<button id="next-skinVersion">→</button>
+					</div>
+					
 					<label for="room-name">Type in your Room-Name</label>
 					<input type="text" id="room-name" name="room-name" required />
 					<label for="room-name">Or choose from existing ones</label>
