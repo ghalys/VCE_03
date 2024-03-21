@@ -157,7 +157,7 @@ function init()
 		if(myAgent.onMyWay){
 			myAgent.moveTo(myAgent.destination);
 		}
-		else if (!myAgent.isdancing){
+		else if (!myAgent.isdancing && !myAgent.iswaving){
 			myAgent.animatIdle();
 		}
 		myAgent.time_factor = 1;
@@ -189,6 +189,12 @@ function init()
 			view = (view+1)%4;
 			gl.keys["c"]=false;
 		}
+		if(gl.keys["w"]){
+			myAgent.iswaving = !myAgent.iswaving;
+			myAgent.animatWaving();
+			gl.keys["w"]= false;
+		}
+
 
 
 		var pos = myAgent.avatar_pivot.position;

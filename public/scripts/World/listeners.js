@@ -134,7 +134,6 @@ document.addEventListener('keydown', function(event) {
 
   //activate dancing
   if (event.key === 'd' ) {
-      console.log("d");
       gl.keys["d"] = true;
       }
   
@@ -144,8 +143,10 @@ document.addEventListener('keydown', function(event) {
       }
   }
 
-  
-
+  //activate change of view of the camera
+  if (event.key === 'w' ) {
+    gl.keys["w"] = true;
+    }
 });
 
 var room = "Hall"

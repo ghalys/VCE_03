@@ -11,6 +11,7 @@ export default class Agent {
       this.animation = animation,
       this.animations = {};
       this.isdancing = false;
+      this.iswaving = false;
       this.onMyWay = false // is True when there is a mouse click and the user should go to somewhere till he arrives
       this.destination = null;
       this.avatar_pivot = null;
@@ -52,6 +53,8 @@ export default class Agent {
       this.loadAnimation("idle"   ,"../media/assets3D/"+this.avatar+"/idle.skanim");
       this.loadAnimation("walking","../media/assets3D/"+this.avatar+"/walking.skanim");
       this.loadAnimation("dance"  ,"../media/assets3D/"+this.avatar+"/dance.skanim");
+      this.loadAnimation("waving"  ,"../media/assets3D/"+this.avatar+"/waving.skanim");
+      
     }
   }
 
@@ -112,6 +115,7 @@ export default class Agent {
   this.loadAnimation("idle"   ,"../media/assets3D/"+this.avatar+"/idle.skanim");
 	this.loadAnimation("walking","../media/assets3D/"+this.avatar+"/walking.skanim");
 	this.loadAnimation("dance"  ,"../media/assets3D/"+this.avatar+"/dance.skanim");
+  this.loadAnimation("waving"  ,"../media/assets3D/"+this.avatar+"/waving.skanim");
   }
 
 
@@ -123,6 +127,7 @@ export default class Agent {
             rotation  : this.rotation,
             animation : this.animation,
             isdancing : this.isdancing,
+            iswaving  : this.iswaving,
             onMyWay   : this.onMyWay,
             flag      : this.flag,
             }
@@ -132,6 +137,7 @@ export default class Agent {
     this.rotation  = msgJSON.rotation;
     this.animation = msgJSON.animation;
     this.isdancing = msgJSON.isdancing;
+    this.iswaving = msgJSON.iswaving;
     this.onMyWay   = msgJSON.onMyWay;
     this.position.updatePosition(msgJSON.position);
     if(this.flag != msgJSON.flag){
@@ -160,11 +166,17 @@ export default class Agent {
   animatWalk(){
     this.animation = "walking";
     //in case we were dancing before walking
-    this.isdancing =false;
+    this.isdancing = false;
+    this.iswaving = false
   }
   animatDance(){
     if (this.isdancing){
       this.animation = "dance";
+    }
+  }
+  animatWaving(){
+    if(this.iswaving && this.avatar !="girl"){
+      this.animation = "waving";
     }
   }
   animUpdate(t,camera){
