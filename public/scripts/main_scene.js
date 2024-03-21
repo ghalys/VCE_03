@@ -48,7 +48,7 @@ function init()
 	
 	//create camera
 	camera = new RD.Camera();
-	camera.perspective( 60, gl.canvas.width / gl.canvas.height, 0.1, 1000 );
+	camera.perspective( 70, gl.canvas.width / gl.canvas.height, 0.1, 1000 );
 	camera.lookAt( initial_position_camera,[0,20,0],[0,1,0] );
 	
 	myAgent.createAvatar();
@@ -59,19 +59,66 @@ function init()
 	myWorld.addAvatarToScene = (agent)=>{
 		scene.root.addChild(agent.avatar_pivot);
 	}
+
+	const roomPositions = [
+		[0, 0, 0],         // Room 1
+		[1200, 0, 0],      // Room 2
+		[2400, 0, 0],      // Room 3
+		[3600, 0, 0]       // Room 4
+	];
+
+	// Function to switch to a specific room
+	function switchToRoom(roomIndex) {
+		const position = roomPositions[roomIndex];
+
+		// Set camera position to the desired room
+		camera.position = [position[0], position[1] + 40, position[2] + 100];
+
+		// Set agent position to the desired room
+		myAgent.avatar_pivot.position = position;
+	}
+
+	// Define function to switch to a specific room
+	function switchToRoomByIndex(roomIndex) {
+		if (roomIndex >= 0 && roomIndex < roomPositions.length) {
+			switchToRoom(roomIndex);
+		}
+	}
 	
 
 	walkarea = new WalkArea();
-	walkarea.addRect([-50,0,-30],80,50);
-	walkarea.addRect([-90,0,-10],80,20);
-	walkarea.addRect([-110,0,-30],40,50);
+
+	// Define single room configuration
+	const roomConfig = [
+	{ x: -110, z: -70, width: 180, length: 140 },
+	{ x: -145, z: -20, width: 45, length: 45 },
+	{ x: -240, z: -70, width: 105, length: 140 }
+	];
+
+	// Add each room walkarea
+	for (let i = 0; i < 4; i++) {
+	roomConfig.forEach(config => {
+		const x = config.x + 1200 * i;
+		walkarea.addRect([x, 0, config.z], config.width, config.length);
+	});
+	}
 
 	myAgent.setWalkArea(walkarea);
 
 
+	
+	// Temporary test function to manually switch to a specific room
+	function testSwitchRoom(roomIndex) {
+		switchToRoom(roomIndex);
+	}
+
+	// Call the test function with the desired room index
+	testSwitchRoom(2); // Replace 1 with the desired room index
+
+
 	//load a GLTF for the room
 	var room = new RD.SceneNode({scaling:40,position:[0,-.01,0]});
-	room.loadGLTF("scripts/World/data/room.gltf");
+	room.loadGLTF("scripts/World/data/rooms.glb");
 	scene.root.addChild( room );
 
 	var gizmo = new RD.Gizmo();
@@ -229,6 +276,17 @@ function init()
 	//capture mouse events
 	context.captureMouse(true);
 	context.captureKeys();
+
+	// Event listener for keyboard input
+	document.addEventListener('keydown', function(event) {
+		const key = event.key;
+		console.log(key);
+		// Check if the pressed key is a numerical key (1, 2, 3, 4)
+		if (key >= '1' && key <= '4') {
+			const roomIndex = parseInt(key) - 1; // Convert numerical key to room index (0-based)
+			switchToRoomByIndex(roomIndex);
+		}
+	});
 
 	//launch loop
 	context.animate();
