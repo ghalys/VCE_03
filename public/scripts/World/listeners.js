@@ -143,6 +143,9 @@ document.addEventListener('keydown', function(event) {
       gl.keys["c"] = true;
       }
   }
+
+  
+
 });
 
 var room = "Hall"

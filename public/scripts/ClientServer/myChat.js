@@ -92,7 +92,7 @@ export default class MyChat {
   // Displaying messages in the chat
   showMessage(msg) {
     var messageDiv = document.createElement("div");
-    if (msg.id == this.user_id) {
+    if (msg.author == this.my_username) {
       messageDiv.className = "mycontent";
     } else {
       messageDiv.className = "msg";
@@ -107,7 +107,15 @@ export default class MyChat {
     var timeP = document.createElement("p");
     timeP.className = "time";
 
+    let flagImg = document.createElement('img');
+    flagImg.src = "../../media/flags/es.png";
+    flagImg.alt = 'Flag';
+    flagImg.style.width = '20px'; // Adjust the size as needed
+    flagImg.style.height = '20px'; // Adjust the size as needed
+    flagImg.style.marginRight = '5px'; // Adds a little space between the flag and the text
     authorP.textContent = msg.author;
+    authorP.appendChild(flagImg);
+
     contentP.textContent = msg.content;
     timeP.textContent = msg.time;
 
