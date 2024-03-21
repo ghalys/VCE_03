@@ -141,8 +141,8 @@ function init()
 		//render scene
 		renderer.render(scene, camera, null, 0b11 );
 
-		var vertices = walkarea.getVertices();
-		renderer.renderPoints( vertices, null, camera, null,null,null,gl.LINES );
+		// var vertices = walkarea.getVertices();
+		// renderer.renderPoints( vertices, null, camera, null,null,null,gl.LINES );
 
 		// gizmo.setTargets([monkey]);
 		// renderer.render( scene, camera, [gizmo] ); //render gizmo on top
