@@ -121,7 +121,9 @@ function updateSkinDisplay() {
 
 
 flagSelection.addEventListener('change',function(){
-  myAgent.changeFlag(this.value.toLowerCase());
+  let newflag = this.value.toLowerCase();
+  myAgent.changeFlag(newflag);
+  FelixChat.setFlag(newflag);
 });
 
 //remove focus on the input when we click on the canvas
