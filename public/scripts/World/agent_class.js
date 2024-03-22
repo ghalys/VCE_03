@@ -5,7 +5,6 @@ export default class Agent {
   constructor(id,username,avatar ="man", position = new Position(), animation="idle") {
       this.id = id,
       this.username = username,
-      this.avatar = avatar,
       this.position = position,
       this.rotation = null;
       this.animation = animation,
@@ -24,6 +23,8 @@ export default class Agent {
       this.panel = null;
       this.flag = "es";
       this.updatePanel = null;
+
+      this.avatar = avatar,
       this.skin = "casual";
       this.skinVersion = "casualman";
       
@@ -121,15 +122,18 @@ export default class Agent {
 
   sendJSON(){
     return {
-            id        : this.id,
-            username  : this.username,
-            position  : this.position,
-            rotation  : this.rotation,
-            animation : this.animation,
-            isdancing : this.isdancing,
-            iswaving  : this.iswaving,
-            onMyWay   : this.onMyWay,
-            flag      : this.flag,
+            id          : this.id,
+            username    : this.username,
+            position    : this.position,
+            rotation    : this.rotation,
+            animation   : this.animation,
+            isdancing   : this.isdancing,
+            iswaving    : this.iswaving,
+            onMyWay     : this.onMyWay,
+            flag        : this.flag,
+            avatar      : this.avatar,
+            skin        : this.skin,
+            skinVersion : this.skinVersion
             }
   }
   updateFromJSON(msgJSON){
@@ -137,12 +141,19 @@ export default class Agent {
     this.rotation  = msgJSON.rotation;
     this.animation = msgJSON.animation;
     this.isdancing = msgJSON.isdancing;
-    this.iswaving = msgJSON.iswaving;
+    this.iswaving  = msgJSON.iswaving;
     this.onMyWay   = msgJSON.onMyWay;
     this.position.updatePosition(msgJSON.position);
+    if(this.avatar != msgJSON.avatar|| this.skin != msgJSON.skin|| this.skinVersion != msgJSON.skinVersion){
+      this.updateSkin(msgJSON.avatar,msgJSON.skin,msgJSON.skinVersion);
+      this.avatar = msgJSON.avatar;
+      this.skin = msgJSON.skin;
+      this.skinVersion = msgJSON.skinVersion;
+    };
     if(this.flag != msgJSON.flag){
       this.changeFlag(msgJSON.flag);
     }
+
   }
 
   setId(id){

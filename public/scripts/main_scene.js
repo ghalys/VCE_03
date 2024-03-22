@@ -85,7 +85,7 @@ function init()
 
 	//load a GLTF for the room
 	var room = new RD.SceneNode({scaling:40,position:[0,-.01,0]});
-	room.loadGLTF("scripts/World/data/room.gltf");
+	room.loadGLTF("../media/assets3D/room.gltf");
 	scene.root.addChild( room );
 
 	var gizmo = new RD.Gizmo();
