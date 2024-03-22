@@ -65,6 +65,12 @@ export default class MyChat {
       this.myWorld.removeAgent(agent);
     };
 
+    this.server.onMusic = (message) => {
+      var music = message.content;
+      document.getElementById("myAudio").src = "upload_files/"+music;
+      myWorld.music=music;
+    }
+
     this.server.connect_socket();
 
     this.on_chat_historic = (messages) => {};

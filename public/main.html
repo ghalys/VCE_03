@@ -32,7 +32,18 @@
 	<div class="grid-container">
 
 		<div class="world-room" id="canvas">
-			<div class="chat-name" id="room-name-header"><p>Hall</p></div>
+			<div class="chat-name" id="room-name-header">
+				<p>Hall</p>
+				<form>
+					<label for="file">Select files</label>
+					<input id="file" type="file" name="file" />
+					<input type="submit" value="POST to server"/>
+				</form>
+				<audio id="myAudio" loop="true" autoplay></audio>
+				<button id="playButton"><span class="material-symbols-outlined">play_arrow</span></button>
+				<button id="pauseButton"><span class="material-symbols-outlined">pause</span></button>			
+				<input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1"> 
+			</div>
 			<div id="CanvasContainer">
 				<canvas id="scene" ></canvas>
 			</div>

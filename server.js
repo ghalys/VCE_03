@@ -1,5 +1,7 @@
 import express from "express";
 import http from "http";
+import multer from "multer";
+
 import { WebSocketServer } from "ws";
 import path from "path";
 import DB from "./db.js";
@@ -147,6 +149,11 @@ class MyServer {
         var newRoom = message.content;
         client.WSserver.room = newRoom;
         this.joinRoom(newRoom, client);
+        
+      case "MUSIC":
+        console.log("receivedMusic");
+        console.log(message);
+        this.sendToRoom(client, message);
     }
   }
 
@@ -160,6 +167,22 @@ class MyServer {
     const __dirname = path.resolve();
     app.use(express.static(path.join(__dirname, "public")));
     app.use(router);
+    const storage = multer.diskStorage({
+      filename: function (req, file, cb) {
+        cb(null, file.originalname)
+      },
+      destination: function (req, file, cb) {
+        cb(null, './public/upload_files')
+      },
+    })
+
+    const upload = multer({ storage })
+
+    app.post('/upload_files', upload.any('file'), (req, res) => {
+      const fileName = req.files[0].originalname;
+      console.log(fileName);
+      res.send({ message: 'Successfully uploaded files',filename : fileName})
+    })
   }
 
   joinRoom(room, client) {

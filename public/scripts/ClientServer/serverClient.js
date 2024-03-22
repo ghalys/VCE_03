@@ -54,6 +54,7 @@ class ServerClient {
       msg.destination,
       msg.time
     );
+    console.log(message.type);
 
     switch (message.type) {
       case "YOUR_INFO":
@@ -73,10 +74,24 @@ class ServerClient {
         break;
       case "AGENT_STATE":
         this.onAgentState(message);
+        break;
+
       case "NEW_AGENT":
         this.onAgentState(message); //TODO - 
+        break;
+
+      case "MUSIC":
+        this.onMusic(message);
+        break;
+
     }
   }
+  
+  sendMusic(music){
+    var msg = new Msg(this.user_id, this.username, music, "MUSIC");
+    this.socket.send(JSON.stringify(msg));
+  }
+
 
   onOpen() {
     //When the user is connected

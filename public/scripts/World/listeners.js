@@ -119,6 +119,46 @@ function updateSkinDisplay() {
   myAgent.updateSkin(Avatar,Skin,SkinVersion);
 }
 
+var audio = document.getElementById('myAudio');
+// setVolume(0.5);
+const form = document.querySelector('form')
+const fileInput = document.getElementById('file')
+let file
+
+//input file upload gets the file we want to post:
+const handleAudioFile = (e) => {
+  file = e.target.files
+  for (let i = 0; i <= file.length - 1; i++) {
+    file = file[i]
+  }
+}
+fileInput.addEventListener('change', handleAudioFile)
+
+//on clicking the submit button, we create the Form Data object, add the data value of the username to send as part of the request body and add the file to the object
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const formData = new FormData();
+  formData.append('username', myAgent.username);
+  formData.append('files', file);
+
+  fetch('http://localhost:9022/upload_files', {
+    method: 'post',
+    body: formData,
+  }).then((response) => response.json()) 
+    .then((res) => {
+      console.log(res.message);
+      var musicName = res.filename;
+      audio.src = "upload_files/"+musicName; 
+      console.log("---------"+musicName);
+      FelixChat.myWorld.sendMusic(musicName);
+    })
+    .catch((err) => ('Error occurred', err))
+})
+
+document.getElementById('playButton').addEventListener('click', playMusic);
+document.getElementById('pauseButton').addEventListener('click', pauseMusic);
+document.getElementById('volumeSlider').addEventListener('input', (event) => setVolume(event.target.value));
+
 
 flagSelection.addEventListener('change',function(){
   let newflag = this.value.toLowerCase();
@@ -191,5 +231,14 @@ function change_room(room){
   //send to the server a message informing it that the user changed the room
   FelixChat.changeRoom(room);
   document.getElementById("room-name-header").textContent = room;
+}
 
+function playMusic() {
+  audio.play();
+}
+function pauseMusic() {
+  audio.pause();
+}
+function setVolume(volume) {
+  audio.volume = volume;
 }

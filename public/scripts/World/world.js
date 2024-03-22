@@ -6,7 +6,17 @@ export default class World2{
     this.peopleById = {};
     this.WSserver = null;
     this.addAvatarToScene = null;
+    this.music = null;
   }
+
+  sendMusic (music){
+    if(music != this.music){
+      this.music = music;
+      this.WSserver.sendMusic(music);
+      console.log("music sent");
+    }
+  }
+
   set_ID_and_Server(WSServer) {
     this.myAgent.setId(WSServer.user_id);
     this.WSserver = WSServer;
