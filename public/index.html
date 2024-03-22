@@ -42,18 +42,19 @@
         <button type="submit" class="joinbutton">Join Chat</button>
       </form>
     </div>
+    <script> 
+      var passwordInput = document.getElementById("password");
+      var eyeIcon = document.getElementById("eyeIcon");
+      // Making the password visible/invisible by clicking the eye icon
+      eyeIcon.addEventListener("click", function () {
+        if (passwordInput.type == "password") {
+          passwordInput.type = "text";
+        } else {
+          passwordInput.type = "password";
+        }
+      });
+    </script>
+    <script type="module" src="scripts/Login/login.js"></script>
   </body>
-  <script> 
-    var eyeIcon = document.getElementById("eyeIcon");
-    // Making the password visible/invisible by clicking the eye icon
-    eyeIcon.addEventListener("click", function () {
-      if (passwordInput.type == "password") {
-        passwordInput.type = "text";
-      } else {
-        passwordInput.type = "password";
-      }
-    });
-  </script>
   
-  <script type="module" src="scripts/Login/login.js"></script>
 </html>

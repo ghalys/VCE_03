@@ -8,11 +8,11 @@ export default class MyChat {
     this.current_room_name = null;
     this.user_id = null;
     this.my_username = null;
-    this.my_icon = null;
     this.myWorld = null;
+    this.flag = null;
   }
 
-  init(testingLocally, username, myWorld, roomname = "Hall", icon = "face") {
+  init(testingLocally, username, myWorld, roomname = "Hall", flag = "es") {
     var ourPort = "9022";
     var ourUrl = testingLocally
                   ? "ws://localhost:9022"
@@ -28,6 +28,7 @@ export default class MyChat {
     // Set the name of the room
     this.current_room_name = roomname;
 
+    this.flag = flag;
     // Set the icon of the user
     // this.setUserIcon(icon); //TODO - we should fix the icon or remove it
 
@@ -69,14 +70,6 @@ export default class MyChat {
     this.on_chat_historic = (messages) => {};
   }
 
-  //Setting user icon
-  setUserIcon(icon) {
-    this.my_icon = icon;
-    document.getElementById("user-icon").innerHTML = icon;
-    // Make icon size bigger
-    document.getElementById("user-icon").style.fontSize = "40px";
-  }
-
   changeRoom(room){
     console.log("change of room send to the server");
     var new_message = new Msg(
@@ -86,13 +79,17 @@ export default class MyChat {
       "CHANGE_ROOM"
     );
     this.sendMessage(new_message);
-
+  }
+  
+  setFlag(flag){
+    this.flag = flag;
+    console.log("neeeeew flag"+flag);
   }
 
   // Displaying messages in the chat
   showMessage(msg) {
     var messageDiv = document.createElement("div");
-    if (msg.id == this.user_id) {
+    if (msg.author == this.my_username) {
       messageDiv.className = "mycontent";
     } else {
       messageDiv.className = "msg";
@@ -106,9 +103,31 @@ export default class MyChat {
 
     var timeP = document.createElement("p");
     timeP.className = "time";
+    if (msg.content.includes("#")) {
+      var parts = msg.content.split("#");
+      var flag = parts[0];
+      var msgContent = parts[1];
+    }
+    else{
+      var flag = null;
+      var msgContent = msg.content;
+    }
 
-    authorP.textContent = msg.author;
-    contentP.textContent = msg.content;
+    if(flag !=null){
+      let flagImg = document.createElement('img');
+      flagImg.src = "media/flags/"+flag+".png";
+      flagImg.alt = 'Flag';
+      flagImg.style.width = '20px'; // Adjust the size as needed
+      flagImg.style.height = '20px'; // Adjust the size as needed
+      flagImg.style.marginRight = '5px'; // Adds a little space between the flag and the text
+      authorP.textContent = msg.author+" ";
+      authorP.appendChild(flagImg);
+    }
+    else{
+      authorP.textContent = msg.author+ " ";
+    }
+
+    contentP.textContent = msgContent;
     timeP.textContent = msg.time;
 
     // Append elements to the message div
@@ -116,9 +135,8 @@ export default class MyChat {
     messageDiv.appendChild(authorP);
     messageDiv.appendChild(contentP);
     messageDiv.appendChild(timeP);
-
-    this.root.querySelector(".msgs").appendChild(messageDiv);
-    this.root.querySelector(".msgs").scrollTop = 10000000; //Scroll to bottom
+    this.root.appendChild(messageDiv);
+    document.getElementById('mychat').scrollTop = 10000000; //Scroll to bottom
   }
 
   // Sending messages
@@ -152,8 +170,7 @@ export default class MyChat {
 
       var user_status = document.createElement("p");
       user_status.className = "user_status";
-      user_status.textContent =
-        active_users[user].status + " since " + active_users[user].time;
+      user_status.textContent = active_users[user].status + " since " + active_users[user].time;
 
       user_div.appendChild(user_name);
       user_div.appendChild(user_status);
@@ -165,7 +182,7 @@ export default class MyChat {
   // Creating chat interface
   create(container) {
     var elem = document.createElement("div");
-    elem.innerHTML = " <div class='msgs'> </div>";
+    elem.className = "msgs";
     container.appendChild(elem);
 
     //send message when the keydown button is pressed
@@ -191,7 +208,7 @@ export default class MyChat {
       var new_message = new Msg(
         this.user_id,
         this.my_username,
-        input.value,
+        this.flag+"#"+input.value,
         "TEXT",
         "room"
       );

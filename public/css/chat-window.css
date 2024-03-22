@@ -49,6 +49,23 @@
   background-color: var(--secondary-background-color);
 }
 
+#skin-changer #skin-Version #avatar-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#skin-changer #skin-version #avatar-name button {
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  font-size: 24px;
+}
+
+#skin-name #skin-version #avatar-name {
+  margin: 0 10px;
+}
+
 .chat-input {
   grid-row: 4 / 5;
   display: flex;
@@ -97,6 +114,9 @@ input {
   background-color: var(--secondary-background-color);
 }
 
+.msgs{
+  overflow-y: auto;
+}
 .msg {
   margin-bottom: 10px;
   position: relative;
@@ -125,6 +145,7 @@ input {
   border-width: 10px 10px 10px 0;
   border-color: transparent #f1f1f1 transparent transparent;
 }
+
 
 .author {
   font-weight: bold;
