@@ -143,13 +143,13 @@ document.addEventListener('keydown', function(event) {
   if (event.key === 'c' ) {
       gl.keys["c"] = true;
       }
-  }
-
+      
   //activate change of view of the camera
   if (event.key === 'w' ) {
     gl.keys["w"] = true;
-    }
-});
+  }
+  }
+  });
 
 var room = "Hall"
 // Changing the Room
