@@ -114,6 +114,9 @@ input {
   background-color: var(--secondary-background-color);
 }
 
+.msgs{
+  overflow-y: auto;
+}
 .msg {
   margin-bottom: 10px;
   position: relative;
@@ -142,6 +145,7 @@ input {
   border-width: 10px 10px 10px 0;
   border-color: transparent #f1f1f1 transparent transparent;
 }
+
 
 .author {
   font-weight: bold;

@@ -28,7 +28,7 @@ init();
 export var FelixChat = new MyChat();
 FelixChat.create(document.getElementById("mychat"));
 FelixChat.init(testingLocally, username, myWorld);
-
+window.Felixchat = FelixChat;
 function init()
 {
 	var canvas = document.getElementById("scene");

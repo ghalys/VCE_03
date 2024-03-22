@@ -135,9 +135,8 @@ export default class MyChat {
     messageDiv.appendChild(authorP);
     messageDiv.appendChild(contentP);
     messageDiv.appendChild(timeP);
-
-    this.root.querySelector(".msgs").appendChild(messageDiv);
-    this.root.querySelector(".msgs").scrollTop = 10000000; //Scroll to bottom
+    this.root.appendChild(messageDiv);
+    document.getElementById('mychat').scrollTop = 10000000; //Scroll to bottom
   }
 
   // Sending messages
@@ -183,7 +182,7 @@ export default class MyChat {
   // Creating chat interface
   create(container) {
     var elem = document.createElement("div");
-    elem.innerHTML = " <div class='msgs'> </div>";
+    elem.className = "msgs";
     container.appendChild(elem);
 
     //send message when the keydown button is pressed
