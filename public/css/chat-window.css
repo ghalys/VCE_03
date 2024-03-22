@@ -49,6 +49,23 @@
   background-color: var(--secondary-background-color);
 }
 
+#skin-changer #skin-Version #avatar-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#skin-changer #skin-version #avatar-name button {
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  font-size: 24px;
+}
+
+#skin-name #skin-version #avatar-name {
+  margin: 0 10px;
+}
+
 .chat-input {
   grid-row: 4 / 5;
   display: flex;

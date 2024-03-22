@@ -1,5 +1,5 @@
 import Agent  from "./World/agent_class.js";
-import World2  from "./World/World.js";
+import World2  from "./World/world.js";
 import MyChat from "./ClientServer/myChat.js";
 import {testingLocally} from "./testing.js";
 
@@ -37,7 +37,7 @@ function init()
 
 	//setup renderer
 	renderer = new RD.Renderer(context);
-	renderer.setDataFolder("scripts/World/data");
+	renderer.setDataFolder("media/assets3D/");
 	renderer.autoload_assets = true;
 	
 
@@ -85,7 +85,7 @@ function init()
 
 	//load a GLTF for the room
 	var room = new RD.SceneNode({scaling:40,position:[0,-.01,0]});
-	room.loadGLTF("scripts/World/data/room.gltf");
+	room.loadGLTF("media/assets3D/room.gltf");
 	scene.root.addChild( room );
 
 	var gizmo = new RD.Gizmo();
@@ -141,8 +141,8 @@ function init()
 		//render scene
 		renderer.render(scene, camera, null, 0b11 );
 
-		var vertices = walkarea.getVertices();
-		renderer.renderPoints( vertices, null, camera, null,null,null,gl.LINES );
+		// var vertices = walkarea.getVertices();
+		// renderer.renderPoints( vertices, null, camera, null,null,null,gl.LINES );
 
 		// gizmo.setTargets([monkey]);
 		// renderer.render( scene, camera, [gizmo] ); //render gizmo on top
@@ -157,7 +157,7 @@ function init()
 		if(myAgent.onMyWay){
 			myAgent.moveTo(myAgent.destination);
 		}
-		else if (!myAgent.isdancing){
+		else if (!myAgent.isdancing && !myAgent.iswaving){
 			myAgent.animatIdle();
 		}
 		myAgent.time_factor = 1;
@@ -189,6 +189,12 @@ function init()
 			view = (view+1)%4;
 			gl.keys["c"]=false;
 		}
+		if(gl.keys["w"]){
+			myAgent.iswaving = !myAgent.iswaving;
+			myAgent.animatWaving();
+			gl.keys["w"]= false;
+		}
+
 
 
 		var pos = myAgent.avatar_pivot.position;
@@ -255,7 +261,7 @@ function init()
 
 //get image
 function getImage(flag, callback) {
-	var url = "../media/flags/"+flag+".png";
+	var url = "media/flags/"+flag+".png";
 	if (images[flag]) {
 		callback(images[flag]);
 		return;
