@@ -141,7 +141,7 @@ form.addEventListener('submit', (e) => {
   formData.append('username', myAgent.username);
   formData.append('files', file);
 
-  fetch('http://localhost:9022/upload_files', {
+  fetch('https://ecv-etic.upf.edu/node/9022/upload_files', {
     method: 'post',
     body: formData,
   }).then((response) => response.json()) 
