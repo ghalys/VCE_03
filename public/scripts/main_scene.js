@@ -1,5 +1,5 @@
 import Agent  from "./World/agent_class.js";
-import World2  from "./World/World.js";
+import World2  from "./World/world.js";
 import MyChat from "./ClientServer/myChat.js";
 import {testingLocally} from "./testing.js";
 
