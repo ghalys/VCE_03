@@ -77,6 +77,8 @@ class ServerClient {
         this.onAgentState(message);
       case "NEW_AGENT":
         this.onAgentState(message); //TODO - 
+      case "MUSIC":
+        this.onMusic(message);
     }
   } catch (error) {
     var audio_file = ws_message;
@@ -171,9 +173,9 @@ class ServerClient {
     this.send_message(msg);
   }
 
-  sendMusicFile(music){
-    console.log(music);
-    this.socket.send(music);
+  sendMusic(music){
+    var msg = new Msg(this.user_id, this.username, music, "MUSIC");
+    this.socket.send(msg);
   }
 
 

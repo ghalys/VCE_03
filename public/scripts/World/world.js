@@ -9,12 +9,13 @@ export default class World2{
     this.removeAvatarFromScene = null;
     this.cleanTheScene = null;
     this.music = null;
-  }
+    }
+
   sendMusic (music){
     if(music != this.music){
       this.music = music;
-      this.WSserver.sendMusicFile(music);
-      console.log("msic sent");
+      this.WSserver.sendMusic(music);
+      console.log("music sent");
     }
   }
 
@@ -27,6 +28,7 @@ export default class World2{
     console.log("tick should start correctly");
     //send the Agent state to the server every 50ms
     setInterval(this.onTick, 1000 / 20);
+
   }
 
   onTick = () => {

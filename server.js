@@ -1,5 +1,7 @@
 import express from "express";
-import http from "http";
+import multer from "multer";
+
+import http, { request } from "http";
 import { WebSocketServer } from "ws";
 import path from "path";
 import DB from "./db.js";
@@ -154,24 +156,9 @@ class MyServer {
         client.WSserver.room = newRoom;
         this.joinRoom(newRoom, client);
       
-      // case "MUSIC":
-      //   var music = message.content;
-      //   console.log("receivedMusic");
-      //   console.log(message);
-
-      //   if (music instanceof Buffer) {
-      //     // Here, `data` is a Buffer containing the binary data sent from the client
-      //     console.log('Received binary data');
-    
-      //     // For demonstration, write the received audio file to the server's file system
-      //     fs.writeFile('received_audio.mp3', music, (err) => {
-      //       if (err) {
-      //         console.error('Error saving the file:', err);
-      //       } else {
-      //         console.log('File saved successfully');
-      //       }
-      //     });    
-      //   }
+      case "MUSIC":
+        console.log("receivedMusic");
+        this.sendToRoom(client, JSON.stringify(message));
     }
   }
 
@@ -185,6 +172,24 @@ class MyServer {
     const __dirname = path.resolve();
     app.use(express.static(path.join(__dirname, "public")));
     app.use(router);
+
+    const storage = multer.diskStorage({
+      filename: function (req, file, cb) {
+        cb(null, file.originalname)
+      },
+      destination: function (req, file, cb) {
+        cb(null, './public/upload_files')
+      },
+    })
+
+    const upload = multer({ storage })
+
+    app.post('/upload_files', upload.any('file'), (req, res) => {
+      const fileName = req.files[0].originalname;
+      console.log(fileName);
+      res.send({ message: 'Successfully uploaded files',filename : fileName})
+    })
+
   }
 
   joinRoom(room, client) {

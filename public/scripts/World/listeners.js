@@ -6,44 +6,38 @@ var audio = document.getElementById('myAudio');
 var flagSelection = document.getElementById('flagSelection');
 
 // setVolume(0.5);
-const upload = (file) => {
-  // Create a FormData object and append the file
+const form = document.querySelector('form')
+const fileInput = document.getElementById('file')
+let file
+
+//input file upload gets the file we want to post:
+const handleAudioFile = (e) => {
+  file = e.target.files
+  for (let i = 0; i <= file.length - 1; i++) {
+    file = file[i]
+  }
+}
+fileInput.addEventListener('change', handleAudioFile)
+
+//on clicking the submit button, we create the Form Data object, add the data value of the username to send as part of the request body and add the file to the object
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
   const formData = new FormData();
-  formData.append('file', file); // 'file' is the key expected by the server for the file
+  formData.append('username', myAgent.username);
+  formData.append('files', file);
 
-  fetch('http://localhost:9022/music', { // Your POST endpoint
-    method: 'POST',
-    body: formData // Pass formData as body directly
-    // Don't set Content-Type header, FormData will handle it
-  }).then(
-    response => response.json() // Assuming the response is JSON
-  ).then(
-    success => console.log(success) // Handle success
-  ).catch(
-    error => console.log(error) // Handle errors
-  );
-};
-
-document.getElementById('uploadButton').addEventListener('click', function() {
-  var input = document.getElementById('audioFile');
-  var file = input.files[0]; // Get the first file selected (assuming only one file is selected)
-  console.log("heeloo")
-  upload(file);
-  // if (file) {
-  //     console.log("fileLOADED")
-
-  //     const reader = new FileReader();
-  //     reader.onload = function(event) {
-  //       console.log("filereadytosend")
-  //       FelixChat.myWorld.sendMusic(event.target.result);
-  //       console.log(file.type);
-  //       console.log("filesent")
-  //     };
-  //     reader.readAsArrayBuffer(file); // Read the file as ArrayBuffer
-  // }
-
-  
-});
+  fetch('http://localhost:9022/upload_files', {
+    method: 'post',
+    body: formData,
+  }).then((response) => response.json()) 
+    .then((res) => {
+      console.log(res.message);
+      var musicName = res.filename;
+      audio.src = "upload_files/"+musicName; 
+      FelixChat.myWorld.sendMusic(musicName);
+    })
+    .catch((err) => ('Error occurred', err))
+})
 
 
 flagSelection.addEventListener('change',function(){

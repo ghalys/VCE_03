@@ -34,13 +34,18 @@
 		<div class="world-room" id="canvas">
 			<div class="chat-name" id="room-name-header">
 				<p>Hall</p>
-				<input type="file" id="audioFile" accept="audio/*" />
-				<button id="uploadButton">Upload</button>
+				<form>
+					<label for="file">Select files</label>
+					<input id="file" type="file" name="file" />
+					<input type="submit" value="POST to server"/>
+				</form>
+				<!-- <input type="file" id="audioFile" accept="audio/*" />
+				<button id="uploadButton">Upload</button>-->
 
-				<!-- <audio id="myAudio" src="scripts/World/data/Audio/The_Nights.mp3" loop="true" autoplay></audio> -->
+				<audio id="myAudio" loop="true" autoplay></audio>
 				<button id="playButton"><span class="material-symbols-outlined">play_arrow</span></button>
 				<button id="pauseButton"><span class="material-symbols-outlined">pause</span></button>			
-				<input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+				<input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1"> 
 			</div>
 			<div id="CanvasContainer">
 				<canvas id="scene" ></canvas>
