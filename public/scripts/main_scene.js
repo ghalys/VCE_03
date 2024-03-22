@@ -37,7 +37,7 @@ function init()
 
 	//setup renderer
 	renderer = new RD.Renderer(context);
-	renderer.setDataFolder("../media/assets3D/");
+	renderer.setDataFolder("media/assets3D/");
 	renderer.autoload_assets = true;
 	
 
@@ -85,7 +85,7 @@ function init()
 
 	//load a GLTF for the room
 	var room = new RD.SceneNode({scaling:40,position:[0,-.01,0]});
-	room.loadGLTF("../media/assets3D/room.gltf");
+	room.loadGLTF("media/assets3D/room.gltf");
 	scene.root.addChild( room );
 
 	var gizmo = new RD.Gizmo();
@@ -261,7 +261,7 @@ function init()
 
 //get image
 function getImage(flag, callback) {
-	var url = "../media/flags/"+flag+".png";
+	var url = "media/flags/"+flag+".png";
 	if (images[flag]) {
 		callback(images[flag]);
 		return;

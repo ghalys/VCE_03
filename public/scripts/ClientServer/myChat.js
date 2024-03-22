@@ -115,7 +115,7 @@ export default class MyChat {
 
     if(flag !=null){
       let flagImg = document.createElement('img');
-      flagImg.src = "../../media/flags/"+flag+".png";
+      flagImg.src = "media/flags/"+flag+".png";
       flagImg.alt = 'Flag';
       flagImg.style.width = '20px'; // Adjust the size as needed
       flagImg.style.height = '20px'; // Adjust the size as needed

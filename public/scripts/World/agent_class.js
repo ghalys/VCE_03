@@ -51,10 +51,10 @@ export default class Agent {
     this.character.mesh = this.avatar + "/avatar.wbin";
     
     if(old_avatar!= this.avatar){
-      this.loadAnimation("idle"   ,"../media/assets3D/"+this.avatar+"/idle.skanim");
-      this.loadAnimation("walking","../media/assets3D/"+this.avatar+"/walking.skanim");
-      this.loadAnimation("dance"  ,"../media/assets3D/"+this.avatar+"/dance.skanim");
-      this.loadAnimation("waving"  ,"../media/assets3D/"+this.avatar+"/waving.skanim");
+      this.loadAnimation("idle"   ,"media/assets3D/"+this.avatar+"/idle.skanim");
+      this.loadAnimation("walking","media/assets3D/"+this.avatar+"/walking.skanim");
+      this.loadAnimation("dance"  ,"media/assets3D/"+this.avatar+"/dance.skanim");
+      this.loadAnimation("waving" ,"media/assets3D/"+this.avatar+"/waving.skanim");
       
     }
   }
@@ -113,10 +113,10 @@ export default class Agent {
 	});
 	this.avatar_pivot.addChild( this.avatar_selector );
 
-  this.loadAnimation("idle"   ,"../media/assets3D/"+this.avatar+"/idle.skanim");
-	this.loadAnimation("walking","../media/assets3D/"+this.avatar+"/walking.skanim");
-	this.loadAnimation("dance"  ,"../media/assets3D/"+this.avatar+"/dance.skanim");
-  this.loadAnimation("waving"  ,"../media/assets3D/"+this.avatar+"/waving.skanim");
+  this.loadAnimation("idle"   ,"media/assets3D/"+this.avatar+"/idle.skanim");
+	this.loadAnimation("walking","media/assets3D/"+this.avatar+"/walking.skanim");
+	this.loadAnimation("dance"  ,"media/assets3D/"+this.avatar+"/dance.skanim");
+  this.loadAnimation("waving" ,"media/assets3D/"+this.avatar+"/waving.skanim");
   }
 
 
