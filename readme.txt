@@ -1,23 +1,26 @@
-# About us
-Name: Felix Marxen
-NIA: 273350
-E-Mail : felix.marxen01@estudiant.upf.edu
-name : Ahmed Ghaly
-Surname : Sentissi El Idrissi
-E-mail : ahmedghaly.sentissi01@estudiant.upf.edu
-NIA : 289371
-Name: Adrià De Angulo
-NIA: 235589
-E-mail: adria.deangulo01@estudiant.upf.edu
-
 link to youtube video :
 https://www.youtube.com/watch?v=dyGjuYonblM
+![Uploading image.png…]()
+
+## About our Website
+We wanted to create a website that changes the erasmus experience from the start 
+It allows users to connect easier with other erasmus students and get to know them before the exchange begins.
+The 3D space allows users to express themselves in a more effective way than a simple text chat.
+
+This was part of a school project where the chat has been coded from scratch.
 
 
-About our code
-How to run the server
+## About our code
+- Choose either to run the website locally or online (you need to upload the project into a server)
+- How to run the server
 node routes/index.js
-// from there everything gets started
+
+## Prerequisites (will be updated with more specific details soon)
+NodeJS
+MySQL
+http-server
+
+
 
 
 What we have done :
