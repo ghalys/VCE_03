@@ -1,14 +1,16 @@
 link to youtube video :
 https://www.youtube.com/watch?v=dyGjuYonblM
-![image](https://github.com/ghalys/VCE_03/assets/127297865/94063296-f5cd-4917-b5bd-85c11f66f3b3)
+
+
+![linkedin](https://github.com/ghalys/VCE_03/assets/127297865/73ea492a-0c61-4f9a-bec9-1d4a04225034)
 
 ## About our Website
-We wanted to create a website that changes the erasmus experience from the start 
+We created a website that changes the erasmus experience from the start 
 It allows users to connect easier with other erasmus students and get to know them before the exchange begins.
 The 3D space allows users to express themselves in a more effective way than a simple text chat.
 We can change our flag.
 
-![image](https://github.com/ghalys/VCE_03/assets/127297865/e132cec9-6609-4c8d-9c5e-3f8bfc9e0259)
+![Capture d'écran 2024-04-21 155546](https://github.com/ghalys/VCE_03/assets/127297865/7a52f96f-dd93-4e55-9f38-481f953df1fb)
 This was part of a school project where the chat has been coded from scratch.
 
 
@@ -31,8 +33,7 @@ Server:
 - They connect to the application with secure login via an Access Token
 Database:
 - Manages Login and Registration, including saving the access tokens
-- Every important information about the Users is being saved here: Access Token, Last
-position, avatar
+- Every important information about the Users is being saved here: Access Token, Last position, avatar
 UI:
 - Users have a visual representation of themselves
 - Users can display their country flag to others
