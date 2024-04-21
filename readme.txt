@@ -1,5 +1,3 @@
-link to youtube video :
-https://www.youtube.com/watch?v=dyGjuYonblM
 
 ## The project
 ![linkedin](https://github.com/ghalys/VCE_03/assets/127297865/73ea492a-0c61-4f9a-bec9-1d4a04225034)
